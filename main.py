@@ -22,7 +22,6 @@ async def on_ready():
     print("------------------")
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="la doc discord.py"))
 
-
 ### Commands
 
 @client.event

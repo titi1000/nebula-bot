@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from json import load, loads
 from requests import get
+import datetime
 
 def apirequest():
     headers = {
@@ -34,6 +35,19 @@ class Fun(commands.Cog):
             meme_e.set_image(url=response["url"])
 
         await ctx.send(embed=meme_e)
+
+    @commands.command()
+    async def avatar(self, ctx, member:discord.User=None):
+        if member is None:
+            await ctx.send("Please provid an user. Use the command like that :\n```{}avatar @user```".format(ctx.prefix))
+            return
+
+        avatar_e = discord.Embed(
+            title="{}'s avatar".format(member.name)
+        )
+        avatar_e.set_image(url=member.avatar_url)
+
+        await ctx.send(embed=avatar_e)
 
 
 def setup(client):
