@@ -1,17 +1,21 @@
 import discord
 from discord.ext import commands
 import datetime
+from main import MAINCOLOR
 
 
 class Utils(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+        print("Utils cog well loaded.")
 
+    # bot's latency
     @commands.command()
     async def ping(self, ctx):
         await ctx.send("Pong ! {}ms".format(round(self.client.latency * 1000)))
 
+    # clone emoji in your server
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def cloneemoji(self, ctx, emoji:discord.PartialEmoji=None):
@@ -41,13 +45,20 @@ class Utils(commands.Cog):
 
         await ctx.send(embed=infos_e)
 
+    # user profile
     @commands.command()
-    async def profile(self, ctx, member:discord.Member=None):
-        if member is None:
+    async def profile(self, ctx, user:discord.User=None):
+        if user is None:
             profile_e = discord.Embed(
                 title="{}#{} • {}".format(ctx.author.name, ctx.author.discriminator, ctx.author.id),
                 color=ctx.message.author.color
             )
+            flags = ""
+            for flag in ctx.author.public_flags.all():
+                flags += "{} ".format(flag.name)
+            if flags == "":
+                flags = "no flags"
+
             roles = ""
             for role in ctx.author.roles:
                 if role.name == "@everyone":
@@ -58,16 +69,24 @@ class Utils(commands.Cog):
             joined = ctx.author.joined_at.strftime("%b %d %Y")
 
             profile_e.add_field(name="Roles", value=roles, inline=False)
+            profile_e.add_field(name="Flags", value=flags, inline=False)
             profile_e.add_field(name="Bot", value=ctx.author.bot, inline=False)
             profile_e.add_field(name="Avatar URL", value="[link here]({})".format(ctx.author.avatar_url), inline=False)
             profile_e.set_footer(text="Account created at {} • Joined server at {}".format(created, joined))
             profile_e.set_thumbnail(url=ctx.author.avatar_url)
 
-        if member is not None:
+        if user is not None:
+            member = await ctx.guild.fetch_member(user.id)
             profile_e = discord.Embed(
                 title="{}#{} • {}".format(member.name, member.discriminator, member.id),
                 color=member.color
             )
+            flags = ""
+            for flag in member.public_flags.all():
+                flags += "{} ".format(flag.name)
+            if flags == "":
+                flags = "no flags"
+
             roles = ""
             for role in member.roles:
                 if role.name == "@everyone":
@@ -78,6 +97,7 @@ class Utils(commands.Cog):
             joined = member.joined_at.strftime("%b %d %Y")
 
             profile_e.add_field(name="Roles", value=roles, inline=False)
+            profile_e.add_field(name="Flags", value=flags, inline=False)
             profile_e.add_field(name="Bot", value=member.bot, inline=False)
             profile_e.add_field(name="Avatar URL", value="[link here]({})".format(member.avatar_url), inline=False)
             profile_e.set_footer(text="Account created at {} • Joined server at {}".format(created, joined))
@@ -85,6 +105,7 @@ class Utils(commands.Cog):
 
         await ctx.send(embed=profile_e)
 
+    # guild infos
     @commands.command()
     async def guild(self, ctx):
         if isinstance(ctx.channel, discord.DMChannel):
@@ -93,7 +114,7 @@ class Utils(commands.Cog):
 
         guild_e = discord.Embed(
             title="{} • {}".format(ctx.guild.name, ctx.guild.id),
-            color=0xaefe19
+            color=MAINCOLOR
         )
         created = ctx.guild.created_at.strftime("%d %b %Y")
         features = ""
@@ -116,6 +137,7 @@ class Utils(commands.Cog):
 
         await ctx.send(embed=guild_e)
 
+    # guild emojis
     @commands.command()
     async def emojis(self, ctx):
         if isinstance(ctx.channel, discord.DMChannel):
@@ -133,8 +155,14 @@ class Utils(commands.Cog):
             title="{}'s emojis • {} emojis".format(ctx.guild.name, len(ctx.guild.emojis)),
             description=emojis
         )
-        await ctx.send(embed=emojis_e)        
+        await ctx.send(embed=emojis_e)      
 
+    # guild membercount
+    @commands.command(aliases=["mc"])
+    async def membercount(self, ctx):
+        await ctx.send("There is {} members in {}!".format(ctx.guild.member_count, ctx.guild.name))
+
+    # quotation
     @commands.Cog.listener()
     async def on_message(self, message):
         if isinstance(message.channel, discord.DMChannel):

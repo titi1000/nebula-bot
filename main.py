@@ -10,8 +10,12 @@ with open("config.json") as config:
 
 TOKEN = data["token"]
 PREFIX = data["prefix"]
+MAINCOLOR = int(data["main_color"], 0)
 
-client = commands.Bot(command_prefix=PREFIX, help_command=None, case_insensitive=True)
+intents = discord.Intents.default()
+intents.members = True
+
+client = commands.Bot(command_prefix=commands.when_mentioned_or(PREFIX), help_command=None, case_insensitive=True, intents=intents)
 
 @client.event
 async def on_ready():
@@ -24,31 +28,51 @@ async def on_ready():
 
 ### Commands
 
+# bot get pinged
 @client.event
 async def on_message(message):
     await client.process_commands(message)
     if message.content == "<@!{}>".format(client.user.id):
         pinged_e = discord.Embed(
-        description="Hi, my prefix is `{}`\nUse `{}help` to see all my commands".format(PREFIX, PREFIX),
-        color=0xaefe19
+            description="Hi, my prefix is `{}`\nUse `{}help` to see all my commands".format(PREFIX, PREFIX),
+            color=MAINCOLOR
         )
 
         await message.channel.send(embed=pinged_e)
 
-@client.command()
+# bot infos
+@client.command(aliases=["info"])
 async def infos(ctx):
     infos_e = discord.Embed(
         title="Nebula Bot",
         description="Created by [titi#1000](https://github.com/titi1000)\nUsing discord.py version {}\nCurrently in {} guilds\n".format(discord.__version__, len(client.guilds)),
-        color=0xaefe19
+        color=MAINCOLOR
     )
     infos_e.set_thumbnail(url=client.user.avatar_url)
 
     await ctx.send(embed=infos_e)
 
+# show prefix
+@client.command()
+async def prefix(ctx):
+    prefix_e = discord.Embed(
+            description="Hi, my prefix is `{}`, but you can also mention me.\nUse `{}help` or `@{} help` to see all my commands".format(PREFIX, PREFIX, client.user.name),
+            color=MAINCOLOR
+        )
+    
+    await ctx.send(embed=prefix_e)
+
+# help command
 @client.command()
 async def help(ctx):
-    await ctx.send("help command")
+    help_e = discord.Embed(
+        title="{}'s commands".format(client.user.name),
+        color=MAINCOLOR,
+        description="not finished"
+    )
+    help_e.set_thumbnail(url=client.user.avatar_url)
+
+    await ctx.send(embed=help_e)
 
 ### Cogs
 
@@ -64,9 +88,10 @@ async def unload(ctx, extension):
     client.unload_extension("cogs.{}".format(extension))
 """
 
-for filename in os.listdir("./Cogs"):
+# cogs loader
+for filename in os.listdir("./cogs"):
     if filename.endswith(".py"):
-        client.load_extension("Cogs.{}".format(filename[:-3]))
+        client.load_extension("cogs.{}".format(filename[:-3]))
 
 
 ### Error
@@ -89,6 +114,13 @@ async def on_command_error(ctx, error):
             color=0xfe2419
         )
         await ctx.send(embed=nodm_e)
+
+    if isinstance(error, commands.MissingPermissions):
+        noperm_e = discord.Embed(
+            description="You don't have the permissions to do this.",
+            color=0xfe2419
+        )
+        await ctx.send(embed=noperm_e)
 
 
 # run the bot

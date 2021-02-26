@@ -1,4 +1,5 @@
 {
     "token": "your token",
-    "prefix": "your prefix"
+    "prefix": "your prefix",
+    "main_color": "0xaefe19"
 }
