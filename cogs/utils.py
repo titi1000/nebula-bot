@@ -183,7 +183,7 @@ class Utils(commands.Cog):
                     
                     quoted_e = discord.Embed(
                         description=quoted_message.content,
-                        timestamp=datetime.datetime.now()
+                        timestamp=datetime.datetime.utcnow()
                     )
                     quoted_e.set_author(name="{}#{}".format(quoted_message.author.name, quoted_message.author.discriminator), url=word, icon_url=quoted_message.author.avatar_url)
                     quoted_e.set_footer(text="Quoted by {}#{} in #{}".format(message.author.name, message.author.discriminator, message.channel.name))

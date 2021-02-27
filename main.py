@@ -65,12 +65,19 @@ async def prefix(ctx):
 # help command
 @client.command()
 async def help(ctx):
+    description = """Use `{}<command>` to run a command or `{}help <command>` to have more details, or to see how to use a specific command.\n
+    **Infos**\n`help`, `infos`, `prefix`, `ping`\n
+    **Utils**\n`emojiinfo`, `cloneemoji`, `profile`, `guild`, `emojis`, `membercount`, `quotation`\n
+    **Fun**\n`meme`, `8ball`, `avatar`, `giveaway`\n
+    **Mods**\n`massrole`, `nick`""".format(PREFIX, PREFIX)
+
     help_e = discord.Embed(
-        title="{}'s commands".format(client.user.name),
+        title="All {}'s commands".format(client.user.name),
         color=MAINCOLOR,
-        description="not finished"
+        description=description
     )
     help_e.set_thumbnail(url=client.user.avatar_url)
+    help_e.set_footer(text="{}'s help command".format(client.user.name))
 
     await ctx.send(embed=help_e)
 
