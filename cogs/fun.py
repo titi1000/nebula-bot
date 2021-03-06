@@ -7,12 +7,12 @@ import random
 from main import MAINCOLOR
 import asyncio
 
-def apirequest():
+def apirequest(link:str):
     headers = {
         'Accept': 'application/json',
     }
 
-    response = get("https://meme-api.herokuapp.com/gimme", headers=headers)
+    response = get(link, headers=headers)
     if response.status_code == 200:
         return loads(response.content.decode('utf-8'))
     else:
@@ -27,7 +27,7 @@ class Fun(commands.Cog):
     # random meme
     @commands.command()
     async def meme(self, ctx):
-        response = apirequest()
+        response = apirequest("https://meme-api.herokuapp.com/gimme")
         if response == None:
             meme_e = discord.Embed(
                 description="There is a problem with the api. Please retry later.",

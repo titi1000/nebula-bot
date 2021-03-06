@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import json
 import os
+import sqlite3
 
 ### Init
 
@@ -19,6 +20,21 @@ client = commands.Bot(command_prefix=commands.when_mentioned_or(PREFIX), help_co
 
 @client.event
 async def on_ready():
+    db = sqlite3.connect("main.sqlite")
+    cursor = db.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS guilds(
+            guild_id TEXT,
+            logs_id TEXT,
+            welcome_id TEXT
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users(
+            user_id TEXT
+        )
+    """)
+
     print("Bot is ready.")
     print("Logged in as :")
     print("{}#{}".format(client.user.name, client.user.discriminator))

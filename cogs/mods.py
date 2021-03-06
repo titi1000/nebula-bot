@@ -1,6 +1,10 @@
 import discord
 from discord.ext import commands
 import time
+import sqlite3
+from others import is_in_database_guild
+from others import logs_channel
+
 
 class Mods(commands.Cog):
 
@@ -16,6 +20,8 @@ class Mods(commands.Cog):
         if role is None or action is None:
             await ctx.send("Use the command like that :\n```{}massrole <add/remove> <@Role>```".format(ctx.prefix))
             return
+
+        message = await ctx.send("Command running. Please wait...")
 
         # to go faster
         for r in ctx.guild.roles:
@@ -39,6 +45,7 @@ class Mods(commands.Cog):
                 )
                 add_e.add_field(name="Time taken", value="{} seconds".format(round(time.time() - start, 2)))
 
+                await message.delete()
                 await ctx.send(embed=add_e)
                 return
             except Exception as e:
@@ -60,7 +67,8 @@ class Mods(commands.Cog):
                     description="Successfully removed {} member(s) the {} role.".format(count, role.mention)
                 )
                 remove_e.add_field(name="Time taken", value="{} seconds".format(round(time.time() - start, 2)))
-
+                
+                await message.delete()
                 await ctx.send(embed=remove_e)
                 return
             except Exception as e:
@@ -68,6 +76,7 @@ class Mods(commands.Cog):
                 return
         
         else:
+            await message.delete()
             await ctx.send("Use the command like that :\n```{}massrole <add/remove> <@Role>```".format(ctx.prefix))
 
     # change the nick of someone
@@ -82,6 +91,39 @@ class Mods(commands.Cog):
             await ctx.send("{}'s nick changed".format(member.name))
         except discord.Forbidden:
             await ctx.send("I don't have the permission to do this.")
+
+    # set logs channel
+    @commands.command(aliases=["mod-logs", "mod-channel", "ml"])
+    @commands.has_permissions(administrator=True)
+    async def mod_logs(self, ctx, channel:discord.TextChannel=None):
+        if channel is None:
+            await ctx.send("Please provid a channel. Usage : \n```{}mod-logs <#channel>```".format(ctx.prefix))
+            return
+
+        is_in_database_guild(ctx.guild.id)
+        db = sqlite3.connect("main.sqlite")
+        cursor = db.cursor()
+        cursor.execute("SELECT logs_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+        result = cursor.fetchone()
+
+        if result[0] is None:
+            cursor.execute("INSERT INTO guilds(logs_id) VALUES(?) WHERE guild_id = ?", (channel.id, ctx.guild.id))
+
+        else:
+            print("test")
+            cursor.execute("UPDATE guilds SET logs_id = ? WHERE guild_id = ?", (channel.id, ctx.guild.id))
+        db.commit()
+        cursor.close()
+
+    # logs
+    @commands.Cog.listener()
+    async def on_message_delete(self, message):
+        channel_id = logs_channel(message.guild.id)
+        if channel_id == False:
+            return
+        else:
+            channel = discord.utils.get(message.guild.channels, id=int(channel_id))
+            await channel.send("Message deleted in {} :\n{}".format(message.channel.mention, message.content))
         
 
 def setup(client):
