@@ -1,10 +1,9 @@
 import discord
 from discord.ext import commands
 import time
+import datetime
 import sqlite3
-from others import is_in_database_guild
-from others import logs_channel
-
+from others import is_in_database_guild, get_channel_by_id, logs_channel, welcome_channel
 
 class Mods(commands.Cog):
 
@@ -115,16 +114,95 @@ class Mods(commands.Cog):
         db.commit()
         cursor.close()
 
-    # logs
+    ### logs
+
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         channel_id = logs_channel(message.guild.id)
+
         if channel_id == False:
             return
+
         else:
-            channel = discord.utils.get(message.guild.channels, id=int(channel_id))
-            await channel.send("Message deleted in {} :\n{}".format(message.channel.mention, message.content))
-        
+            try:
+                channel = await get_channel_by_id(message.guild, int(channel_id))
+                deleted_e = discord.Embed(
+                    title="Message deleted in #{}".format(message.channel.name),
+                    description=message.content,
+                    timestamp=datetime.datetime.utcnow(),
+                    color=0xff0000
+                )
+                deleted_e.set_author(name="{}#{}".format(message.author.name, message.author.discriminator), icon_url=message.author.avatar_url)
+                deleted_e.set_footer(text="ID : {}".format(message.id))
+
+                await channel.send(embed=deleted_e)
+            except:
+                return
+
+    @commands.Cog.listener()
+    async def on_message_edit(self, before, after):
+        channel_id = logs_channel(before.guild.id)
+
+        if channel_id == False:
+            return
+
+        else:
+            try:
+                if before.content == "" or after.content == "":
+                    return
+                channel = await get_channel_by_id(before.guild, int(channel_id))
+                edited_e = discord.Embed(
+                    title="Message edited in #{}".format(before.channel.name),
+                    description="**Before:** {}\n**After:** {}".format(before.content, after.content),
+                    timestamp=datetime.datetime.utcnow(),
+                    color=0xff0000
+                )
+                edited_e.set_author(name="{}#{}".format(before.author.name, before.author.discriminator), icon_url=before.author.avatar_url)
+                edited_e.set_footer(text="ID : {}".format(before.id))
+
+                await channel.send(embed=edited_e)
+            except:
+                return
+
+    # welcome channel
+    @commands.command(aliases=["wc", "welcome-channel", "welcome_channel"])
+    @commands.has_permissions(administrator=True)
+    async def welcome(self, ctx, action=None, channel:discord.TextChannel=None):
+        if action is None and channel is None:
+            return await ctx.send("Please provid all require parameters :\n```{}welcome <action> <channel>```\n(Notice that <channel> depends of your action)".format(ctx.prefix))
+
+        is_in_database_guild(ctx.guild.id)
+        if action == "add": 
+            if channel is None:
+                return await ctx.send("Please provid a valid channel :\n```{}welcome add <channel>```".format(ctx.prefix))
+
+            db = sqlite3.connect("main.sqlite")
+            cursor = db.cursor()
+            cursor.execute("UPDATE guilds SET welcome_id = ? WHERE guild_id = ?", (channel.id, ctx.guild.id))
+            db.commit()
+            cursor.close()
+
+        elif action == "remove":
+            db = sqlite3.connect("main.sqlite")
+            cursor = db.cursor()
+            cursor.execute("UPDATE guilds SET welcome_id = ? WHERE guild_id = ?", (None, ctx.guild.id))
+            db.commit()
+            cursor.close()
+
+        elif action == "simulate":
+            channel_id = welcome_channel(ctx.guild.id)
+
+            if channel_id == False:
+                return await ctx.send("You don't have any welcome channel set.")
+
+            try:
+                result_channel = await get_channel_by_id(ctx.guild, int(channel_id))
+                await result_channel.send("test")
+            except:
+                return
+
+        else:
+            return await ctx.send("Please provid a valid action :\n```{}welcome <action> (<channel>)```".format(ctx.prefix))
 
 def setup(client):
     client.add_cog(Mods(client))

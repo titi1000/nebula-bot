@@ -1,4 +1,5 @@
 {
     "ping": "Reply with the bot latency. Usage :\n```{}ping```",
+    "infos": "Reply with bot infos. Usage :\n```{}infos```",
     "...": "not finished"
 }

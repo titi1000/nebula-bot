@@ -9,6 +9,9 @@ import sqlite3
 with open("config.json") as config:
     data = json.load(config)
 
+with open("commands.json") as commands_json:
+    commands_infos = json.load(commands_json)
+
 TOKEN = data["token"]
 PREFIX = data["prefix"]
 MAINCOLOR = int(data["main_color"], 0)
@@ -80,22 +83,38 @@ async def prefix(ctx):
 
 # help command
 @client.command()
-async def help(ctx):
-    description = """Use `{}<command>` to run a command or `{}help <command>` to have more details, or to see how to use a specific command.\n
-    **Infos**\n`help`, `infos`, `prefix`, `ping`\n
-    **Utils**\n`emojiinfo`, `cloneemoji`, `profile`, `guild`, `emojis`, `membercount`, `quotation`\n
-    **Fun**\n`meme`, `8ball`, `avatar`, `giveaway`\n
-    **Mods**\n`massrole`, `nick`""".format(PREFIX, PREFIX)
+async def help(ctx, command=None):
+    if command is None:
+        description = """Use `{}<command>` to run a command or `{}help <command>` to have more details, or to see how to use a specific command.\n
+        **Infos**\n`help`, `infos`, `prefix`, `ping`\n
+        **Utils**\n`emojiinfo`, `cloneemoji`, `profile`, `guild`, `emojis`, `membercount`, `quotation`\n
+        **Fun**\n`meme`, `8ball`, `avatar`, `giveaway`\n
+        **Mods**\n`massrole`, `nick`, `mod-logs`\n
+        **Logs**\n`on message delet`, `on message edit`""".format(PREFIX, PREFIX)
 
-    help_e = discord.Embed(
-        title="All {}'s commands".format(client.user.name),
-        color=MAINCOLOR,
-        description=description
-    )
-    help_e.set_thumbnail(url=client.user.avatar_url)
-    help_e.set_footer(text="{}'s help command".format(client.user.name))
+        help_e = discord.Embed(
+            title="All {}'s commands".format(client.user.name),
+            color=MAINCOLOR,
+            description=description
+        )
+        help_e.set_thumbnail(url=client.user.avatar_url)
+        help_e.set_footer(text="{}'s help command".format(client.user.name))
 
-    await ctx.send(embed=help_e)
+        await ctx.send(embed=help_e)
+    
+    else:
+        try:
+            command_description = commands_infos[command]
+            help_e = discord.Embed(
+            title="{}'s usage".format(command),
+            color=MAINCOLOR,
+            description=command_description.format(PREFIX)
+            )
+
+            await ctx.send(embed=help_e)
+
+        except:
+            return await ctx.send("No command named `{}`. Please retry!".format(command))
 
 ### Cogs
 
@@ -144,6 +163,30 @@ async def on_command_error(ctx, error):
             color=0xfe2419
         )
         await ctx.send(embed=noperm_e)
+
+### client join or leave a guild
+
+@client.event
+async def on_guild_join(guild):
+    db = sqlite3.connect("main.sqlite")
+    cursor = db.cursor()
+    cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id,))
+    result = cursor.fetchone()
+    if result is None:
+        cursor.execute("INSERT INTO guilds(guild_id) VALUES (?)", (guild.id,))
+        db.commit()
+        cursor.close()
+
+@client.event
+async def on_guild_remove(guild):
+    db = sqlite3.connect("main.sqlite")
+    cursor = db.cursor()
+    cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id,))
+    result = cursor.fetchone()
+    if result is not None:
+        cursor.execute("DELETE FROM guilds WHERE guild_id = ?", (guild.id,))
+        db.commit()
+        cursor.close()
 
 
 # run the bot
