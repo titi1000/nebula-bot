@@ -3,7 +3,8 @@ from discord.ext import commands
 import time
 import datetime
 import sqlite3
-from others import is_in_database_guild, get_channel_by_id, logs_channel, welcome_channel
+from main import MAINCOLOR
+from others import is_in_database_guild, get_channel_by_id, logs_channel, welcome_channel, welcome_message
 
 class Mods(commands.Cog):
 
@@ -165,44 +166,96 @@ class Mods(commands.Cog):
                 return
 
     # welcome channel
-    @commands.command(aliases=["wc", "welcome-channel", "welcome_channel"])
+    @commands.command(aliases=["wc", "welcome-channel"])
     @commands.has_permissions(administrator=True)
-    async def welcome(self, ctx, action=None, channel:discord.TextChannel=None):
+    async def welcome_channel(self, ctx, action=None, channel:discord.TextChannel=None):
         if action is None and channel is None:
-            return await ctx.send("Please provid all require parameters :\n```{}welcome <action> <channel>```\n(Notice that <channel> depends of your action)".format(ctx.prefix))
+            return await ctx.send("Please provid all require parameters :\n```{}welcome-channel <action> <channel>```\n(Notice that <channel> depends of your action)".format(ctx.prefix))
 
         is_in_database_guild(ctx.guild.id)
-        if action == "add": 
+        if action.lower() == "add": 
             if channel is None:
-                return await ctx.send("Please provid a valid channel :\n```{}welcome add <channel>```".format(ctx.prefix))
+                return await ctx.send("Please provid a valid channel :\n```{}welcome-channel add <channel>```".format(ctx.prefix))
 
             db = sqlite3.connect("main.sqlite")
             cursor = db.cursor()
             cursor.execute("UPDATE guilds SET welcome_id = ? WHERE guild_id = ?", (channel.id, ctx.guild.id))
             db.commit()
             cursor.close()
+            return await ctx.send("Welcome channel {} successfully set.".format(channel.mention))
 
-        elif action == "remove":
+        elif action.lower() == "remove":
             db = sqlite3.connect("main.sqlite")
             cursor = db.cursor()
             cursor.execute("UPDATE guilds SET welcome_id = ? WHERE guild_id = ?", (None, ctx.guild.id))
             db.commit()
             cursor.close()
+            return await ctx.send("You don't have a welcome channel anymore.")
 
-        elif action == "simulate":
+        else:
+            return await ctx.send("Please provid a valid action :\n```{}welcome-channel <action> (<channel>)```".format(ctx.prefix))
+
+    @commands.command(aliases=["wm", "welcome-message"])
+    @commands.has_permissions(administrator=True)
+    async def welcome_message(self, ctx, action=None, *, message=None):
+        if action is None and message is None:
+            return await ctx.send("Please provid all require parameters :\n```{}welcome-message <action> <message>```\n(Notice that <message> depends of your action)".format(ctx.prefix))
+
+        is_in_database_guild(ctx.guild.id)
+        if action.lower() == "add":
+            if message is None:
+                return await ctx.send("Please provid a message :\n```{}welcome-message add <channel>```".format(ctx.prefix))
+
+            db = sqlite3.connect("main.sqlite")
+            cursor = db.cursor()
+            cursor.execute("UPDATE guilds SET welcome_message = ? WHERE guild_id = ?", (message, ctx.guild.id))
+            db.commit()
+            cursor.close()
+            return await ctx.send("Welcome message : \"{}\" successfully set.".format(message))
+
+        elif action.lower() == "remove":
+            db = sqlite3.connect("main.sqlite")
+            cursor = db.cursor()
+            cursor.execute("UPDATE guilds SET welcome_message = ? WHERE guild_id = ?", (None, ctx.guild.id))
+            db.commit()
+            cursor.close()
+            return await ctx.send("You don't have a welcome message anymore.")
+        
+        else:
+            return await ctx.send("Please provid a valid action :\n```{}welcome-message <action> (<message>)```".format(ctx.prefix))
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def welcome(self, ctx, action=None):
+        is_in_database_guild(ctx.guild.id)
+        if action is None:
+
             channel_id = welcome_channel(ctx.guild.id)
+            message = welcome_message(ctx.guild.id)
+            if channel_id is False or message is False:
+                return await ctx.send("Welcome automatic message isn't set in this guild.\n Use `{}help` to know how to set it.".format(ctx.prefix))
 
-            if channel_id == False:
-                return await ctx.send("You don't have any welcome channel set.")
+            welcome_e = discord.Embed(
+                title="{}'s welcome message".format(ctx.guild.name),
+                color=MAINCOLOR
+            )
+            welcome_e.add_field(name="Channel", value="<#{}>".format(channel_id), inline=True)
+            welcome_e.add_field(name="Message", value="{}".format(message), inline=True)
+
+            await ctx.send(embed=welcome_e)
+
+        elif action.lower() == "simulate":
+            channel_id = welcome_channel(ctx.guild.id)
+            message = welcome_message(ctx.guild.id)
+
+            if channel_id is False or message is False:
+                return await ctx.send("You don't have any automatic welcome message set.")
 
             try:
                 result_channel = await get_channel_by_id(ctx.guild, int(channel_id))
-                await result_channel.send("test")
+                await result_channel.send(message)
             except:
                 return
-
-        else:
-            return await ctx.send("Please provid a valid action :\n```{}welcome <action> (<channel>)```".format(ctx.prefix))
 
 def setup(client):
     client.add_cog(Mods(client))

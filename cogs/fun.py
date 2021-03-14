@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
-from json import load, loads
-from requests import get
+import json
+import requests
 import datetime
 import random
 from main import MAINCOLOR
@@ -9,12 +9,12 @@ import asyncio
 
 def apirequest(link:str):
     headers = {
-        'Accept': 'application/json',
+        "Accept": "application/json",
     }
 
-    response = get(link, headers=headers)
+    response = requests.get(link, headers=headers)
     if response.status_code == 200:
-        return loads(response.content.decode('utf-8'))
+        return json.loads(response.content.decode("utf-8"))
     else:
         return None
 

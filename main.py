@@ -29,7 +29,8 @@ async def on_ready():
         CREATE TABLE IF NOT EXISTS guilds(
             guild_id TEXT,
             logs_id TEXT,
-            welcome_id TEXT
+            welcome_id TEXT,
+            welcome_message TEXT
         )
     """)
     cursor.execute("""
@@ -163,6 +164,7 @@ async def on_command_error(ctx, error):
             color=0xfe2419
         )
         await ctx.send(embed=noperm_e)
+    
 
 ### client join or leave a guild
 

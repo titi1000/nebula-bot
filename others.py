@@ -49,6 +49,19 @@ def welcome_channel(guild_id):
     else:
         return result[0]
 
+# get welcome message
+def welcome_message(guild_id):
+    is_in_database_guild(guild_id)
+    db = sqlite3.connect("main.sqlite")
+    cursor = db.cursor()
+    cursor.execute("SELECT welcome_message FROM guilds WHERE guild_id = ?", (guild_id,))
+    result = cursor.fetchone()
+
+    if result[0] is None:
+        return False
+    else:
+        return result[0]
+
 # get a channel by his id
 async def get_channel_by_id(guild, id):
     try:
