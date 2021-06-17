@@ -6,6 +6,7 @@ import os
 import datetime
 import sys
 from core.db import db
+from core.myjson import lang_json
 from core.others import is_it_owner, write_plugins_json, is_blacklisted
 
 ### Init
@@ -13,6 +14,9 @@ from core.others import is_it_owner, write_plugins_json, is_blacklisted
 # import commands file
 with open("commands.json") as commands_json:
     commands_infos = json.load(commands_json)
+    
+# temporaire en attendant le choix de la langue 
+language = "fr" 
 
 # import config
 data = toml.load("config.toml")
@@ -49,7 +53,7 @@ async def on_message(message):
     prefix = db.get_prefix(client, message)
     if message.content == f"<@!{client.user.id}>":
         pinged_e = discord.Embed(
-            description=f"Hi! My prefix is `{prefix}` but you can change it by using the `prefix` command.\nUse `{prefix}help` to see all my commands",
+            description=lang_json.open_json()[language]["BOT_PINGED"].format(prefix, prefix),
             color=MAINCOLOR
         )
 
