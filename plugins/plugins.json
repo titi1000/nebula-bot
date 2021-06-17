@@ -1,0 +1,34 @@
+{
+    "customerrors": {
+        "name": "Custom Errors",
+        "path": "plugins.customerrors",
+        "description": "Small plugin to track bot errors. Can be used by the bot owner.",
+        "channel_id": "835884058034176030",
+        "activate": true
+    },
+    "stats": {
+        "name": "Stats",
+        "path": "plugins.stats",
+        "description": "Plugin to track server stats. Only available for one server. Stats will be written in an excel file.",
+        "guild_id": "the server id where the bot should look for stats.",
+        "activate": false
+    },
+    "announce": {
+        "name": "Custom Announce",
+        "path": "plugins.announce",
+        "description": "A small plugin for custom announce.",
+        "activate": true
+    },
+    "ownermessage": {
+        "name": "Owner Message",
+        "path": "plugins.ownermessage",
+        "description": "Very small plugin to receive a dm from the bot when it is added to a server.",
+        "activate": true
+    },
+    "support": {
+        "name": "Bot Support",
+        "path": "plugins.support",
+        "description": "Plugin for the documentation and the bot website...",
+        "activate": true
+    }
+}
