@@ -16,7 +16,7 @@ with open("commands.json") as commands_json:
     commands_infos = json.load(commands_json)
     
 # temporaire en attendant le choix de la langue 
-language = "fr" 
+language = "en" 
 
 # import config
 data = toml.load("config.toml")
