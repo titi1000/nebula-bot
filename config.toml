@@ -3,5 +3,5 @@
 token = "NjYxMTcxMzYyODU2OTYwMDEx.Xgnh0A.Qqn1o2aUQDfNRVDC39FIE3_vum4" # "ODM1NDYxODc0MTY1NjEyNTY0.YIPygA.p9Qs0LTDHWBBDtTd76ArdAOcLWY" # get yours here -> https://discord.com/developers/applications/
 main_color = "0xaefe19" # the main color for all embeds
 error_color = "0xfe2419" # the error color of your bot
-owner_id = "583663379030212609" # the id of the bot owner
+owner_id = [583663379030212609, 476818400010829836] # the id of the bot owner
 database = "main.sqlite3" # the name of your database (must be a sqlite database)
