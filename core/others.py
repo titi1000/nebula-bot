@@ -66,7 +66,7 @@ async def apirequest(link:str):
 
 # verify if command user is bot owner
 def is_it_owner(ctx):
-    return ctx.author.id == int(owner_id)
+    return ctx.author.id in owner_id
 
 # decorators who check if a channel is blacklist or no
 def is_blacklisted(func):
