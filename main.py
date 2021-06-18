@@ -423,5 +423,11 @@ async def on_guild_remove(guild):
         db.cursor.execute("DELETE FROM guilds WHERE guild_id = ?", (guild.id,))
         db.commit()
 
+# stop the bot
+@commands.check(is_it_owner)
+@client.command(name = "stop")
+async def stop(ctx):
+    await ctx.bot.logout()
+        
 # run the bot
 client.run(TOKEN)
