@@ -28,7 +28,7 @@ owner_id = data["owner_id"]
 intents = discord.Intents.default()
 intents.members = True
 
-client = commands.Bot(command_prefix=".", help_command=None, case_insensitive=True, intents=intents, owner_id=owner_id)
+client = commands.Bot(command_prefix=db.get_prefix, help_command=None, case_insensitive=True, intents=intents, owner_id=owner_id)
 client.ipc = ipc.Server(client, secret_key=TOKEN)
 client.launch_time = datetime.datetime.utcnow()
 client.is_blacklisted = is_blacklisted # decorator for commands blacklist
@@ -239,6 +239,12 @@ async def get_member_count(data):
 
     return len(await guild.fetch_members(limit=1000).flatten()), guild.name
 
+# stop the bot
+@commands.check(is_it_owner)
+@client.command(name = "stop")
+async def stop(ctx):
+    await ctx.bot.logout()
+        
 # run the bot
 if __name__ == "__main__":
     client.ipc.start()
