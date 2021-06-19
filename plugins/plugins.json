@@ -3,7 +3,7 @@
         "name": "Custom Errors",
         "path": "plugins.customerrors",
         "description": "Small plugin to track bot errors. Can be used by the bot owner.",
-        "channel_id": "835884058034176030",
+        "channel_id": "855580229002330162",
         "activate": true
     },
     "stats": {
