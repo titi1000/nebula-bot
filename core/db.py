@@ -14,21 +14,17 @@ class DB:
     def init(self):
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS guilds(
-                guild_id TEXT,
-                logs_id TEXT,
-                welcome_id TEXT,
-                welcome_message TEXT,
-                leave_id TEXT,
+                guild_id INTEGER NOT NULL UNIQUE,
+                logs_id INTEGER,
+                welcome_id INTEGER,
+                welcome_message INTEGER,
+                leave_id INTEGER,
                 leave_message TEXT,
-                autorole_id TEXT,
+                autorole_id INTEGER,
                 blacklisted TEXT
             )
         """)
-        self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS users(
-                user_id TEXT
-            )
-        """)
+        
         self.commit()
 
     def get_prefix(self, client, message):
