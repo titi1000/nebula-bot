@@ -238,12 +238,6 @@ async def get_member_count(data):
     guild = await client.fetch_guild(data.guild_id)
 
     return len(await guild.fetch_members(limit=1000).flatten()), guild.name
-
-# stop the bot
-@commands.check(is_it_owner)
-@client.command(name = "stop")
-async def stop(ctx):
-    await ctx.bot.logout()
         
 # run the bot
 if __name__ == "__main__":
