@@ -48,6 +48,12 @@ async def on_ready():
 
 ### Commands
 
+# add 1 to user's command counter 
+async def user_cmd_count_up(ctx): # must place "@client.after_invoke(user_cmd_count_up)" on each command
+    user_id = ctx.author.id
+    db_users.is_in_database_user(user_id)
+    db_users.add_to_counter(user_id, "command", 1)
+
 # bot get pinged
 @client.event
 async def on_message(message):
