@@ -1,8 +1,9 @@
 import discord
 import datetime
 import sys
+import json
 from discord.ext import commands
-from main import MAINCOLOR, commands_infos
+from main import MAINCOLOR
 from core.others import is_blacklisted_cogs, is_it_owner
 from core.db import db
 
@@ -10,6 +11,10 @@ class Infos(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+
+        # import commands file
+        with open("commands.json") as commands_json:
+            self.commands_infos = json.load(commands_json)
 
     # uptime
     @commands.command(aliases=["up"])
@@ -93,7 +98,7 @@ class Infos(commands.Cog):
         
         else:
             try:
-                command_description = commands_infos[command]
+                command_description = self.commands_infos[command]
                 help_e = discord.Embed(
                 title=f"{command}'s usage",
                 color=MAINCOLOR,
