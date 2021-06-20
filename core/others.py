@@ -5,16 +5,12 @@ import aiohttp
 import functools
 from discord.ext import commands
 from core.db import db
+from core.db_user import db_users
 
 data = toml.load("config.toml")
 
 owner_id = data["owner_id"]
 
-"""class Others:
-
-    def __init__(self, owner_id):
-        self.owner_id = owner_id
-"""
 
 # get a channel by his id
 async def get_channel_by_id(guild, id):
@@ -105,4 +101,8 @@ def is_blacklisted_cogs(func):
     inner.__name__ = func.__name__
     return inner
 
-#others = Others(owner_id)
+# add 1 to user's command counter 
+async def user_cmd_count_up(ctx): # must place "@client.after_invoke(user_cmd_count_up)" on each command
+    user_id = ctx.author.id
+    db_users.is_in_database_user(user_id)
+    db_users.add_to_counter(user_id, "command", 1)
