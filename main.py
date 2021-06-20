@@ -5,6 +5,7 @@ import toml
 import os
 import datetime
 from core.db import db
+from core.db_user import db_users
 from core.myjson import lang_json
 from core.others import is_it_owner, write_plugins_json, is_blacklisted
 
@@ -36,15 +37,22 @@ client.is_blacklisted = is_blacklisted # decorator for commands blacklist
 @client.event
 async def on_ready():
     db.init()
+    db_users.init()
 
     print("Bot is ready.")
     print("Logged in as :")
     print(f"{client.user.name}#{client.user.discriminator}")
     print(client.user.id)
-    print("------------------")
+    print("--------- poweron ---------")
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="?help to see all my commands"))
 
 ### Commands
+
+# add 1 to user's command counter 
+async def user_cmd_count_up(ctx): # must place "@client.after_invoke(user_cmd_count_up)" on each command
+    user_id = ctx.author.id
+    db_users.is_in_database_user(user_id)
+    db_users.add_to_counter(user_id, "command", 1)
 
 # bot get pinged
 @client.event

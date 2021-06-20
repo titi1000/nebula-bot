@@ -93,9 +93,7 @@ class DBuser:
     # check if user is in data base and add them
     def is_in_database_user(self, user_id):
         for table in self.tables:
-            sql = f"SELECT user_id FROM {table} WHERE user_id = ?"
-            vars = (user_id,)
-            result = self.db_fetchone(sql, vars)
+            result = self.db_fetchone(f"SELECT user_id FROM {table} WHERE user_id = ?", (user_id,))
 
             if result[0] == True and result[1] is None:
                 self.db_execute(f"INSERT INTO {table}(user_id) VALUES (?)", (user_id,))
@@ -143,9 +141,7 @@ class DBuser:
         }
         if counter in counters:
             last_count = counters[counter](user_id)
-            sql = f"UPDATE stats SET {counter}_count=? WHERE user_id=?"
-            vars = (new_count, user_id)
-            self.db_execute(sql, vars)
+            self.db_execute(f"UPDATE stats SET {counter}_count=? WHERE user_id=?", (new_count, user_id))
             return (last_count, new_count)
     
         else:
@@ -187,16 +183,14 @@ class DBuser:
         last_grade = grades[grade](user_id)
         if action=="add":
             new_grade = 1
-            sql = f"UPDATE grades SET {grade}=? WHERE user_id=?"
-            vars = (new_grade, user_id)
-            self.db_execute(sql, vars)
+            if new_grade != last_grade:
+                self.db_execute(f"UPDATE grades SET {grade}=? WHERE user_id=?", (new_grade, user_id))
             return (last_grade, new_grade)
 
         elif action == "rem" or action == "remove":
             new_grade = 0
-            sql = f"UPDATE grades SET {grade}=? WHERE user_id=?"
-            vars = (new_grade, user_id)
-            self.db_execute(sql, vars)
+            if new_grade != last_grade:
+                self.db_execute(f"UPDATE grades SET {grade}=? WHERE user_id=?", (new_grade, user_id))
             return (last_grade, new_grade)
 
         else:
@@ -226,4 +220,4 @@ class DBuser:
 
 data = toml.load("config.toml")
 database = data["database_users"]
-dbusers = DBuser(database)
+db_users = DBuser(database)

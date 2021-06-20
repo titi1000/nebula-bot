@@ -15,6 +15,7 @@ class DB:
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS guilds(
                 guild_id INTEGER NOT NULL UNIQUE,
+                prefix TEXT,
                 logs_id INTEGER,
                 welcome_id INTEGER,
                 welcome_message INTEGER,
@@ -135,7 +136,5 @@ class DB:
 
 
 data = toml.load("config.toml")
-
 database = data["database"]
-
 db = DB(database)
