@@ -13,11 +13,13 @@ class Utils(commands.Cog):
 
     # bot's latency
     @commands.command()
+    @is_blacklisted_cogs
     async def ping(self, ctx):
         await ctx.send(f"Pong ! {round(self.client.latency * 1000)}ms")
 
     # clone emoji in your server
     @commands.command()
+    @is_blacklisted_cogs
     @commands.has_permissions(administrator=True)
     async def cloneemoji(self, ctx, emoji:discord.PartialEmoji=None):
         if emoji is None:
@@ -33,6 +35,7 @@ class Utils(commands.Cog):
             await ctx.send("Failed... Please retry!")
 
     @commands.command()
+    @is_blacklisted_cogs
     async def emojiinfo(self, ctx, emoji:discord.PartialEmoji=None):
         if emoji is None:
             await ctx.send("Please provid an emoji.")
