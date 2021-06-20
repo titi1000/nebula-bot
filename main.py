@@ -26,7 +26,7 @@ class Bot(commands.Bot):
         intents = discord.Intents.default()
         intents.members = True
         super().__init__(command_prefix=db.get_prefix, help_command=None, case_insensitive=True, intents=intents, owner_id=owner_id)
-        self.ipc = ipc.Server(self, secret_key=TOKEN)
+        #self.ipc = ipc.Server(self, secret_key=TOKEN)
         self.launch_time = datetime.datetime.utcnow()
         self.language = "en"
 
