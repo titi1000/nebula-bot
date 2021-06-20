@@ -47,7 +47,7 @@ class CustomErrors(commands.Cog):
         error_e.add_field(name="Message", value = ctx.message.content, inline=False)
         error_e.add_field(name ="Author", value = f"{ctx.author} | {ctx.author.id}", inline=False)
         error_e.set_footer(text=f"Error occurred at {datetime.datetime.now().strftime('%H:%M')}")
-        await channel.send(f"<@{owner_id}>", embed=error_e)
+        await channel.send(embed=error_e)
         
 
 def setup(client):
