@@ -6,6 +6,7 @@ import os
 import datetime
 from core.db import db
 from core.db_user import db_users
+from core.db_punishments import db_punishments
 from core.myjson import lang_json
 from core.others import is_it_owner, write_plugins_json
 
@@ -195,6 +196,7 @@ class Bot(commands.Bot):
     ### client join or leave a guild
 
     async def on_guild_join(self, guild):
+        db_punishments.add_guild(guild.id)
         db.cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id,))
         result = db.cursor.fetchone()
         if result is None:
@@ -210,6 +212,7 @@ class Bot(commands.Bot):
         await guild.owner.send(embed=join_e)
 
     async def on_guild_remove(self, guild):
+        db_punishments.remove_guild(guild.id)
         db.cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id,))
         result = db.cursor.fetchone()
         if result is not None:

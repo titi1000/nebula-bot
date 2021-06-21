@@ -15,16 +15,17 @@ class DB:
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS guilds(
                 guild_id INTEGER NOT NULL UNIQUE,
-                prefix TEXT,
+                prefix TEXT DEFAULT '?',
+                language TEXT DEFAULT 'en',
                 logs_id INTEGER,
                 welcome_id INTEGER,
                 welcome_message INTEGER,
                 leave_id INTEGER,
                 leave_message TEXT,
                 autorole_id INTEGER,
-                blacklisted TEXT
-            )
-        """)
+                blacklisted TEXT,
+                moderator_roles TEXT
+            )""")
         
         self.commit()
 
