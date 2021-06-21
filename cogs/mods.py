@@ -6,6 +6,7 @@ import datetime
 import sqlite3
 from main import MAINCOLOR
 from core.db import db
+from core.db_punishments import db_punishments
 from core.others import get_channel_by_id
 
 class Mods(commands.Cog):
@@ -115,6 +116,7 @@ class Mods(commands.Cog):
         try:
             await member.ban(reason=reason)
             await ctx.send(f"{member.mention} has been banned!")
+            db_punishments.add_punishment(guild_id=ctx.guild.id, member_id=member.id, type="ban", start_timestamp=datetime.datetime.now(), moderator_id=ctx.author.id, reason=reason)
 
             channel_id = db.logs_channel(ctx.guild.id)
 
@@ -148,6 +150,8 @@ class Mods(commands.Cog):
         try:
             await member.kick(reason=reason)
             await ctx.send(f"{member.mention} has been kicked!")
+            db_punishments.add_punishment(guild_id=ctx.guild.id, member_id=member.id, type="kick", start_timestamp=datetime.datetime.now(), moderator_id=ctx.author.id, reason=reason)
+
 
             channel_id = db.logs_channel(ctx.guild.id)
 
