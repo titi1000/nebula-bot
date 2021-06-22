@@ -26,6 +26,7 @@ class DB:
                 blacklisted TEXT,
                 moderator_roles TEXT,
                 tickettool_id INTEGER
+                muted_role INTEGER
             )""")
         
         self.commit()
@@ -126,6 +127,7 @@ class DB:
         else:
             return result[0]
 
+    # get blacklisted channel
     def get_blacklisted(self, guild_id):
         self.is_in_database_guild(guild_id)
         self.cursor.execute("SELECT blacklisted FROM guilds WHERE guild_id = ?", (guild_id,))
@@ -145,6 +147,57 @@ class DB:
             return False
         else:
             return result[0]
+    # add/remove moderator role
+    def manage_moderator_roles(self, guild_id, action:str, role_id:int):
+        self.is_in_database_guild(guild_id)
+        moderator_roles = self.get_moderator_roles(guild_id)
+        moderator_roles_str = map(str, moderator_roles)
+        if action == "add":
+            if role_id in moderator_roles:
+                return (1, 1)
+            else:
+                moderator_roles = moderator_roles.append(role_id)
+                roles_str = " ".join(moderator_roles_str)
+                self.cursor.execute("UPDATE guilds SET moderator_roles = ? WHERE guild_id = ?", (roles_str, guild_id))
+                return (0, 1)
+
+        elif action == "rm" or action == "rem" or action == "remove":
+            if role_id in moderator_roles:
+                moderator_roles = moderator_roles.remove(role_id)
+                roles_str = " ".join(moderator_roles_str)
+                if roles_str == "":
+                    roles_str=None
+                self.cursor.execute("UPDATE guilds SET moderator_roles = ? WHERE guild_id = ?", (roles_str, guild_id))
+                return (1, 0)
+            else:
+                return (0, 0)
+
+    # get moderator roles list
+    def get_moderator_roles(self, guild_id):
+        self.is_in_database_guild(guild_id)
+        self.cursor.execute("SELECT moderator_roles FROM guilds WHERE guild_id=?", (guild_id,))
+        result_str = self.cursor.fetchone()
+
+        role_list = []
+        if result_str[0] is not None:
+            list = result_str[0].split(" ")
+            for role in list:
+                if role != "":
+                    role_list.append(int(role))
+        
+        return role_list
+
+    # set the muted role
+    def set_muted_role(self, guild_id, muted_role_id):
+        self.is_in_database_guild(guild_id)
+        self.cursor.execute("INSERT INTO guilds(muted_role) VALUES(?) WHERE guild_id = ?", (muted_role_id, guild_id))
+
+    # get the muted role
+    def get_muted_role(self, guild_id):
+        self.is_in_database_guild(guild_id)
+        self.cursor.execute("SELECT muted_role FROM guilds WHERE guild_id = ?", (guild_id,))
+        return self.cursor.fetchone()[0]
+        
 
 
 data = toml.load("config.toml")

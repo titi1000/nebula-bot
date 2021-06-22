@@ -101,6 +101,21 @@ def is_blacklisted_cogs(func):
     inner.__name__ = func.__name__
     return inner
 
+# verify if command user is guild moderator (or admin)
+def is_it_moderator(ctx):
+    moderator_roles = db.get_moderator_roles(ctx.guild.id)
+    member_roles_id = []
+    for role in ctx.author.roles:
+        member_roles_id.append(role.id)
+    commons = list(set(moderator_roles).intersection(member_roles_id))
+    if len(commons) > 0:
+        return True
+    else:
+        if ctx.author.guild_permissions.administrator:
+            return True
+        else:
+            return False
+
 # add 1 to user's command counter 
 async def user_cmd_count_up(ctx): # must place "@client.after_invoke(user_cmd_count_up)" on each command
     user_id = ctx.author.id
