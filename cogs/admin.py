@@ -266,6 +266,47 @@ class Admin(commands.Cog):
         except:
             return
 
+    # send the list of moderator roles
+    @commands.command(name = "moderators")
+    @commands.has_permissions(administrator = True)
+    async def moderators(self, ctx):
+        guild_id = ctx.guild.id
+        moderator_roles = db.get_moderator_roles(guild_id)
+        string = ""
+        for role in moderator_roles:
+            string += f"{ctx.guild.get_role(role).mention}\n"
+        if string != "":
+            await ctx.send(string)
+        else:
+            await ctx.send("You are not select moderator roles")
+
+    # manage the list of moderator roles
+    @commands.command(name = "set-moderators")
+    @commands.has_permissions(administrator = True)
+    async def setmoderator(self, ctx, action:str=None, *, roles=None):
+        actions = ["add", "rm", "rem", "remove"]
+        if action in actions:
+            if roles is not None:
+                guild_id = ctx.guild.id
+                resume = "Resume\n\n"
+                for role in ctx.message.role_mentions:
+                    r = db.manage_moderator_roles(guild_id, action, role.id)
+
+                    if r[0] == 0 and r[1] == 0:
+                        resume+=f"{role.mention} wasn't a moderator role\n"
+                    elif r[0] == 0 and r[1] == 1:
+                        resume+=f"{role.mention} is now a moderator role\n"
+                    elif r[0] == 1 and r[1] == 0:
+                        resume+=f"{role.mention} was a moderator role\n"
+                    elif r[0] == 1 and r[1] == 1:
+                        resume+=f"{role.mention} is already a moderator role\n"
+                await ctx.send(resume)
+
+            else:
+                await ctx.send("Please provid roles")
+        else:
+            await ctx.send("Please provid a valid action (`rm`/`rem`/`remove` or `add`)")
+
 
 def setup(client):
     client.add_cog(Admin(client))

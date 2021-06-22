@@ -1,11 +1,12 @@
 import discord
 from discord.ext import commands
 import time
+import datetime
 import asyncio
 from main import MAINCOLOR
 from core.db import db
 from core.db_punishments import db_punishments
-from core.others import get_channel_by_id
+from core.others import get_channel_by_id, is_it_moderator
 
 class Mods(commands.Cog):
 
@@ -15,7 +16,7 @@ class Mods(commands.Cog):
 
     # give or remove a role to everyone
     @commands.command(aliases=["mr"])
-    @commands.has_permissions(manage_roles=True)
+    @commands.has_permissions(administrator=True)
     async def massrole(self, ctx, action=None, role:discord.Role=None):
         start = time.time()
         if role is None or action is None:
@@ -172,6 +173,123 @@ class Mods(commands.Cog):
         
         except:
             return
+    
+    # warn command
+    @commands.command()
+    @commands.check(is_it_moderator)
+    async def warn(self, ctx, member:discord.Member=None, *, reason=None):
+        if member is None:
+            return await ctx.send("You need to provid an user to warn.")
+        
+        try:
+            await ctx.send(f"{member.mention} has been warned!")
+            db_punishments.add_punishment(guild_id=ctx.guild.id, member_id=member.id, type="warn", start_timestamp=int(time.time()), moderator_id=ctx.author.id, reason=reason)
+
+            channel_id = db.logs_channel(ctx.guild.id)
+
+            if channel_id == False:
+                return
+
+            channel = await get_channel_by_id(ctx.guild, int(channel_id))
+            if reason is None:
+                description = f"**Member:** {member.name}#{member.discriminator} ({member.id})\n**Action:** Warn"
+            else:
+                description = f"**Member:** {member.name}#{member.discriminator} ({member.id})\n**Action:** Warn\n**Reason:** {reason}"
+
+            warn_e = discord.Embed(
+                description=description,
+                color=0xf70000
+            )
+            warn_e.set_author(name=f"{ctx.author.name}#{ctx.author.discriminator}", icon_url=ctx.author.avatar_url)
+
+            await channel.send(embed=warn_e)
+        
+        except:
+            return
+
+    # get punishments command
+    @commands.command(aliases = ["p", "punish", "infractions"])
+    @commands.check(is_it_moderator)
+    async def punishments(self, ctx, member:discord.Member=None):
+        if member is not None:
+            punishments = db_punishments.get_member_punishments(ctx.guild.id, member.id)
+
+            p_description = ""
+            if len(punishments) > 0:
+                for punishment in punishments:
+                    p_description+=f"**Infraction #`{punishment.id}` - {punishment.type}**\n{punishment.reason}\n"
+            else:
+                p_description+="No infraction"
+
+            p_e = discord.Embed(description = p_description, color = MAINCOLOR)
+            p_e.set_author(name = member, icon_url=member.avatar_url)
+
+            await ctx.send(embed = p_e)
+        else:
+            await ctx.send("Please provid a valid member")
+    
+    # get punishment command
+    @commands.command(aliases = ["infraction"])
+    @commands.check(is_it_moderator)
+    async def punishment(self, ctx, punishment_id:int=None):
+        if punishment_id is not None:
+            punishment = db_punishments.get_punishment(ctx.guild.id, punishment_id)
+
+            member_id = punishment.member_id
+            member = ctx.guild.get_member(member_id)
+            if member is None:
+                member = await self.client.fetch_user(member_id)
+            member_avatar_url = member.avatar_url
+
+            moderator_id = punishment.moderator_id
+            moderator = ctx.guild.get_member(moderator_id)
+            if moderator is None:
+                moderator = await self.client.fetch_user(moderator_id)
+            moderator_avatar_url = moderator.avatar_url
+
+            p_description = ""
+            p_description+=f"**Member:** {member} \| {member.id}\n"
+            p_description+=f"**Action:** {punishment.type}\n"
+            if punishment.end_timestamp is not None:
+                duration_timestamp = punishment.end_timestamp - punishment.start_timestamp
+                duration = { "years" : 0, "months" : 0, "weeks" : 0, "days" : 0, "hours" : 0, "minutes" : 0, "seconds" : 0}
+                while duration_timestamp >= 31536000:
+                    duration["years"] +=1
+                    duration_timestamp-=31536000
+                while duration_timestamp >= 2592000:
+                    duration["months"]+=1
+                    duration_timestamp-=2592000
+                while duration_timestamp >= 604800:
+                    duration["weeks"]+=1
+                    duration_timestamp-=604800
+                while duration_timestamp >= 86400:
+                    duration["days"]+=1
+                    duration_timestamp-=86400
+                while duration_timestamp >= 3600:
+                    duration["hours"]+=1
+                    duration_timestamp-=3600
+                while duration_timestamp >= 60:
+                    duration["minutes"]+=1
+                    duration_timestamp-=60
+                duration["seconds"]=duration_timestamp
+            
+                p_description+=f"**Duration:** "
+                for k,v in duration.items():
+                    if v > 0:
+                        p_description+=f"{v}{k} "
+                p_description+="\n"
+            
+            p_description+=f"**Reason:** {punishment.reason}"
+
+            p_e = discord.Embed(description = p_description, color = MAINCOLOR, timestamp = datetime.datetime.fromtimestamp(float(punishment.start_timestamp)))
+            p_e.set_author(name = moderator, icon_url=moderator_avatar_url)
+            p_e.set_footer(text=f"Infraction #{punishment.id}")
+
+            await ctx.send(embed = p_e)
+        else:
+            await ctx.send("Please provid a valid punishement id")
+            
+
 
 def setup(client):
     client.add_cog(Mods(client))
