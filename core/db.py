@@ -24,7 +24,8 @@ class DB:
                 leave_message TEXT,
                 autorole_id INTEGER,
                 blacklisted TEXT,
-                moderator_roles TEXT
+                moderator_roles TEXT,
+                tickettool_id INTEGER
             )""")
         
         self.commit()
@@ -132,6 +133,16 @@ class DB:
 
         if result[0] is None:
             return ""
+        else:
+            return result[0]
+
+    def get_tickettool(self, guild_id):
+        self.is_in_database_guild(guild_id)
+        self.cursor.execute("SELECT tickettool_id FROM guilds WHERE guild_id = ?", (guild_id,))
+        result = self.cursor.fetchone()
+
+        if result[0] is None:
+            return False
         else:
             return result[0]
 
