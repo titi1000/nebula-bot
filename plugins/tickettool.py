@@ -17,6 +17,7 @@ class Tickettool(commands.Cog):
             return
 
         member_name = channel.name.replace("-", "#")
+        
         f = open(f"{channel.name}_{channel.guild.id}.html", "w", encoding="utf-8")
         f.write("<html>\r\n<link rel=\"stylesheet\" href=\"https://meyerweb.com/eric/tools/css/reset/reset200802.css\"><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Open+Sans&display=swap\" rel=\"stylesheet\">\r\n<style>body{font-family: 'Open Sans', sans-serif;background-color:#36393f;color:#ffffff;width:98%;padding:15px 15px}</style>\r\n")
         f.write(f"<header style=\"display:flex;flex-direction:row;margin-bottom:20px\"><img src=\"{channel.guild.icon_url}\" width=\"60\" height=\"60\"><span style=\"font-size:34px;padding:15px 8px\">{channel.guild.name} - {member_name}</span></header>\r\n<body>")
