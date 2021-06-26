@@ -30,5 +30,11 @@
         "path": "plugins.support",
         "description": "Plugin for the documentation and the bot website...",
         "activate": true
+    },
+    "tickettool": {
+        "name": "Ticket Tool",
+        "path": "plugins.tickettool",
+        "description": "Plugin for custom ticket tool.",
+        "activate": true
     }
 }

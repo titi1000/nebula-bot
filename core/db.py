@@ -1,7 +1,5 @@
-import discord
 import sqlite3
 import toml
-from discord.ext import commands
 
 class DB:
 
@@ -25,7 +23,8 @@ class DB:
                 autorole_id INTEGER,
                 blacklisted TEXT,
                 moderator_roles TEXT,
-                tickettool_id INTEGER
+                tickettool_id INTEGER,
+                tickettool_logs INTEGER,
                 muted_role INTEGER
             )""")
         
@@ -138,6 +137,7 @@ class DB:
         else:
             return result[0]
 
+    # get ticket tool message
     def get_tickettool(self, guild_id):
         self.is_in_database_guild(guild_id)
         self.cursor.execute("SELECT tickettool_id FROM guilds WHERE guild_id = ?", (guild_id,))
@@ -147,6 +147,18 @@ class DB:
             return False
         else:
             return result[0]
+
+    # get ticket tool logs channel
+    def get_tickettool_logs(self, guild_id):
+        self.is_in_database_guild(guild_id)
+        self.cursor.execute("SELECT tickettool_logs FROM guilds WHERE guild_id = ?", (guild_id,))
+        result = self.cursor.fetchone()
+
+        if result[0] is None:
+            return False
+        else:
+            return result[0]
+            
     # add/remove moderator role
     def manage_moderator_roles(self, guild_id, action:str, role_id:int):
         self.is_in_database_guild(guild_id)
