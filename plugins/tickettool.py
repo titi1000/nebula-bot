@@ -5,6 +5,7 @@ import datetime
 from discord.ext import commands
 from main import MAINCOLOR
 from core.db import db
+from core.others import is_it_moderator_member
 
 class Tickettool(commands.Cog):
 
@@ -77,13 +78,14 @@ class Tickettool(commands.Cog):
     @commands.group(invoke_without_command=True, aliases=["ticket_tool", "ticket-tool"])
     @commands.has_permissions(administrator=True)
     async def tickettool(self, ctx):
-        message_id = db.get_tickettool(ctx.guild.id)
+        tickettool_id = db.get_tickettool(ctx.guild.id)
 
-        if message_id is False:
+        if tickettool_id is False:
             return await ctx.send(f"You don't have any ticket tool set in this server...\nUse `{ctx.prefix}tickettool setup` to interactively set a ticket tool message!")
 
         try:
-            message = await ctx.fetch_message(message_id)
+            channel = ctx.guild.get_channel(int(tickettool_id[1]))
+            message = await channel.fetch_message(int(tickettool_id[0]))
         except:
             return await ctx.send(f"You don't have any ticket tool set in this server...\nUse `{ctx.prefix}tickettool setup` to interactively set a ticket tool message!")
 
@@ -201,7 +203,7 @@ class Tickettool(commands.Cog):
         else:
             return await ctx.send("Cancelled!")
 
-        db.cursor.execute("UPDATE guilds SET tickettool_id = ? WHERE guild_id = ?", (message.id, ctx.guild.id))
+        db.cursor.execute("UPDATE guilds SET tickettool_id = ? WHERE guild_id = ?", (f"{message.id} {message.channel.id}", ctx.guild.id))
         db.cursor.execute("UPDATE guilds SET tickettool_logs = ? WHERE guild_id = ?", (logs_channel.id, ctx.guild.id))
         db.commit()
 
@@ -209,11 +211,17 @@ class Tickettool(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         tickettool_id = db.get_tickettool(payload.guild_id)
+        if tickettool_id is False:
+            return
+            
         channel = await self.client.fetch_channel(payload.channel_id)
-        if payload.message_id == tickettool_id and str(payload.emoji) == "📩" and payload.member != self.client.user:
+        if payload.message_id == int(tickettool_id[0]) and str(payload.emoji) == "📩" and payload.member != self.client.user:
             for existing_channel in channel.category.text_channels:
                 if existing_channel.name == f"{payload.member.name}-{payload.member.discriminator}" and existing_channel.topic == f"{payload.member.id}":
                     return await payload.member.send(f"Hi! You tried to contact the {existing_channel.guild.name} server staff but you already have an open ticket.\nHere is your ticket: {existing_channel.mention}")
+
+            message = await channel.fetch_message(payload.message_id)
+            await message.remove_reaction(payload.emoji, payload.member)
 
             guild = await self.client.fetch_guild(payload.guild_id)
             overwrites = {
@@ -233,7 +241,7 @@ class Tickettool(commands.Cog):
         message = await channel.fetch_message(payload.message_id)
         if str(payload.emoji) == "🔒" and payload.member != self.client.user and len(message.embeds) > 0:
             if message.embeds[0].title == "New ticket created!" and message.embeds[0].description == "Moderators can close the ticket by adding the :lock: reaction to this message.\nPlease don't change the name of the channel and his topic :warning:" and message.embeds[0].colour == discord.Color(MAINCOLOR):
-                if message.channel.name != f"{payload.member.name}-{payload.member.discriminator}" and message.channel.topic != f"{payload.member.id}":
+                if is_it_moderator_member(payload.member) is True:
                     await self.gen_html_close(channel, payload.member)
                     await channel.delete()
 

@@ -23,7 +23,7 @@ class DB:
                 autorole_id INTEGER,
                 blacklisted TEXT,
                 moderator_roles TEXT,
-                tickettool_id INTEGER,
+                tickettool_id TEXT,
                 tickettool_logs INTEGER,
                 muted_role INTEGER
             )""")
@@ -146,7 +146,7 @@ class DB:
         if result[0] is None:
             return False
         else:
-            return result[0]
+            return result[0].split(" ")
 
     # get ticket tool logs channel
     def get_tickettool_logs(self, guild_id):
