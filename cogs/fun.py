@@ -87,7 +87,9 @@ class Fun(commands.Cog):
     # random responses
     @commands.command(aliases=["8ball", "eightball"])
     @is_blacklisted_cogs
-    async def eight_ball(self, ctx, *, question):
+    async def eight_ball(self, ctx, *, question=None):
+        if question is None:
+            return await ctx.send("Please ask a question!")
         responses = ("It's possible", 
                     "Totally", 
                     "I think yes", 

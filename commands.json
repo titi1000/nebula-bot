@@ -41,5 +41,7 @@
     "announce": "Create custom announce! Usage:\n```{}announce```",
     "documentation": "Link to the online bot documentation. Usage:\n```{}documentation```",
     "website": "Link to the bot website. Usage:\n```{}website```",
-    "support": "Link to the Support Server. Usage:\n```{}support```"
+    "support": "Link to the Support Server. Usage:\n```{}support```",
+    "suggest": "Suggest something to the bot owners. Suggestions will arrive in our support server. Usage:\n```{}suggest <suggestion>```",
+    "report": "Report something to the bot owners. Reports will arrive in our support server. Usage:\n```{}report <report>```"
 }
