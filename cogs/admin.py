@@ -26,13 +26,11 @@ class Admin(commands.Cog):
             if channel is None:
                 return await ctx.send(f"Please provid a valid channel :\n```{ctx.prefix}welcome-channel add <channel>```")
 
-            db.cursor.execute("UPDATE guilds SET welcome_id = ? WHERE guild_id = ?", (channel.id, ctx.guild.id))
-            db.commit()
+            db.db_execute("UPDATE guilds SET `welcome_id` = %s WHERE `guild_id` = %s", (channel.id, ctx.guild.id))
             return await ctx.send(f"Welcome channel {channel.mention} successfully set.")
 
         elif action.lower() == "remove":
-            db.cursor.execute("UPDATE guilds SET welcome_id = ? WHERE guild_id = ?", (None, ctx.guild.id))
-            db.commit()
+            db.db_execute("UPDATE guilds SET `welcome_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
             return await ctx.send("You don't have a welcome channel anymore.")
 
         else:
@@ -50,13 +48,11 @@ class Admin(commands.Cog):
             if message is None:
                 return await ctx.send(f"Please provid a message :\n```{ctx.prefix}welcome-message add <message>```")
 
-            db.cursor.execute("UPDATE guilds SET welcome_message = ? WHERE guild_id = ?", (message, ctx.guild.id))
-            db.commit()
+            db.db_execute("UPDATE guilds SET `welcome_message` = '%s' WHERE `guild_id` = %s", (message, ctx.guild.id))
             return await ctx.send(f"Welcome message : \"{message}\" successfully set.")
 
         elif action.lower() == "remove":
-            db.cursor.execute("UPDATE guilds SET welcome_message = ? WHERE guild_id = ?", (None, ctx.guild.id))
-            db.commit()
+            db.db_execute("UPDATE guilds SET `welcome_message` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
             return await ctx.send("You don't have a welcome message anymore.")
         
         else:
@@ -124,13 +120,11 @@ class Admin(commands.Cog):
             if channel is None:
                 return await ctx.send(f"Please provid a valid channel :\n```{ctx.prefix}leave-channel add <channel>```")
 
-            db.cursor.execute("UPDATE guilds SET leave_id = ? WHERE guild_id = ?", (channel.id, ctx.guild.id))
-            db.commit()
+            db.db_execute("UPDATE guilds SET `leave_id` = %s WHERE `guild_id` = %s", (channel.id, ctx.guild.id))
             return await ctx.send(f"Leave channel {channel.mention} successfully set.")
 
         elif action.lower() == "remove":
-            db.cursor.execute("UPDATE guilds SET leave_id = ? WHERE guild_id = ?", (None, ctx.guild.id))
-            db.commit()
+            db.db_execute("UPDATE guilds SET `leave_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
             return await ctx.send("You don't have a leave channel anymore.")
 
         else:
@@ -148,13 +142,11 @@ class Admin(commands.Cog):
             if message is None:
                 return await ctx.send(f"Please provid a message :\n```{ctx.prefix}leave-message add <message>```")
 
-            db.cursor.execute("UPDATE guilds SET leave_message = ? WHERE guild_id = ?", (message, ctx.guild.id))
-            db.commit()
+            db.db_execute("UPDATE guilds SET `leave_message` = '%s' WHERE `guild_id` = %s", (message, ctx.guild.id))
             return await ctx.send(f"Leave message : \"{message}\" successfully set.")
 
         elif action.lower() == "remove":
-            db.cursor.execute("UPDATE guilds SET leave_message = ? WHERE guild_id = ?", (None, ctx.guild.id))
-            db.commit()
+            db.db_execute("UPDATE guilds SET `leave_message` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
             return await ctx.send("You don't have a leave message anymore.")
         
         else:
@@ -237,13 +229,11 @@ class Admin(commands.Cog):
             if role is None:
                 return await ctx.send(f"Please provid a role :\n```{ctx.prefix}autorole add <role>```")
 
-            db.cursor.execute("UPDATE guilds SET autorole_id = ? WHERE guild_id = ?", (role.id, ctx.guild.id))
-            db.commit()
+            db.db_execute("UPDATE guilds SET `autorole_id` = %s WHERE `guild_id` = %s", (role.id, ctx.guild.id))
             return await ctx.send(f"Autorole : \"{role.name}\" successfully set.")
 
         elif action.lower() == "remove":
-            db.cursor.execute("UPDATE guilds SET autorole_id = ? WHERE guild_id = ?", (None, ctx.guild.id))
-            db.commit()
+            db.db_execute("UPDATE guilds SET `autorole_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
             return await ctx.send("You don't have an autorole anymore.")
         
         else:
