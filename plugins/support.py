@@ -35,7 +35,10 @@ class Support(commands.Cog):
             await ctx.send("Cancelled!")
 
     @commands.command(aliases=["suggestion"])
-    async def suggest(self, ctx, *, suggestion):
+    async def suggest(self, ctx, *, suggestion=None):
+        if suggestion is None:
+            return await ctx.send("Please specify what you want to suggest!")
+
         channel = await self.client.fetch_channel(840710676082720819)
         
         suggest_e = discord.Embed(
@@ -49,7 +52,10 @@ class Support(commands.Cog):
         await msg.add_reaction("❌")
 
     @commands.command()
-    async def report(self, ctx, *, report):
+    async def report(self, ctx, *, report=None):
+        if report is None:
+            return await ctx.send("Please specify what you want to report!")
+
         channel = await self.client.fetch_channel(853012999764705350)
         
         suggest_e = discord.Embed(

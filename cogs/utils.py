@@ -69,6 +69,8 @@ class Utils(commands.Cog):
                 if role.name == "@everyone":
                     continue
                 roles += f"<@&{role.id}> "
+            if roles == "":
+                roles = "No roles"
 
             created = ctx.author.created_at.strftime("%b %d %Y")
             joined = ctx.author.joined_at.strftime("%b %d %Y")
@@ -97,6 +99,8 @@ class Utils(commands.Cog):
                 if role.name == "@everyone":
                     continue
                 roles += f"<@&{role.id}> "
+            if roles == "":
+                roles = "No roles"
 
             created = member.created_at.strftime("%b %d %Y")
             joined = member.joined_at.strftime("%b %d %Y")
@@ -157,6 +161,8 @@ class Utils(commands.Cog):
                 emojis += f"<a:{emoji.name}:{emoji.id}> "
             else:
                 emojis += f"<:{emoji.name}:{emoji.id}> "
+        if emojis == "":
+            emojis = "No emojis"
 
         emojis_e = discord.Embed(
             title=f"{ctx.guild.name}'s emojis • {len(ctx.guild.emojis)} emojis",
@@ -203,6 +209,8 @@ class Utils(commands.Cog):
                 the_permission = " ".join(the_permission)
                 the_permission = the_permission.title()
                 permissions += f"{the_permission}, "
+        if permissions == "":
+            permissions = "No permissions"
 
         created = role.created_at.strftime("%d %b %Y")
 

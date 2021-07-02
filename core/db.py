@@ -23,9 +23,10 @@ class DB(Database):
                 blacklisted TEXT,
                 moderator_roles TEXT,
                 tickettool_id BIGINT UNSIGNED,
+                tickettool_logs BIGINT UNSIGNED,
                 muted_role BIGINT UNSIGNED,
-                PRIMARY KEY(guild_id)
-            )"""
+								PRIMARY KEY(guild_id)
+            )""")
         
         self.db_execute(sql)
     
@@ -115,13 +116,26 @@ class DB(Database):
         else:
             return result[1][0]
 
+    # get ticket tool message and channel id
     def get_tickettool(self, guild_id):
         self.is_in_database_guild(guild_id)
         result = self.db_fetchone("SELECT `tickettool_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
         if result[1][0] is None:
             return False
         else:
+            return result[1][0].split(" ")
+
+    # get ticket tool logs channel
+    def get_tickettool_logs(self, guild_id):
+        self.is_in_database_guild(guild_id)
+        self.cursor.execute("SELECT tickettool_logs FROM guilds WHERE guild_id = ?", (guild_id,))
+        result = self.cursor.fetchone()
+
+        if result[1][0] is None:
+            return False
+        else:
             return result[1][0]
+            
 
     # add/remove moderator role
     def manage_moderator_roles(self, guild_id, action:str, role_id:int):

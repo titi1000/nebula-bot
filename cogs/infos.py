@@ -79,7 +79,7 @@ class Infos(commands.Cog):
         if command is None:
             description = f"""Use `{ctx.prefix}<command>` to run a command or `{ctx.prefix}help <command>` to have more details, or to see how to use a specific command.\n
             **Infos**\n`help`, `infos`, `prefix`, `support`, `website`, `documentation`\n
-            **Utils**\n`emojiinfo`, `cloneemoji`, `profile`, `guild`, `emojis`, `membercount`, `quote`, `color`, `role`, `ping`, `announce`, `search`, `discrim`\n
+            **Utils**\n`emojiinfo`, `cloneemoji`, `profile`, `guild`, `emojis`, `membercount`, `quote`, `color`, `role`, `ping`, `announce`, `search`, `discrim`, `suggest`, `report`\n
             **Fun**\n`meme`, `cat`, `dog`, `8ball`, `avatar`, `reverse`, `say`\n
             **Mods only**\n`massrole`, `nick`, `ban`, `kick`, `purge`\n
             **Admin only**\n`mod-logs`, `blacklist`, `welcome`, `welcome-channel`, `welcome-message`, `leave`, `leave-channel`, `leave-message`, `autorole`\n

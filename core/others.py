@@ -110,11 +110,18 @@ def is_it_moderator(ctx):
     commons = list(set(moderator_roles).intersection(member_roles_id))
     if len(commons) > 0:
         return True
-    else:
-        if ctx.author.guild_permissions.administrator:
-            return True
-        else:
-            return False
+    return ctx.author.guild_permissions.administrator
+
+# verify if a member is guild moderator (or admin)
+def is_it_moderator_member(member):
+    moderator_roles = db.get_moderator_roles(member.guild.id)
+    member_roles_id = []
+    for role in member.roles:
+        member_roles_id.append(role.id)
+    commons = list(set(moderator_roles).intersection(member_roles_id))
+    if len(commons) > 0:
+        return True
+    return member.guild_permissions.administrator
 
 # add 1 to user's command counter 
 async def user_cmd_count_up(ctx): # must place "@client.after_invoke(user_cmd_count_up)" on each command
