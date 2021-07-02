@@ -217,6 +217,8 @@ class Mods(commands.Cog):
             p_description = ""
             if len(punishments) > 0:
                 for punishment in punishments:
+                    if punishment.reason == "":
+                        punishment.reason = "No reason was given"
                     p_description+=f"**Infraction #`{punishment.id}` - {punishment.type}**\n{punishment.reason}\n"
             else:
                 p_description+="No infraction"
@@ -279,6 +281,8 @@ class Mods(commands.Cog):
                         p_description+=f"{v}{k} "
                 p_description+="\n"
             
+            if punishment.reason == "":
+                punishment.reason = "No reason was given"
             p_description+=f"**Reason:** {punishment.reason}"
 
             p_e = discord.Embed(description = p_description, color = MAINCOLOR, timestamp = datetime.datetime.fromtimestamp(float(punishment.start_timestamp)))
