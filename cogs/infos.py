@@ -69,8 +69,7 @@ class Infos(commands.Cog):
             return await ctx.send("The new prefix may not be longer than 2 characters!")
 
         db.is_in_database_guild(ctx.guild.id)
-        db.cursor.execute("UPDATE guilds SET prefix = ? WHERE guild_id = ?", (prefix, ctx.guild.id))
-        db.commit()
+        db.db_execute("UPDATE guilds SET `prefix` = '%s' WHERE `guild_id` = %s", (prefix, ctx.guild.id))
         await ctx.send(f"New prefix will now be `{prefix}`")
 
     # help command
@@ -161,8 +160,7 @@ class Infos(commands.Cog):
             blacklisted.append(str(channel.id))
 
         blacklisted = " ".join(blacklisted)
-        db.cursor.execute("UPDATE guilds SET blacklisted = ? WHERE guild_id = ?", (blacklisted,ctx.guild.id))
-        db.commit()
+        db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
 
         channels = ""
         for channel in ctx.message.channel_mentions:
@@ -183,8 +181,7 @@ class Infos(commands.Cog):
                 blacklisted.remove(str(channel.id))
 
         blacklisted = " ".join(blacklisted)
-        db.cursor.execute("UPDATE guilds SET blacklisted = ? WHERE guild_id = ?", (blacklisted,ctx.guild.id))
-        db.commit()
+        db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
 
         channels = ""
         for channel in ctx.message.channel_mentions:
