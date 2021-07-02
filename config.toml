@@ -4,6 +4,11 @@ token = "NjYxMTcxMzYyODU2OTYwMDEx.Xgnh0A.Qqn1o2aUQDfNRVDC39FIE3_vum4" # "ODM1NDY
 main_color = "0xaefe19" # the main color for all embeds
 error_color = "0xfe2419" # the error color of your bot
 owner_id = [583663379030212609, 476818400010829836] # the id of the bot owner
+database = "main.sqlite3" # the name of your database (must be a sqlite database)
+database_users = "db_users.sqlite3" # the name of the users database
+database_punishments = "db_punishments.sqlite3" # the name of the punishments database
+suggest_channel = 840710676082720819 # channel where suggestions are send
+report_channel = 853012999764705350 # channel where reports are send
 
 [databases]
 
