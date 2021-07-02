@@ -1,128 +1,152 @@
+import discord
+import sqlite3
 import toml
-import mysql.connector as mysql
-from core.database import Database
+from discord.ext import commands
 
-class DB(Database):
+class DB:
 
-    def __init__(self, db):
-        Database.__init__(self, db)
+    def __init__(self, db_name):
+        self.db_name = db_name
+        self.db = sqlite3.connect(self.db_name)
+        self.cursor = self.db.cursor()
 
     # initialise the database
     def init(self):
-        sql = """
+        self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS guilds(
-                guild_id BIGINT UNSIGNED NOT NULL UNIQUE,
-                prefix VARCHAR(10) DEFAULT '?',
-                language VARCHAR(50) DEFAULT 'english',
-                logs_id BIGINT UNSIGNED,
-                welcome_id BIGINT UNSIGNED,
-                welcome_message TEXT,
-                leave_id BIGINT UNSIGNED,
+                guild_id INTEGER NOT NULL UNIQUE,
+                prefix TEXT DEFAULT '?',
+                language TEXT DEFAULT 'en',
+                logs_id INTEGER,
+                welcome_id INTEGER,
+                welcome_message INTEGER,
+                leave_id INTEGER,
                 leave_message TEXT,
-                autorole_id BIGINT UNSIGNED,
+                autorole_id INTEGER,
                 blacklisted TEXT,
                 moderator_roles TEXT,
-                tickettool_id BIGINT UNSIGNED,
-                muted_role BIGINT UNSIGNED,
-                PRIMARY KEY(guild_id)
-            )"""
+                tickettool_id INTEGER
+                muted_role INTEGER
+            )""")
         
-        self.db_execute(sql)
-    
-    
-    # get the prefix
+        self.commit()
+
     def get_prefix(self, client, message):
         if not message.guild:
             return "?"
         self.is_in_database_guild(message.guild.id)
-        result = self.db_fetchone("SELECT `prefix` FROM guilds WHERE `guild_id` = %s", (message.guild.id,))
-        if result[1][0] is None:
+        self.cursor.execute("SELECT prefix FROM guilds WHERE guild_id = ?", (message.guild.id,))
+        result = self.cursor.fetchone()[0]
+        if result is None:
             return "?"
-        return result[1][0]
+        return result
+
+    # commit in database
+    def commit(self):
+        self.db.commit()
 
     # check if guild is in data base
     def is_in_database_guild(self, guild_id):
-        result = self.db_fetchone("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
-            self.db_execute("INSERT INTO guilds(`guild_id`) VALUES (%s)", (guild_id,))
+        self.cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild_id,))
+        result = self.cursor.fetchone()
+        if result is None:
+            self.cursor.execute("INSERT INTO guilds(guild_id) VALUES (?)", (guild_id,))
+            self.db.commit()
 
     # check if user is in data base
     def is_in_database_user(self, user_id):
-        result = self.db_fetchone("SELECT `user_id` FROM users WHERE `user_id` = %s", (user_id,))
-        if result[1][0] is None:
-            self.db_execute("INSERT INTO users(`user_id`) VALUES (%s)", (user_id,))
+        self.cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
+        result = self.cursor.fetchone()
+        if result is None:
+            self.cursor.execute("INSERT INTO users(user_id) VALUES (?)", (user_id,))
+            self.db.commit()
 
     # find the logs channel
     def logs_channel(self, guild_id):
         self.is_in_database_guild(guild_id)
-        result = self.db_fetchone("SELECT `logs_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
+        self.cursor.execute("SELECT logs_id FROM guilds WHERE guild_id = ?", (guild_id,))
+        result = self.cursor.fetchone()
+
+        if result[0] is None:
             return False
         else:
-            return result[1][0]
+            return result[0]
 
     # find the welcome channel
     def welcome_channel(self, guild_id):
         self.is_in_database_guild(guild_id)
-        result = self.db_fetchone("SELECT `welcome_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
+        self.cursor.execute("SELECT welcome_id FROM guilds WHERE guild_id = ?", (guild_id,))
+        result = self.cursor.fetchone()
+
+        if result[0] is None:
             return False
         else:
-            return result[1][0]
+            return result[0]
 
     # get welcome message
     def welcome_message(self, guild_id):
         self.is_in_database_guild(guild_id)
-        result = self.db_fetchone("SELECT `welcome_message` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
+        self.cursor.execute("SELECT welcome_message FROM guilds WHERE guild_id = ?", (guild_id,))
+        result = self.cursor.fetchone()
+
+        if result[0] is None:
             return False
         else:
-            return result[1][0]
+            return result[0]
 
     # find the leave channel
     def leave_channel(self, guild_id):
         self.is_in_database_guild(guild_id)
-        result = self.db_fetchone("SELECT `leave_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
+        self.cursor.execute("SELECT leave_id FROM guilds WHERE guild_id = ?", (guild_id,))
+        result = self.cursor.fetchone()
+
+        if result[0] is None:
             return False
         else:
-            return result[1][0]
+            return result[0]
 
     # get leave message
     def leave_message(self, guild_id):
         self.is_in_database_guild(guild_id)
-        result = self.db_fetchone("SELECT `leave_message` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
+        self.cursor.execute("SELECT leave_message FROM guilds WHERE guild_id = ?", (guild_id,))
+        result = self.cursor.fetchone()
+
+        if result[0] is None:
             return False
         else:
-            return result[1][0]
+            return result[0]
 
     # get autorole
     def get_autorole(self, guild_id):
         self.is_in_database_guild(guild_id)
-        result = self.db_fetchone("SELECT `autorole_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
+        self.cursor.execute("SELECT autorole_id FROM guilds WHERE guild_id = ?", (guild_id,))
+        result = self.cursor.fetchone()
+
+        if result[0] is None:
             return False
         else:
-            return result[1][0]
+            return result[0]
 
     # get blacklisted channel
     def get_blacklisted(self, guild_id):
         self.is_in_database_guild(guild_id)
-        result = self.db_fetchone("SELECT `blacklisted` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
+        self.cursor.execute("SELECT blacklisted FROM guilds WHERE guild_id = ?", (guild_id,))
+        result = self.cursor.fetchone()
+
+        if result[0] is None:
             return ""
         else:
-            return result[1][0]
+            return result[0]
 
     def get_tickettool(self, guild_id):
         self.is_in_database_guild(guild_id)
-        result = self.db_fetchone("SELECT `tickettool_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
+        self.cursor.execute("SELECT tickettool_id FROM guilds WHERE guild_id = ?", (guild_id,))
+        result = self.cursor.fetchone()
+
+        if result[0] is None:
             return False
         else:
-            return result[1][0]
-
+            return result[0]
     # add/remove moderator role
     def manage_moderator_roles(self, guild_id, action:str, role_id:int):
         self.is_in_database_guild(guild_id)
@@ -134,7 +158,7 @@ class DB(Database):
             else:
                 moderator_roles = moderator_roles.append(role_id)
                 roles_str = " ".join(moderator_roles_str)
-                self.db_execute("UPDATE guilds SET `moderator_roles` = %s WHERE `guild_id` = %s", (roles_str, guild_id))
+                self.cursor.execute("UPDATE guilds SET moderator_roles = ? WHERE guild_id = ?", (roles_str, guild_id))
                 return (0, 1)
 
         elif action == "rm" or action == "rem" or action == "remove":
@@ -143,7 +167,7 @@ class DB(Database):
                 roles_str = " ".join(moderator_roles_str)
                 if roles_str == "":
                     roles_str=None
-                self.db_execute("UPDATE guilds SET `moderator_roles` = %s WHERE `guild_id` = %s", (roles_str, guild_id))
+                self.cursor.execute("UPDATE guilds SET moderator_roles = ? WHERE guild_id = ?", (roles_str, guild_id))
                 return (1, 0)
             else:
                 return (0, 0)
@@ -151,29 +175,31 @@ class DB(Database):
     # get moderator roles list
     def get_moderator_roles(self, guild_id):
         self.is_in_database_guild(guild_id)
-        result_str = self.db_fetchone("SELECT `moderator_roles` FROM guilds WHERE `guild_id`=%s", (guild_id,))
+        self.cursor.execute("SELECT moderator_roles FROM guilds WHERE guild_id=?", (guild_id,))
+        result_str = self.cursor.fetchone()
+
         role_list = []
-        if result_str[1][0] is not None:
-            list = result_str[1][0].split(" ")
+        if result_str[0] is not None:
+            list = result_str[0].split(" ")
             for role in list:
                 if role != "":
                     role_list.append(int(role))
-                    
+        
         return role_list
 
     # set the muted role
     def set_muted_role(self, guild_id, muted_role_id):
         self.is_in_database_guild(guild_id)
-        self.db_execute("INSERT INTO guilds(`muted_role`) VALUES(%s) WHERE `guild_id` = %s", (muted_role_id, guild_id))
+        self.cursor.execute("INSERT INTO guilds(muted_role) VALUES(?) WHERE guild_id = ?", (muted_role_id, guild_id))
 
     # get the muted role
     def get_muted_role(self, guild_id):
         self.is_in_database_guild(guild_id)
-        result = self.db_fetchone("SELECT `muted_role` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        return result[1][0]
-        
+        self.cursor.execute("SELECT muted_role FROM guilds WHERE guild_id = ?", (guild_id,))
+        return self.cursor.fetchone()[0]
         
 
+
 data = toml.load("config.toml")
-database = data["databases"]["guilds"]
+database = data["database"]
 db = DB(database)

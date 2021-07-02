@@ -21,14 +21,16 @@ class Logs(commands.Cog):
             return await ctx.send(f"Current logs channel on this guild : <#{channel_id}>\nUse `{ctx.prefix}mod-logs remove` to remove the actual  one")
 
         db.is_in_database_guild(ctx.guild.id)
-        db.db_execute("UPDATE guilds SET `logs_id` = %s WHERE `guild_id` = %s", (channel.id, ctx.guild.id))
+        db.cursor.execute("UPDATE guilds SET logs_id = ? WHERE guild_id = ?", (channel.id, ctx.guild.id))
+        db.commit()
         await ctx.send(f"New mod channel will be {channel.mention}")
 
     @mod_logs.command(aliases=["rm"])
     @commands.has_permissions(administrator=True)
     async def remove(self, ctx):
         db.is_in_database_guild(ctx.guild.id)
-        db.db_execute("UPDATE guilds SET `logs_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
+        db.cursor.execute("UPDATE guilds SET logs_id = ? WHERE guild_id = ?", (None, ctx.guild.id))
+        db.commit()
         await ctx.send(f"No more logs channel set on this guild.")
 
     ## Logs
