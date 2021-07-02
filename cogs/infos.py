@@ -43,7 +43,7 @@ class Infos(commands.Cog):
     @commands.command()
     @is_blacklisted_cogs
     async def invite(self, ctx):
-        invite = discord.utils.oauth_url(self.client.user.id, permissions=discord.Permissions(3963616455))
+        invite = discord.utils.oauth_url(self.client.user.id, permissions=discord.Permissions(4227853527))
         invite_e = discord.Embed(
             title=f"{self.client.user.name}'s invite",
             description=f"[Click here]({invite}) to invite the bot!",
