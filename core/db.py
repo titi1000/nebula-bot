@@ -25,8 +25,8 @@ class DB(Database):
                 tickettool_id BIGINT UNSIGNED,
                 tickettool_logs BIGINT UNSIGNED,
                 muted_role BIGINT UNSIGNED,
-								PRIMARY KEY(guild_id)
-            )""")
+				PRIMARY KEY(guild_id)
+            )"""
         
         self.db_execute(sql)
     
