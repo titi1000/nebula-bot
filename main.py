@@ -9,6 +9,7 @@ from core.db_user import db_users
 from core.db_punishments import db_punishments
 from core.myjson import lang_json
 from core.others import is_it_owner, write_plugins_json
+from core.nebula_logging import nebula_logging
 
 ### Init
 
@@ -65,6 +66,7 @@ class Bot(commands.Bot):
         print(self.user.id)
         print("--------- poweron ---------")
         await self.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="?help to see all my commands"))
+        nebula_logging.logger_bot.info(f"Bot logged as {self.user} | {self.user.id}")
     
     # bot get pinged
     async def on_message(self, message):
