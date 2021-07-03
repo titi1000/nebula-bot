@@ -27,7 +27,7 @@ class Bot(commands.Bot):
         intents = discord.Intents.default()
         intents.members = True
         super().__init__(command_prefix=db.get_prefix, help_command=None, case_insensitive=True, intents=intents, owner_id=owner_id)
-        #self.ipc = ipc.Server(self, secret_key=TOKEN)
+        self.ipc = ipc.Server(self, secret_key=TOKEN)
         self.launch_time = datetime.datetime.utcnow()
         self.language = "en"
 
@@ -37,6 +37,8 @@ class Bot(commands.Bot):
         self.load_cogs()
         self.load_plugins()
         self.add_commands()
+
+        #self.ipc.start() -> we'll start it when the webserver will be up !
 
 
     # cogs loader
@@ -215,27 +217,13 @@ class Bot(commands.Bot):
         if result[1] is not None:
             db.db_execute("DELETE FROM guilds WHERE `guild_id` = %s", (guild.id,))
 
+
 # main function
 def main():
-
     client = Bot()
     client.run(TOKEN)
 
-
-### WEB SERVER
-"""
-@client.event
-async def on_ipc_error(endpoint, error):
-        print(endpoint, "raised", error)
-
-
-@client.ipc.route()
-async def get_member_count(data):
-    guild = await client.fetch_guild(data.guild_id)
-
-    return len(await guild.fetch_members(limit=1000).flatten()), guild.name"""
         
 # run the bot
 if __name__ == "__main__":
-    #client.ipc.start()
     main()
