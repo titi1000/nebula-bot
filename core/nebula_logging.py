@@ -20,6 +20,14 @@ paths = {
 class NebulaLogging:
 
     def __init__(self):
+
+        if not os.path.isdir(logspath):
+            os.mkdir(logspath)
+        if not os.path.isdir(paths["mysql"]):
+            os.mkdir(paths["mysql"])
+        if not os.path.isdir(paths["bot"]):
+            os.mkdir(paths["bot"])
+    
         self.time_separator=time_separator
         self.name_separator=name_separator
         self.level_name_separator=level_name_separator
