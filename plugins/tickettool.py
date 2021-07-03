@@ -64,7 +64,7 @@ class Tickettool(commands.Cog):
             timestamp=datetime.datetime.now()
         )
         closed_e.add_field(name="Member", value=member_name, inline=False)
-        closed_e.add_field(name="Messages (max 1000)", value=messages, inline=False)
+        closed_e.add_field(name="Messages", value=messages, inline=False)
         closed_e.add_field(name="Closed by", value=f"{closer.name}#{closer.discriminator}", inline=False)
 
         try:
@@ -113,7 +113,13 @@ class Tickettool(commands.Cog):
                 return True
             return False
 
-        await ctx.send("Interactive ticket tool setup started! You can cancel it at any time by typing \"cancel\".\nWhere should the ticket-tool message go?\nPlease provid a valid channel")
+        start_e = discord.Embed(
+            title="Interactive ticket tool setup started!",
+            description=":warning: Please make sure I have permission to manage the channels on this server, it won't work if I don't have it. :warning:\n\nYou can cancel it at any time by typing 'cancel'.\n\nWhere should the ticket-tool message go?\n**Please provid a valid channel**",
+            color=MAINCOLOR
+        )
+
+        await ctx.send(embed=start_e)
 
         setup_e = discord.Embed()
 
@@ -135,7 +141,12 @@ class Tickettool(commands.Cog):
                 return await ctx.send("Cancelled as no valid channel was provided")
             logs_channel = logs_channel.channel_mentions[0]
 
-        await ctx.send("Should the embed have a title? [y/n]")
+        embed = discord.Embed(
+            title="Should the embed have a title? [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860865452158091264/embed_title.png")
+        await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=check)
         if cancel_check(response) is True:
             return await ctx.send("Cancelled!")
@@ -144,16 +155,12 @@ class Tickettool(commands.Cog):
             title = await self.client.wait_for("message", check=check_title)
             setup_e.title = title.content
 
-        await ctx.send("Should the embed have a footer? [y/n]")
-        response = await self.client.wait_for("message", check=check)
-        if cancel_check(response) is True:
-            return await ctx.send("Cancelled!")
-        if response.content.lower() == "y":
-            await ctx.send("What should be the footer?")
-            footer = await self.client.wait_for("message", check=check_footer)
-            setup_e.set_footer(text=footer.content)
-
-        await ctx.send("Should the embed have a description? [y/n]")
+        embed = discord.Embed(
+            title="Should the embed have a description? [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866775821713448/embed_description.png")
+        await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=check)
         if cancel_check(response) is True:
             return await ctx.send("Cancelled!")
@@ -162,7 +169,26 @@ class Tickettool(commands.Cog):
             description = await self.client.wait_for("message", check=check_description)
             setup_e.description = description.content
 
-        await ctx.send("Should the embed have a thumbnail? [y/n]")
+        embed = discord.Embed(
+            title="Should the embed have a footer? [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866713457000458/embed_footer.png")
+        await ctx.send(embed=embed)
+        response = await self.client.wait_for("message", check=check)
+        if cancel_check(response) is True:
+            return await ctx.send("Cancelled!")
+        if response.content.lower() == "y":
+            await ctx.send("What should be the footer?")
+            footer = await self.client.wait_for("message", check=check_footer)
+            setup_e.set_footer(text=footer.content)
+
+        embed = discord.Embed(
+            title="Should the embed have a thumbnail? [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866753139441674/embed_thumbnail.png")
+        await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=check)
         if cancel_check(response) is True:
             return await ctx.send("Cancelled!")
@@ -175,7 +201,12 @@ class Tickettool(commands.Cog):
                 url = thumbnail.content
             setup_e.set_thumbnail(url=url)
 
-        await ctx.send("Should the embed have a custom color? [y/n]")
+        embed = discord.Embed(
+            title="Should the embed have a custom color? (If no, the color will be the default) [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866691894738945/embed_color.png")
+        await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=check)
         if cancel_check(response) is True:
             return await ctx.send("Cancelled!")
@@ -189,7 +220,7 @@ class Tickettool(commands.Cog):
                 await ctx.send("Not a valid hex color. Embed will have the default color. Restart if you want a custom color!")
 
         try:
-            await ctx.send("Do you want to send the following ticket tool message in {}? [y/n]".format(channel.mention), embed=setup_e)
+            await ctx.send("Do you want to send the following ticket tool message in {}? (The reaction will be add automatically) [y/n]".format(channel.mention), embed=setup_e)
         except discord.errors.HTTPException:
             return await ctx.send("Embed cannot be empty... Please retry")
 
@@ -228,7 +259,14 @@ class Tickettool(commands.Cog):
                 guild.default_role: discord.PermissionOverwrite(read_messages=False),
                 payload.member: discord.PermissionOverwrite(read_messages=True)
             }
-            channel = await channel.category.create_text_channel(f"{payload.member.name}-{payload.member.discriminator}", overwrites=overwrites, topic=payload.member.id)
+
+            if channel.category is None: # in case ticket tool channel has no category
+                location = guild
+            else:
+                location = channel.category 
+
+            channel = await location.create_text_channel(f"{payload.member.name}-{payload.member.discriminator}", overwrites=overwrites, topic=payload.member.id)
+            
             await channel.send(payload.member.mention)
             tickettool_e = discord.Embed(
                 title="New ticket created!",

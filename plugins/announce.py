@@ -1,6 +1,7 @@
 import discord
 import re
-from discord.ext import commands 
+from discord.ext import commands
+from main import MAINCOLOR
 
 class Announce(commands.Cog):
 
@@ -31,7 +32,13 @@ class Announce(commands.Cog):
         def check_description(msg):
             return msg.author == ctx.author and msg.channel == ctx.channel and len(msg.content) < 2048
 
-        await ctx.send("Interactive custom announce started! You can cancel it at any time by typing \"cancel\".\nWhere should I send the announce?\nPlease provid a valid channel")
+        start_e = discord.Embed(
+            title="Interactive announce started!",
+            description="You can cancel it at any time by typing 'cancel'.\n\nWhere should the announce message go?\n**Please provid a valid channel**",
+            color=MAINCOLOR
+        )
+
+        await ctx.send(embed=start_e)
 
         announce_e = discord.Embed()
 
@@ -42,7 +49,12 @@ class Announce(commands.Cog):
             return await ctx.send("Cancelled as no valid channel was provided")
         channel = channel.channel_mentions[0]
 
-        await ctx.send("Should the embed have a title? [y/n]")
+        embed = discord.Embed(
+            title="Should the embed have a title? [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860865452158091264/embed_title.png")
+        await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=yes_no_check)
         if cancel_check(response) is True:
             return await ctx.send("Cancelled!")
@@ -51,16 +63,12 @@ class Announce(commands.Cog):
             title = await self.client.wait_for("message", check=check_title)
             announce_e.title = title.content
 
-        await ctx.send("Should the embed have a footer? [y/n]")
-        response = await self.client.wait_for("message", check=yes_no_check)
-        if cancel_check(response) is True:
-            return await ctx.send("Cancelled!")
-        if response.content.lower() == "y":
-            await ctx.send("What should be the footer?")
-            footer = await self.client.wait_for("message", check=check_footer)
-            announce_e.set_footer(text=footer.content)
-
-        await ctx.send("Should the embed have a description? [y/n]")
+        embed = discord.Embed(
+            title="Should the embed have a description? [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866775821713448/embed_description.png")
+        await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=yes_no_check)
         if cancel_check(response) is True:
             return await ctx.send("Cancelled!")
@@ -69,7 +77,26 @@ class Announce(commands.Cog):
             description = await self.client.wait_for("message", check=check_description)
             announce_e.description = description.content
 
-        await ctx.send("Should the embed have a thumbnail? [y/n]")
+        embed = discord.Embed(
+            title="Should the embed have a footer? [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866713457000458/embed_footer.png")
+        await ctx.send(embed=embed)
+        response = await self.client.wait_for("message", check=yes_no_check)
+        if cancel_check(response) is True:
+            return await ctx.send("Cancelled!")
+        if response.content.lower() == "y":
+            await ctx.send("What should be the footer?")
+            footer = await self.client.wait_for("message", check=check_footer)
+            announce_e.set_footer(text=footer.content)
+
+        embed = discord.Embed(
+            title="Should the embed have a thumbnail? [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866753139441674/embed_thumbnail.png")
+        await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=yes_no_check)
         if cancel_check(response) is True:
             return await ctx.send("Cancelled!")
@@ -82,7 +109,12 @@ class Announce(commands.Cog):
                 url = thumbnail.content
             announce_e.set_thumbnail(url=url)
 
-        await ctx.send("Should the embed have an image? [y/n]")
+        embed = discord.Embed(
+            title="Should the embed have an image? [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866732184698880/embed_image.png")
+        await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=yes_no_check)
         if cancel_check(response) is True:
             return await ctx.send("Cancelled!")
@@ -95,12 +127,17 @@ class Announce(commands.Cog):
                 url = image.content
             announce_e.set_image(url=url)
 
-        await ctx.send("Should the embed have a custom color? [y/n]")
+        embed = discord.Embed(
+            title="Should the embed have a custom color? (If no, the color will be the default) [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866691894738945/embed_color.png")
+        await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=yes_no_check)
         if cancel_check(response) is True:
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
-            await ctx.send("What should be the color?\nPlease enter a valid hex color")
+            await ctx.send("What should be the color?\nPlease enter a valid hex color (with `#` before)")
             color = await self.client.wait_for("message", check=yes_no_check)
             match = re.search(r"^#(?:[0-9a-fA-F]{3}){1,2}$", color.content) # thx github for the 3 next lines lol 
             if match:
