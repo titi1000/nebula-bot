@@ -234,9 +234,8 @@ class Tickettool(commands.Cog):
         else:
             return await ctx.send("Cancelled!")
 
-        db.cursor.execute("UPDATE guilds SET tickettool_id = ? WHERE guild_id = ?", (f"{message.id} {message.channel.id}", ctx.guild.id))
-        db.cursor.execute("UPDATE guilds SET tickettool_logs = ? WHERE guild_id = ?", (logs_channel.id, ctx.guild.id))
-        db.commit()
+        db.db_execute("UPDATE guilds SET `tickettool_id` = %s WHERE `guild_id` = %s", (f"{message.id} {message.channel.id}", ctx.guild.id))
+        db.db_execute("UPDATE guilds SET `tickettool_logs` = %s WHERE `guild_id` = %s", (logs_channel.id, ctx.guild.id))
 
     
     @commands.Cog.listener()

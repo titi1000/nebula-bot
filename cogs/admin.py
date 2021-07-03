@@ -203,58 +203,105 @@ class Admin(commands.Cog):
 
     ### autorole
 
-    @commands.command()
+    @commands.command(aliases=["autoroles", "auto-roles", "auto-role"])
     @commands.has_permissions(administrator=True)
-    async def autorole(self, ctx, action=None, role:discord.Role=None):
+    async def autorole(self, ctx, action=None):
         if action is None:
-            role_id = db.get_autorole(ctx.guild.id)
+            roles_id = db.get_autorole(ctx.guild.id)
 
-            if role_id is False:
-                return await ctx.send("You don't have any autorole set in this guild.")
+            if roles_id is False:
+                return await ctx.send("You don't have any autoroles set in this guild.")
 
             try:
                 await ctx.guild.fetch_roles()
-                autorole = ctx.guild.get_role(int(role_id))
                 autorole_e = discord.Embed(
-                    title=f"{ctx.guild.name}'s autorole",
-                    description="All the new members will get this role when joining.",
+                    title=f"{ctx.guild.name}'s autorole(s)",
                     color=MAINCOLOR
                 )
-                autorole_e.add_field(name="Role", value=autorole.mention)
+
+                autoroles = ""
+                for role in roles_id.split(" "):
+                    if role == "": # prevent from bugs
+                        continue
+                    autorole = ctx.guild.get_role(int(role))
+                    autoroles += f"{autorole.mention} "
+                
+                autorole_e.description = f"All the new members will get the following role(s) when joining:\n\n{autoroles}"
                 return await ctx.send(embed=autorole_e)
-            except:
+            except Exception as e:
+                print(e)
                 return await ctx.send("There is a problem...")
 
         if action.lower() == "add":
-            if role is None:
-                return await ctx.send(f"Please provid a role :\n```{ctx.prefix}autorole add <role>```")
+            if len(ctx.message.role_mentions) == 0:
+                return await ctx.send(f"Please provid one or more roles to add:\n```{ctx.prefix}autorole add <role(s)-mention>```")
 
-            db.db_execute("UPDATE guilds SET `autorole_id` = %s WHERE `guild_id` = %s", (role.id, ctx.guild.id))
-            return await ctx.send(f"Autorole : \"{role.name}\" successfully set.")
+            role_list = db.get_autorole(ctx.guild.id)
+            if role_list is False:
+                role_list = ""
 
-        elif action.lower() == "remove":
-            db.db_execute("UPDATE guilds SET `autorole_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
-            return await ctx.send("You don't have an autorole anymore.")
+            res = ""
+            for role in ctx.message.role_mentions:
+                role_list += f"{role.id} "
+                res += f"{role.name}, "
+
+            db.db_execute("UPDATE guilds SET `autorole_ids` = %s WHERE `guild_id` = %s", (role_list, ctx.guild.id))
+            return await ctx.send(f"Autorole: '{res[:-2]}' successfully set.")
+
+        elif action.lower() in ["remove", "rm", "rem"]:
+            if len(ctx.message.role_mentions) == 0:
+                return await ctx.send(f"Please provid one or more roles to remove:\n```{ctx.prefix}autorole remove <role(s)-mention>```")
+
+            role_list = db.get_autorole(ctx.guild.id)
+            if role_list is False:
+                return await ctx.send("You don't have any autoroles set.")
+
+            role_list = role_list.split(" ")
+            role_list.pop(len(role_list)-1)
+            res = ""
+            for role in ctx.message.role_mentions:
+                if str(role.id) in role_list:
+                    role_list.remove(str(role.id))
+                    res += f"{role.name}, "
+
+            if res == "":
+                return await ctx.send("None of the roles you gave match with your actual auto-roles...")
+
+            if len(role_list) == 0:
+                role_list = None
+            else:
+                role_list = " ".join(role_list)
+
+            db.db_execute("UPDATE guilds SET `autorole_ids` = %s WHERE `guild_id` = %s", (role_list, ctx.guild.id))
+            return await ctx.send(f"Autorole: '{res[:-2]}' successfully deleted.")
+
+        elif action.lower() == "clear":
+            db.db_execute("UPDATE guilds SET `autorole_ids` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
+            return await ctx.send("You don't have any autoroles anymore.")
         
         else:
-            return await ctx.send(f"Please provid a valid action :\n```{ctx.prefix}autorole (<action>) (<message>)```")
+            return await ctx.send(f"Please provid a valid action (add/remove/clear):\n```{ctx.prefix}autorole (<action>) (<role(s)>)```")
 
     # call when a member join a guild
     @commands.Cog.listener()
     async def on_member_join(self, member):
         await self.member_joined_message(member) # to send a join message (if set)
 
-        role_id = db.get_autorole(member.guild.id)
+        roles_id = db.get_autorole(member.guild.id)
 
-        if role_id is False:
+        if roles_id is False:
             return
         
-        try:
-            await member.guild.fetch_roles()
-            role = discord.utils.get(member.guild.roles, id=int(role_id))
-            await member.add_roles(role)
-        except:
-            return
+        await member.guild.fetch_roles()
+        for role in roles_id.split(" "):
+            if role == "":
+                continue
+            try:
+                role = discord.utils.get(member.guild.roles, id=int(role))
+                await member.add_roles(role)
+            except:
+                continue
+
 
     # send the list of moderator roles
     @commands.command(name = "moderators")
@@ -271,7 +318,7 @@ class Admin(commands.Cog):
             await ctx.send("You are not select moderator roles")
 
     # manage the list of moderator roles
-    @commands.command(name = "set-moderators")
+    @commands.command(aliases=["set-moderators", "set_moderators", "set-moderator", "set_moderator"])
     @commands.has_permissions(administrator = True)
     async def setmoderator(self, ctx, action:str=None, *, roles=None):
         actions = ["add", "rm", "rem", "remove"]

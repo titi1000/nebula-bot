@@ -1,5 +1,4 @@
 import toml
-import mysql.connector as mysql
 from core.database import Database
 
 class DB(Database):
@@ -19,14 +18,14 @@ class DB(Database):
                 welcome_message TEXT,
                 leave_id BIGINT UNSIGNED,
                 leave_message TEXT,
-                autorole_id BIGINT UNSIGNED,
+                autorole_ids TEXT,
                 blacklisted TEXT,
                 moderator_roles TEXT,
-                tickettool_id BIGINT UNSIGNED,
+                tickettool_id TEXT,
                 tickettool_logs BIGINT UNSIGNED,
                 muted_role BIGINT UNSIGNED,
 								PRIMARY KEY(guild_id)
-            )""")
+            )"""
         
         self.db_execute(sql)
     
@@ -101,7 +100,7 @@ class DB(Database):
     # get autorole
     def get_autorole(self, guild_id):
         self.is_in_database_guild(guild_id)
-        result = self.db_fetchone("SELECT `autorole_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
+        result = self.db_fetchone("SELECT `autorole_ids` FROM guilds WHERE `guild_id` = %s", (guild_id,))
         if result[1][0] is None:
             return False
         else:
@@ -128,9 +127,7 @@ class DB(Database):
     # get ticket tool logs channel
     def get_tickettool_logs(self, guild_id):
         self.is_in_database_guild(guild_id)
-        self.cursor.execute("SELECT tickettool_logs FROM guilds WHERE guild_id = ?", (guild_id,))
-        result = self.cursor.fetchone()
-
+        result = self.db_fetchone("SELECT `tickettool_logs` FROM guilds WHERE `guild_id` = %s", (guild_id,))
         if result[1][0] is None:
             return False
         else:
