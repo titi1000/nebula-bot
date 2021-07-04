@@ -119,7 +119,7 @@ class Mods(commands.Cog):
 
             channel_id = db.logs_channel(ctx.guild.id)
 
-            if channel_id == False:
+            if channel_id is False:
                 return
 
             channel = await get_channel_by_id(ctx.guild, int(channel_id))
@@ -154,7 +154,7 @@ class Mods(commands.Cog):
 
             channel_id = db.logs_channel(ctx.guild.id)
 
-            if channel_id == False:
+            if channel_id is False:
                 return
 
             channel = await get_channel_by_id(ctx.guild, int(channel_id))
@@ -187,7 +187,7 @@ class Mods(commands.Cog):
 
             channel_id = db.logs_channel(ctx.guild.id)
 
-            if channel_id == False:
+            if channel_id is False:
                 return
 
             channel = await get_channel_by_id(ctx.guild, int(channel_id))

@@ -5,6 +5,7 @@ import datetime
 from core.db import db
 from core.others import get_channel_by_id
 from main import MAINCOLOR
+from core.nebula_logging import nebula_logging
 
 class Admin(commands.Cog):
 
@@ -26,12 +27,18 @@ class Admin(commands.Cog):
             if channel is None:
                 return await ctx.send(f"Please provid a valid channel :\n```{ctx.prefix}welcome-channel add <channel>```")
 
-            db.db_execute("UPDATE guilds SET `welcome_id` = %s WHERE `guild_id` = %s", (channel.id, ctx.guild.id))
-            return await ctx.send(f"Welcome channel {channel.mention} successfully set.")
+            r = db.db_execute("UPDATE guilds SET `welcome_id` = %s WHERE `guild_id` = %s", (channel.id, ctx.guild.id))
+            if r[0]:
+                return await ctx.send(f"Welcome channel {channel.mention} successfully set.")
+            elif r[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
 
         elif action.lower() == "remove":
-            db.db_execute("UPDATE guilds SET `welcome_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
-            return await ctx.send("You don't have a welcome channel anymore.")
+            r = db.db_execute("UPDATE guilds SET `welcome_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
+            if r[0]:
+                return await ctx.send("You don't have a welcome channel anymore.")
+            elif r[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
 
         else:
             return await ctx.send(f"Please provid a valid action :\n```{ctx.prefix}welcome-channel <action> (<channel>)```")
@@ -48,12 +55,18 @@ class Admin(commands.Cog):
             if message is None:
                 return await ctx.send(f"Please provid a message :\n```{ctx.prefix}welcome-message add <message>```")
 
-            db.db_execute("UPDATE guilds SET `welcome_message` = '%s' WHERE `guild_id` = %s", (message, ctx.guild.id))
-            return await ctx.send(f"Welcome message : \"{message}\" successfully set.")
+            r = db.db_execute("UPDATE guilds SET `welcome_message` = %s WHERE `guild_id` = %s", (message, ctx.guild.id))
+            if r[0]:
+                return await ctx.send(f"Welcome message : \"{message}\" successfully set.")
+            elif r[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
 
         elif action.lower() == "remove":
-            db.db_execute("UPDATE guilds SET `welcome_message` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
-            return await ctx.send("You don't have a welcome message anymore.")
+            r = db.db_execute("UPDATE guilds SET `welcome_message` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
+            if r[0]:
+                return await ctx.send("You don't have a welcome message anymore.")
+            elif r[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
         
         else:
             return await ctx.send(f"Please provid a valid action :\n```{ctx.prefix}welcome-message <action> (<message>)```")
@@ -65,44 +78,57 @@ class Admin(commands.Cog):
         db.is_in_database_guild(ctx.guild.id)
         if action is None:
 
-            channel_id = db.welcome_channel(ctx.guild.id)
-            message = db.welcome_message(ctx.guild.id)
-            if channel_id is False or message is False:
+            r_channel = db.welcome_channel(ctx.guild.id)
+            r_message = db.welcome_message(ctx.guild.id)
+            if r_channel[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
+            if r_message[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
+            if r_channel[1][0] is None or r_message[1][0] is None:
                 return await ctx.send(f"Automatic welcome message isn't set in this guild.\n Use `{ctx.prefix}help` to know how to set it.")
 
             welcome_e = discord.Embed(
                 title=f"{ctx.guild.name}'s welcome message",
                 color=MAINCOLOR
             )
-            welcome_e.add_field(name="Channel", value=f"<#{channel_id}>", inline=True)
-            welcome_e.add_field(name="Message", value=f"{message}", inline=True)
+            welcome_e.add_field(name="Channel", value=f"<#{r_channel[1]}>", inline=True)
+            welcome_e.add_field(name="Message", value=f"{r_message[1]}", inline=True)
 
             await ctx.send(embed=welcome_e)
 
         elif action.lower() == "simulate":
-            channel_id = db.welcome_channel(ctx.guild.id)
-            message = db.welcome_message(ctx.guild.id)
 
-            if channel_id is False or message is False:
+            r_channel = db.welcome_channel(ctx.guild.id)
+            r_message = db.welcome_message(ctx.guild.id)
+            if r_channel[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
+            if r_message[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
+
+            if r_channel[1][0] is None or r_message[1][0] is None:
                 return await ctx.send("You don't have any automatic welcome message set.")
 
             try:
-                result_channel = await get_channel_by_id(ctx.guild, int(channel_id))
-                await result_channel.send(message.format(server=ctx.guild, member=ctx.author))
+                result_channel = await get_channel_by_id(ctx.guild, int(r_channel[1][0]))
+                await result_channel.send(r_message[1][0].format(server=ctx.guild, member=ctx.author))
             except:
-                return
+                return await ctx.send("There is a problem...")
 
     # will be call when a member join
     async def member_joined_message(self, member):
-        channel_id = db.welcome_channel(member.guild.id)
-        message = db.welcome_message(member.guild.id)
+        r_channel = db.welcome_channel(member.guild.id)
+        r_message = db.welcome_message(member.guild.id)
+        if r_channel[0] is False:
+            return
+        if r_message[0] is False:
+            return
 
-        if channel_id is False or message is False:
+        if r_channel[1][0] is None or r_message[1][0] is None:
             return
 
         try:
-            result_channel = await get_channel_by_id(member.guild, int(channel_id))
-            await result_channel.send(message.format(server=member.guild, member=member))
+            result_channel = await get_channel_by_id(member.guild, int(r_channel[1][0]))
+            await result_channel.send(r_message[1][0].format(server=member.guild, member=member))
         except:
             return
 
@@ -120,12 +146,18 @@ class Admin(commands.Cog):
             if channel is None:
                 return await ctx.send(f"Please provid a valid channel :\n```{ctx.prefix}leave-channel add <channel>```")
 
-            db.db_execute("UPDATE guilds SET `leave_id` = %s WHERE `guild_id` = %s", (channel.id, ctx.guild.id))
-            return await ctx.send(f"Leave channel {channel.mention} successfully set.")
+            r = db.db_execute("UPDATE guilds SET `leave_id` = %s WHERE `guild_id` = %s", (channel.id, ctx.guild.id))
+            if r[0]:
+                return await ctx.send(f"Leave channel {channel.mention} successfully set.")
+            elif r[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
 
         elif action.lower() == "remove":
-            db.db_execute("UPDATE guilds SET `leave_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
-            return await ctx.send("You don't have a leave channel anymore.")
+            r = db.db_execute("UPDATE guilds SET `leave_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
+            if r[0]:
+                return await ctx.send("You don't have a leave channel anymore.")
+            elif r[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
 
         else:
             return await ctx.send(f"Please provid a valid action :\n```{ctx.prefix}leave-channel <action> (<channel>)```")
@@ -142,12 +174,18 @@ class Admin(commands.Cog):
             if message is None:
                 return await ctx.send(f"Please provid a message :\n```{ctx.prefix}leave-message add <message>```")
 
-            db.db_execute("UPDATE guilds SET `leave_message` = '%s' WHERE `guild_id` = %s", (message, ctx.guild.id))
-            return await ctx.send(f"Leave message : \"{message}\" successfully set.")
+            r= db.db_execute("UPDATE guilds SET `leave_message` = %s WHERE `guild_id` = %s", (message, ctx.guild.id))
+            if r[0]:
+                return await ctx.send(f"Leave message : \"{message}\" successfully set.")
+            elif r[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
 
         elif action.lower() == "remove":
-            db.db_execute("UPDATE guilds SET `leave_message` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
-            return await ctx.send("You don't have a leave message anymore.")
+            r = db.db_execute("UPDATE guilds SET `leave_message` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
+            if r[0]:
+                return await ctx.send("You don't have a leave message anymore.")
+            elif r[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
         
         else:
             return await ctx.send(f"Please provid a valid action :\n```{ctx.prefix}leave-message <action> (<message>)```")
@@ -159,45 +197,57 @@ class Admin(commands.Cog):
         db.is_in_database_guild(ctx.guild.id)
         if action is None:
 
-            channel_id = db.leave_channel(ctx.guild.id)
-            message = db.leave_message(ctx.guild.id)
-            if channel_id is False or message is False:
+            r_channel = db.leave_channel(ctx.guild.id)
+            r_message = db.leave_message(ctx.guild.id)
+            if r_channel[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
+            if r_message[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
+            if r_channel[1][0] is None or r_message[1][0] is None:
                 return await ctx.send(f"Automatic leave message isn't set in this guild.\n Use `{ctx.prefix}help` to know how to set it.")
 
             leave_e = discord.Embed(
                 title=f"{ctx.guild.name}'s leave message",
                 color=MAINCOLOR
             )
-            leave_e.add_field(name="Channel", value=f"<#{channel_id}>", inline=True)
-            leave_e.add_field(name="Message", value=f"{message}", inline=True)
+            leave_e.add_field(name="Channel", value=f"<#{r_channel[1][0]}>", inline=True)
+            leave_e.add_field(name="Message", value=f"{r_message[1][0]}", inline=True)
 
             await ctx.send(embed=leave_e)
 
         elif action.lower() == "simulate":
-            channel_id = db.leave_channel(ctx.guild.id)
-            message = db.leave_message(ctx.guild.id)
+            r_channel = db.leave_channel(ctx.guild.id)
+            r_message = db.leave_message(ctx.guild.id)
+            if r_channel[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
+            if r_message[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
 
-            if channel_id is False or message is False:
+            if r_channel[1][0] is False or r_message[1][0] is False:
                 return await ctx.send("You don't have any automatic welcome message set.")
 
             try:
-                result_channel = await get_channel_by_id(ctx.guild, int(channel_id))
-                await result_channel.send(message.format(server=ctx.guild, member=ctx.author))
+                result_channel = await get_channel_by_id(ctx.guild, int(r_channel[1][0]))
+                await result_channel.send(r_message[1][0].format(server=ctx.guild, member=ctx.author))
             except:
                 return
 
     # call when a member leave a guild
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        channel_id = db.leave_channel(member.guild.id)
-        message = db.leave_message(member.guild.id)
+        r_channel = db.leave_channel(member.guild.id)
+        r_message = db.leave_message(member.guild.id)
+        if r_channel[0] is False:
+            return
+        if r_message[0] is False:
+            return
 
-        if channel_id is False or message is False:
+        if r_channel[1][0] is False or r_message[1][0] is False:
             return
 
         try:
-            result_channel = await get_channel_by_id(member.guild, int(channel_id))
-            await result_channel.send(message.format(server=member.guild, member=member))
+            result_channel = await get_channel_by_id(member.guild, int(r_channel[1][0]))
+            await result_channel.send(r_message[1][0].format(server=member.guild, member=member))
         except:
             return
 
@@ -207,14 +257,18 @@ class Admin(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def autorole(self, ctx, action=None, role:discord.Role=None):
         if action is None:
-            role_id = db.get_autorole(ctx.guild.id)
+            r_role_id = db.get_autorole(ctx.guild.id)
+            if r_role_id[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
+            if r_role_id[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
 
-            if role_id is False:
+            if r_role_id[1][0] is None:
                 return await ctx.send("You don't have any autorole set in this guild.")
 
             try:
                 await ctx.guild.fetch_roles()
-                autorole = ctx.guild.get_role(int(role_id))
+                autorole = ctx.guild.get_role(int(r_role_id[1][0]))
                 autorole_e = discord.Embed(
                     title=f"{ctx.guild.name}'s autorole",
                     description="All the new members will get this role when joining.",
@@ -229,12 +283,18 @@ class Admin(commands.Cog):
             if role is None:
                 return await ctx.send(f"Please provid a role :\n```{ctx.prefix}autorole add <role>```")
 
-            db.db_execute("UPDATE guilds SET `autorole_id` = %s WHERE `guild_id` = %s", (role.id, ctx.guild.id))
-            return await ctx.send(f"Autorole : \"{role.name}\" successfully set.")
+            r = db.db_execute("UPDATE guilds SET `autorole_ids` = %s WHERE `guild_id` = %s", (role.id, ctx.guild.id))
+            if r[0]:
+                return await ctx.send(f"Autorole : \"{role.name}\" successfully set.")
+            elif r[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
 
         elif action.lower() == "remove":
-            db.db_execute("UPDATE guilds SET `autorole_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
-            return await ctx.send("You don't have an autorole anymore.")
+            r = db.db_execute("UPDATE guilds SET `autorole_ids` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
+            if r[0]:
+                return await ctx.send("You don't have an autorole anymore.")
+            elif r[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
         
         else:
             return await ctx.send(f"Please provid a valid action :\n```{ctx.prefix}autorole (<action>) (<message>)```")
@@ -244,14 +304,15 @@ class Admin(commands.Cog):
     async def on_member_join(self, member):
         await self.member_joined_message(member) # to send a join message (if set)
 
-        role_id = db.get_autorole(member.guild.id)
-
-        if role_id is False:
+        r_role_id = db.get_autorole(member.guild.id)
+        if r_role_id[0] is False:
             return
-        
+        if r_role_id[1][0] is None:
+            return
+
         try:
             await member.guild.fetch_roles()
-            role = discord.utils.get(member.guild.roles, id=int(role_id))
+            role = discord.utils.get(member.guild.roles, id=int(r_role_id[1][0]))
             await member.add_roles(role)
         except:
             return
@@ -261,7 +322,11 @@ class Admin(commands.Cog):
     @commands.has_permissions(administrator = True)
     async def moderators(self, ctx):
         guild_id = ctx.guild.id
-        moderator_roles = db.get_moderator_roles(guild_id)
+        r_moderator_roles = db.get_moderator_roles(guild_id)
+        if r_moderator_roles[0] is False:
+            return await ctx.send("An error was occured, a report has been sent.")
+        moderator_roles = r_moderator_roles[1][0]
+        await ctx.guild.fetch_roles()
         string = ""
         for role in moderator_roles:
             string += f"{ctx.guild.get_role(role).mention}\n"
@@ -281,14 +346,16 @@ class Admin(commands.Cog):
                 resume = "Resume\n\n"
                 for role in ctx.message.role_mentions:
                     r = db.manage_moderator_roles(guild_id, action, role.id)
+                    if r[0] is False:
+                        return await ctx.send("An error was occured, a report has been sent.")
 
-                    if r[0] == 0 and r[1] == 0:
+                    if r[1][0] == 0 and r[1][1] == 0:
                         resume+=f"{role.mention} wasn't a moderator role\n"
-                    elif r[0] == 0 and r[1] == 1:
+                    elif r[1][0] == 0 and r[1][1] == 1:
                         resume+=f"{role.mention} is now a moderator role\n"
-                    elif r[0] == 1 and r[1] == 0:
+                    elif r[1][0] == 1 and r[1][1] == 0:
                         resume+=f"{role.mention} was a moderator role\n"
-                    elif r[0] == 1 and r[1] == 1:
+                    elif r[1][0] == 1 and r[1][1] == 1:
                         resume+=f"{role.mention} is already a moderator role\n"
                 await ctx.send(resume)
 

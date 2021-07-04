@@ -21,15 +21,21 @@ class Logs(commands.Cog):
             return await ctx.send(f"Current logs channel on this guild : <#{channel_id}>\nUse `{ctx.prefix}mod-logs remove` to remove the actual  one")
 
         db.is_in_database_guild(ctx.guild.id)
-        db.db_execute("UPDATE guilds SET `logs_id` = %s WHERE `guild_id` = %s", (channel.id, ctx.guild.id))
-        await ctx.send(f"New mod channel will be {channel.mention}")
+        r = db.db_execute("UPDATE guilds SET `logs_id` = %s WHERE `guild_id` = %s", (channel.id, ctx.guild.id))
+        if r[0]:
+            return await ctx.send(f"New mod channel will be {channel.mention}")
+        elif r[0] is False:
+                return await ctx.send("An error was occured, a report has been sent.")
 
     @mod_logs.command(aliases=["rm"])
     @commands.has_permissions(administrator=True)
     async def remove(self, ctx):
         db.is_in_database_guild(ctx.guild.id)
-        db.db_execute("UPDATE guilds SET `logs_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
-        await ctx.send(f"No more logs channel set on this guild.")
+        r = db.db_execute("UPDATE guilds SET `logs_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
+        if r[0]:
+            return await ctx.send(f"No more logs channel set on this guild.")
+        elif r[0] is False:
+            return await ctx.send("An error was occured, a report has been sent.")
 
     ## Logs
 
@@ -39,7 +45,7 @@ class Logs(commands.Cog):
             return
         channel_id = db.logs_channel(message.guild.id)
 
-        if channel_id == False:
+        if channel_id is False:
             return
 
         if message.content == "":
@@ -66,7 +72,7 @@ class Logs(commands.Cog):
             return
         channel_id = db.logs_channel(before.guild.id)
 
-        if channel_id == False:
+        if channel_id is False:
             return
 
         try:
@@ -92,7 +98,7 @@ class Logs(commands.Cog):
     async def on_guild_channel_create(self, channel):
         channel_id = db.logs_channel(channel.guild.id)
 
-        if channel_id == False:
+        if channel_id is False:
             return
 
         try:
@@ -116,7 +122,7 @@ class Logs(commands.Cog):
     async def on_guild_channel_delete(self, channel):
         channel_id = db.logs_channel(channel.guild.id)
 
-        if channel_id == False:
+        if channel_id is False:
             return
 
         try:

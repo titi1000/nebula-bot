@@ -160,12 +160,14 @@ class Infos(commands.Cog):
             blacklisted.append(str(channel.id))
 
         blacklisted = " ".join(blacklisted)
-        db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
-
-        channels = ""
-        for channel in ctx.message.channel_mentions:
-            channels += f"{channel.mention} "
-        await ctx.send(f"{channels} added to the channels blacklist!")
+        r = db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
+        if r[0]:
+            channels = ""
+            for channel in ctx.message.channel_mentions:
+                channels += f"{channel.mention} "
+            await ctx.send(f"{channels} added to the channels blacklist!")
+        elif r[0] is False:
+            return await ctx.send("An error was occured, a report has been sent.")
 
     # remove a channel from the blacklist
     @blacklist.command(aliases=["rm"])
@@ -181,12 +183,14 @@ class Infos(commands.Cog):
                 blacklisted.remove(str(channel.id))
 
         blacklisted = " ".join(blacklisted)
-        db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
-
-        channels = ""
-        for channel in ctx.message.channel_mentions:
-            channels += f"{channel.mention} "
-        await ctx.send(f"{channels} removed from the channels blacklist!")
+        r = db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
+        if r[0]:
+            channels = ""
+            for channel in ctx.message.channel_mentions:
+                channels += f"{channel.mention} "
+            await ctx.send(f"{channels} removed from the channels blacklist!")
+        elif r[0] is False:
+            return await ctx.send("An error was occured, a report has been sent.")
 
     # view which channels are blacklisted
     @blacklist.command()
