@@ -119,24 +119,31 @@ class Tickettool(commands.Cog):
             color=MAINCOLOR
         )
 
-        await ctx.send(embed=start_e)
+        setup_message = await ctx.send(embed=start_e)
 
         setup_e = discord.Embed()
 
         channel = await self.client.wait_for("message", check=check)
+        await channel.delete()
         if cancel_check(channel) is True:
+            await setup_message.delete()
             return await ctx.send("Cancelled!")
         if len(channel.channel_mentions) == 0:
             return await ctx.send("Cancelled as no valid channel was provided")
         channel = channel.channel_mentions[0]
 
-        await ctx.send("Do you want a copy of the tickets to be sent in a log channel? [y/n]")
+        e = discord.Embed(title="Do you want a copy of the tickets to be sent in a log channel? [y/n]", description="*Please answer with 'y' (for yes) or 'n' (for no) when asked!*")
+        await setup_message.edit(embed=e)
         response = await self.client.wait_for("message", check=check)
+        await response.delete()
         if cancel_check(response) is True:
+            await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
-            await ctx.send("What should be the log channel? Please provid a valid channel")
+            e = discord.Embed(title="What should be the log channel?", description="*Please provid a valid channel*")
+            await setup_message.edit(embed=e)
             logs_channel = await self.client.wait_for("message", check=check)
+            await logs_channel.delete()
             if len(logs_channel.channel_mentions) == 0:
                 return await ctx.send("Cancelled as no valid channel was provided")
             logs_channel = logs_channel.channel_mentions[0]
@@ -146,13 +153,17 @@ class Tickettool(commands.Cog):
             description="*see the embed image for an example*"
         )
         embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860865452158091264/embed_title.png")
-        await ctx.send(embed=embed)
+        await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
+        await response.delete()
         if cancel_check(response) is True:
+            await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
-            await ctx.send("What should be the title?")
+            e = discord.Embed(title="What should be the title?", description="*Please provid a valid string*")
+            await setup_message.edit(embed=e)
             title = await self.client.wait_for("message", check=check_title)
+            await title.delete()
             setup_e.title = title.content
 
         embed = discord.Embed(
@@ -160,13 +171,17 @@ class Tickettool(commands.Cog):
             description="*see the embed image for an example*"
         )
         embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866775821713448/embed_description.png")
-        await ctx.send(embed=embed)
+        await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
+        await response.delete()
         if cancel_check(response) is True:
+            await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
-            await ctx.send("What should be the description?")
+            e = discord.Embed(title="What should be the description?", description="*Please provid a valid string*")
+            await setup_message.edit(embed=e)
             description = await self.client.wait_for("message", check=check_description)
+            await description.delete()
             setup_e.description = description.content
 
         embed = discord.Embed(
@@ -174,13 +189,17 @@ class Tickettool(commands.Cog):
             description="*see the embed image for an example*"
         )
         embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866713457000458/embed_footer.png")
-        await ctx.send(embed=embed)
+        await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
+        await response.delete()
         if cancel_check(response) is True:
+            await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
-            await ctx.send("What should be the footer?")
+            e = discord.Embed(title="What should be the footer?", description="*Please provid a valid string*")
+            await setup_message.edit(embed=e)
             footer = await self.client.wait_for("message", check=check_footer)
+            await footer.delete()
             setup_e.set_footer(text=footer.content)
 
         embed = discord.Embed(
@@ -188,13 +207,17 @@ class Tickettool(commands.Cog):
             description="*see the embed image for an example*"
         )
         embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866753139441674/embed_thumbnail.png")
-        await ctx.send(embed=embed)
+        await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
+        await response.delete()
         if cancel_check(response) is True:
+            await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
-            await ctx.send("What should be the thumbnail?\nPlease enter a valid url")
+            e = discord.Embed(title="What should be the thumbnail?", description="*Please enter a valid url*")
+            await setup_message.edit(embed=e)
             thumbnail = await self.client.wait_for("message", check=check)
+            await thumbnail.delete()
             if len(thumbnail.attachments) >= 1:
                 url = thumbnail.attachments[0].url
             else:
@@ -206,13 +229,17 @@ class Tickettool(commands.Cog):
             description="*see the embed image for an example*"
         )
         embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866691894738945/embed_color.png")
-        await ctx.send(embed=embed)
+        await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
+        await response.delete()
         if cancel_check(response) is True:
+            await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
-            await ctx.send("What should be the color?\nPlease enter a valid hex color (with `#` before)")
+            e = discord.Embed(title="What should be the color?", description="*Please enter a valid hex color (with `#` before)*")
+            await setup_message.edit(embed=e)
             color = await self.client.wait_for("message", check=check)
+            await color.delete()
             match = re.search(r"^#(?:[0-9a-fA-F]{3}){1,2}$", color.content) # thx github for the 3 next lines lol 
             if match:
                 setup_e.colour = int(color.content.replace("#", "0x"), 0)
@@ -220,6 +247,7 @@ class Tickettool(commands.Cog):
                 await ctx.send("Not a valid hex color. Embed will have the default color. Restart if you want a custom color!")
 
         try:
+            await setup_message.delete()
             await ctx.send("Do you want to send the following ticket tool message in {}? (The reaction will be add automatically) [y/n]".format(channel.mention), embed=setup_e)
         except discord.errors.HTTPException:
             return await ctx.send("Embed cannot be empty... Please retry")
@@ -234,9 +262,8 @@ class Tickettool(commands.Cog):
         else:
             return await ctx.send("Cancelled!")
 
-        db.cursor.execute("UPDATE guilds SET tickettool_id = ? WHERE guild_id = ?", (f"{message.id} {message.channel.id}", ctx.guild.id))
-        db.cursor.execute("UPDATE guilds SET tickettool_logs = ? WHERE guild_id = ?", (logs_channel.id, ctx.guild.id))
-        db.commit()
+        db.db_execute("UPDATE guilds SET `tickettool_id` = %s WHERE `guild_id` = %s", (f"{message.id} {message.channel.id}", ctx.guild.id))
+        db.db_execute("UPDATE guilds SET `tickettool_logs` = %s WHERE `guild_id` = %s", (logs_channel.id, ctx.guild.id))
 
     
     @commands.Cog.listener()
