@@ -1,4 +1,5 @@
 import toml
+import datetime
 from core.database import Database
 
 class DB(Database):
@@ -27,7 +28,17 @@ class DB(Database):
 								                 PRIMARY KEY(guild_id)
 
             )"""
+            
+        sql2 = """   
+                CREATE TABLE IF NOT EXISTS giveaways(
+                channel_id BIGINT UNSIGNED,
+                message_id BIGINT UNSIGNED,
+                prize TEXT,
+                winners_number SMALLINT UNSIGNED,
+                giveaway_end TIMESTAMP
+            )"""
         
+        self.db_execute(sql2)
         self.db_execute(sql)
     
     
@@ -37,20 +48,18 @@ class DB(Database):
             return "?"
         self.is_in_database_guild(message.guild.id)
         result = self.db_fetchone("SELECT `prefix` FROM guilds WHERE `guild_id` = %s", (message.guild.id,))
-        if result[1][0] is None:
-            return "?"
         return result[1][0]
 
     # check if guild is in data base
     def is_in_database_guild(self, guild_id):
         result = self.db_fetchone("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
+        if result[1] is None:
             self.db_execute("INSERT INTO guilds(`guild_id`) VALUES (%s)", (guild_id,))
 
     # check if user is in data base
     def is_in_database_user(self, user_id):
         result = self.db_fetchone("SELECT `user_id` FROM users WHERE `user_id` = %s", (user_id,))
-        if result[1][0] is None:
+        if result[1] is None:
             self.db_execute("INSERT INTO users(`user_id`) VALUES (%s)", (user_id,))
 
     # find the logs channel
@@ -183,8 +192,18 @@ class DB(Database):
         self.is_in_database_guild(guild_id)
         result = self.db_fetchone("SELECT `muted_role` FROM guilds WHERE `guild_id` = %s", (guild_id,))
         return result[1][0]
+
+    # insert a new giveaway
+    def insert_giveaway(self, channel_id, message_id, prize, winners, timestamp):
+        self.db_execute("INSERT INTO giveaways(`channel_id`, `message_id`, `prize`, `winners_number`, `giveaway_end`) VALUES (%s, %s, %s, %s, %s)", (channel_id, message_id, prize, winners, timestamp))
         
-        
+    # get all giveaways finished
+    def get_giveaways_finished(self):
+        result = db.db_fetchall("SELECT `channel_id`, `message_id`, `prize`, `winners_number` FROM giveaways WHERE `giveaway_end` <= %s", (datetime.datetime.now(),))
+        if result[0] is False:
+            return False
+        return result[1]
+
 
 data = toml.load("config.toml")
 database = data["databases"]["guilds"]
