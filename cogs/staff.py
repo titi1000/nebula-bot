@@ -1,3 +1,4 @@
+from discord import embeds, message
 from core.others import is_it_owner
 import discord
 from discord.ext import commands
@@ -6,6 +7,7 @@ import datetime
 from core.db_user import db_users
 from core.others import is_it_owner
 from main import MAINCOLOR
+from core.nebula_logging import nebula_logging
 
 class Staff(commands.Cog):
 
@@ -168,6 +170,20 @@ class Staff(commands.Cog):
                 await ctx.send("Please provid a valid user")
         else:
             await ctx.send("Please provid number (integer)")
+
+    @commands.command(name = "get-latest-logs")
+    @commands.check(is_it_owner)
+    async def getlatestlogs(self, ctx, log_type:str=None):
+        if log_type in nebula_logging.good_log_types:
+            logs = nebula_logging.get_latest_logs(log_type)
+            if len(logs) > 0:
+                for log in logs:
+                    e = discord.Embed(description = f"**TIME:** `{log.time}`\n**NAME:** `{log.name}`\n**LEVEL:** `{log.level_name}`\n**MESSAGE:** ```{log.message}```", color = MAINCOLOR)
+                    await ctx.send(embed=e)
+            else:
+                await ctx.send(f"There are no {log_type} logs")
+        else:
+            await ctx.send(f"Please give a valid log type\nLog types : `{'`, `'.join(nebula_logging.good_log_types)}`")
     
 
 def setup(client):
