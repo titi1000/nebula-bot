@@ -1,5 +1,5 @@
 import toml
-import mysql.connector as mysql
+import datetime
 from core.database import Database
 
 class DB(Database):
@@ -19,15 +19,26 @@ class DB(Database):
                 welcome_message TEXT,
                 leave_id BIGINT UNSIGNED,
                 leave_message TEXT,
-                autorole_id BIGINT UNSIGNED,
+                autorole_ids TEXT,
                 blacklisted TEXT,
                 moderator_roles TEXT,
-                tickettool_id BIGINT UNSIGNED,
+                tickettool_id TEXT,
                 tickettool_logs BIGINT UNSIGNED,
                 muted_role BIGINT UNSIGNED,
-				PRIMARY KEY(guild_id)
+								                 PRIMARY KEY(guild_id)
+
+            )"""
+            
+        sql2 = """   
+                CREATE TABLE IF NOT EXISTS giveaways(
+                channel_id BIGINT UNSIGNED,
+                message_id BIGINT UNSIGNED,
+                prize TEXT,
+                winners_number SMALLINT UNSIGNED,
+                giveaway_end TIMESTAMP
             )"""
         
+        self.db_execute(sql2)
         self.db_execute(sql)
     
     
@@ -37,8 +48,6 @@ class DB(Database):
             return "?"
         self.is_in_database_guild(message.guild.id)
         result = self.db_fetchone("SELECT `prefix` FROM guilds WHERE `guild_id` = %s", (message.guild.id,))
-        if result[1][0] is None:
-            return "?"
         return result[1][0]
 
     # check if guild is in data base
@@ -110,9 +119,7 @@ class DB(Database):
     # get ticket tool logs channel
     def get_tickettool_logs(self, guild_id):
         self.is_in_database_guild(guild_id)
-        self.cursor.execute("SELECT tickettool_logs FROM guilds WHERE guild_id = ?", (guild_id,))
-        result = self.cursor.fetchone()
-
+        result = self.db_fetchone("SELECT `tickettool_logs` FROM guilds WHERE `guild_id` = %s", (guild_id,))
         if result[1][0] is None:
             return False
         else:
@@ -172,8 +179,18 @@ class DB(Database):
         self.is_in_database_guild(guild_id)
         result = self.db_fetchone("SELECT `muted_role` FROM guilds WHERE `guild_id` = %s", (guild_id,))
         return result[1][0]
+
+    # insert a new giveaway
+    def insert_giveaway(self, channel_id, message_id, prize, winners, timestamp):
+        self.db_execute("INSERT INTO giveaways(`channel_id`, `message_id`, `prize`, `winners_number`, `giveaway_end`) VALUES (%s, %s, %s, %s, %s)", (channel_id, message_id, prize, winners, timestamp))
         
-        
+    # get all giveaways finished
+    def get_giveaways_finished(self):
+        result = db.db_fetchall("SELECT `channel_id`, `message_id`, `prize`, `winners_number` FROM giveaways WHERE `giveaway_end` <= %s", (datetime.datetime.now(),))
+        if result[0] is False:
+            return False
+        return result[1]
+
 
 data = toml.load("config.toml")
 database = data["databases"]["guilds"]
