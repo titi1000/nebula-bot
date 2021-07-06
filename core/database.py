@@ -27,7 +27,7 @@ class Database:
             else:
                 cursor.execute(sql)
             connection.commit()
-            r = (True,)
+            r = (True, None, None)
 
         except Exception as e:
             print(f"[ERROR ({self.__class__}.db_execute)]: {e}")
@@ -57,7 +57,7 @@ class Database:
             else:
                 cursor.execute(sql)
             result = cursor.fetchone()
-            r = (True, result)
+            r = (True, result, None)
 
         except Exception as e:
             print(f"[ERROR ({self.__class__}.db_fetchone)]: {e}")
@@ -85,7 +85,7 @@ class Database:
             else:
                 cursor.execute(sql)
             result = cursor.fetchall()
-            r = (True, result)
+            r = (True, result, None)
 
         except Exception as e:
             print(f"[ERROR ({self.__class__}.db_fetchall)]: {e}")

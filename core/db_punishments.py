@@ -46,41 +46,30 @@ class DBpunishments(Database):
                 reason = ""
             sql = f"INSERT INTO `{guild_id}`(`member_id`, `moderator_id`, `type`, `reason`, `start_timestamp`, `end_timestamp`) VALUES(%s, %s, %s, %s, %s, %s)"
             vars = (member_id, moderator_id, type, reason, start_timestamp, end_timestamp)
-            
-            if type in self.temp_punishments:
-                if end_timestamp is not None:
-                    r = self.db_execute(sql, vars)
-                else:
-                    r = (False, "NeedEnd_Timestamp")
-            else:
-                r = self.db_execute(sql, vars)
-        else:
-            r = (False, "BadPunishmentsType")
+            r = self.db_execute(sql, vars)
+            return r
 
     # remove a punishment
     def remove_punishment(self, guild_id, punishment_id):
-        return self.db_execute(f"DELETE FROM `{guild_id}` WHERE `punishment_id`=%s", (punishment_id,))
+        return self.db_execute(f"DELETE FROM `{guild_id}` WHERE `punishments_id`=%s", (punishment_id,))
 
     # get a punishment
     def get_punishment(self, guild_id, punishment_id):
         r = self.db_fetchone(f"SELECT * FROM `{guild_id}` WHERE `punishments_id`=%s", (punishment_id,))
-        if r[1] is not None and r[0]:
-            return Punishment(guild_id, r[1])
-        elif r[1] is None and r[0]:
-            return None
-        else:
-            return r
+        if r[0] and r[1] is not None:
+            return (r[0], Punishment(guild_id, r[1]), r[2])
+        return r
+
 
     # get member's punishments
     def get_member_punishments(self, guild_id, member_id):
         r = self.db_fetchall(f"SELECT * FROM `{guild_id}` WHERE `member_id`=%s", (member_id,))
-        if r[1] is not None and r[0]:
+        if r[0]:
             p_list = []
             for punishment in r[1]:
                 p_list.append(Punishment(guild_id, punishment))
-            return p_list
-        else:
-            return r
+            return (r[0], p_list, r[2])
+        return r
 
 
 data = toml.load("config.toml")

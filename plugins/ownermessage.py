@@ -1,5 +1,4 @@
 import discord
-import datetime
 from discord.ext import commands
 from main import owner_id, MAINCOLOR, is_it_owner
 

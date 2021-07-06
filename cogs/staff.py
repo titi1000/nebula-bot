@@ -171,17 +171,20 @@ class Staff(commands.Cog):
         else:
             await ctx.send("Please provid number (integer)")
 
-    @commands.command(name = "get-latest-logs")
+    @commands.command(aliases = ["get-logs", "get_logs"])
     @commands.check(is_it_owner)
-    async def getlatestlogs(self, ctx, log_type:str=None):
+    async def getlogs(self, ctx, log_type:str=None, log_moment:str=None):
         if log_type in nebula_logging.good_log_types:
-            logs = nebula_logging.get_latest_logs(log_type)
-            if len(logs) > 0:
-                for log in logs:
-                    e = discord.Embed(description = f"**TIME:** `{log.time}`\n**NAME:** `{log.name}`\n**LEVEL:** `{log.level_name}`\n**MESSAGE:** ```{log.message}```", color = MAINCOLOR)
-                    await ctx.send(embed=e)
+            if log_moment in nebula_logging.good_log_moments:
+                logs = nebula_logging.get_logs(log_type, log_moment)
+                if len(logs) > 0:
+                    for log in logs:
+                        e = discord.Embed(description = f"**TIME:** `{log.time}`\n**NAME:** `{log.name}`\n**LEVEL:** `{log.level_name}`\n**MESSAGE:** ```{log.message}```", color = MAINCOLOR)
+                        await ctx.send(embed=e)
+                else:
+                    await ctx.send(f"There are no {log_type} logs")
             else:
-                await ctx.send(f"There are no {log_type} logs")
+                await ctx.send(f"Please give a valid log moment\nLog moments : `{'`, `'.join(nebula_logging.good_log_moments)}`")
         else:
             await ctx.send(f"Please give a valid log type\nLog types : `{'`, `'.join(nebula_logging.good_log_types)}`")
     
