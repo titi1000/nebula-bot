@@ -44,23 +44,20 @@ class DB(Database):
     # check if guild is in data base
     def is_in_database_guild(self, guild_id):
         result = self.db_fetchone("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
+        if result[1] is None:
             self.db_execute("INSERT INTO guilds(`guild_id`) VALUES (%s)", (guild_id,))
 
     # check if user is in data base
     def is_in_database_user(self, user_id):
         result = self.db_fetchone("SELECT `user_id` FROM users WHERE `user_id` = %s", (user_id,))
-        if result[1][0] is None:
+        if result[1] is None:
             self.db_execute("INSERT INTO users(`user_id`) VALUES (%s)", (user_id,))
 
     # find the logs channel
     def logs_channel(self, guild_id):
         self.is_in_database_guild(guild_id)
         result = self.db_fetchone("SELECT `logs_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
-            return False
-        else:
-            return result[1][0]
+        return result
 
     # find the welcome channel
     def welcome_channel(self, guild_id):
@@ -163,7 +160,7 @@ class DB(Database):
             for role in list:
                 if role != "":
                     role_list.append(int(role))
-        return (role_list)
+        return (r_result_str[0], role_list, r_result_str[2])
 
     # set the muted role
     def set_muted_role(self, guild_id, muted_role_id):

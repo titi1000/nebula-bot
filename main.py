@@ -21,6 +21,10 @@ MAINCOLOR = int(data["main_color"], 0)
 ERRORCOLOR = int(data["error_color"], 0)
 owner_id = data["owner_id"]
 
+# import error channel id
+with open("plugins/plugins.json") as data:
+    error_channel_id = json.load(data)["customerrors"]["channel_id"]
+
 # the bot itself
 class Bot(commands.Bot):
 

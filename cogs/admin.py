@@ -1,11 +1,9 @@
 import discord
 from discord.ext import commands
-import sqlite3
-import datetime
 from core.db import db
 from core.others import get_channel_by_id
 from main import MAINCOLOR
-from core.nebula_logging import nebula_logging
+from core.nebula_logging import report_error, report_error_with_member
 
 class Admin(commands.Cog):
 
@@ -31,14 +29,14 @@ class Admin(commands.Cog):
             if r[0]:
                 return await ctx.send(f"Welcome channel {channel.mention} successfully set.")
             elif r[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r)
 
         elif action.lower() == "remove":
             r = db.db_execute("UPDATE guilds SET `welcome_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
             if r[0]:
                 return await ctx.send("You don't have a welcome channel anymore.")
             elif r[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r)
 
         else:
             return await ctx.send(f"Please provid a valid action :\n```{ctx.prefix}welcome-channel <action> (<channel>)```")
@@ -59,14 +57,14 @@ class Admin(commands.Cog):
             if r[0]:
                 return await ctx.send(f"Welcome message : \"{message}\" successfully set.")
             elif r[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r)
 
         elif action.lower() == "remove":
             r = db.db_execute("UPDATE guilds SET `welcome_message` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
             if r[0]:
                 return await ctx.send("You don't have a welcome message anymore.")
             elif r[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r)
         
         else:
             return await ctx.send(f"Please provid a valid action :\n```{ctx.prefix}welcome-message <action> (<message>)```")
@@ -81,9 +79,9 @@ class Admin(commands.Cog):
             r_channel = db.welcome_channel(ctx.guild.id)
             r_message = db.welcome_message(ctx.guild.id)
             if r_channel[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r_channel)
             if r_message[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r_message)
             if r_channel[1][0] is None or r_message[1][0] is None:
                 return await ctx.send(f"Automatic welcome message isn't set in this guild.\n Use `{ctx.prefix}help` to know how to set it.")
 
@@ -91,8 +89,8 @@ class Admin(commands.Cog):
                 title=f"{ctx.guild.name}'s welcome message",
                 color=MAINCOLOR
             )
-            welcome_e.add_field(name="Channel", value=f"<#{r_channel[1]}>", inline=True)
-            welcome_e.add_field(name="Message", value=f"{r_message[1]}", inline=True)
+            welcome_e.add_field(name="Channel", value=f"<#{r_channel[1][0]}>", inline=True)
+            welcome_e.add_field(name="Message", value=f"{r_message[1][0]}", inline=True)
 
             await ctx.send(embed=welcome_e)
 
@@ -101,9 +99,9 @@ class Admin(commands.Cog):
             r_channel = db.welcome_channel(ctx.guild.id)
             r_message = db.welcome_message(ctx.guild.id)
             if r_channel[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r_channel)
             if r_message[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r_message)
 
             if r_channel[1][0] is None or r_message[1][0] is None:
                 return await ctx.send("You don't have any automatic welcome message set.")
@@ -119,9 +117,9 @@ class Admin(commands.Cog):
         r_channel = db.welcome_channel(member.guild.id)
         r_message = db.welcome_message(member.guild.id)
         if r_channel[0] is False:
-            return
+            return await report_error_with_member(self.client, member, r_channel, "member_joined_message")
         if r_message[0] is False:
-            return
+            return await report_error_with_member(self.client, member, r_message, "member_joined_message")
 
         if r_channel[1][0] is None or r_message[1][0] is None:
             return
@@ -150,14 +148,14 @@ class Admin(commands.Cog):
             if r[0]:
                 return await ctx.send(f"Leave channel {channel.mention} successfully set.")
             elif r[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r)
 
         elif action.lower() == "remove":
             r = db.db_execute("UPDATE guilds SET `leave_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
             if r[0]:
                 return await ctx.send("You don't have a leave channel anymore.")
             elif r[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r)
 
         else:
             return await ctx.send(f"Please provid a valid action :\n```{ctx.prefix}leave-channel <action> (<channel>)```")
@@ -178,14 +176,14 @@ class Admin(commands.Cog):
             if r[0]:
                 return await ctx.send(f"Leave message : \"{message}\" successfully set.")
             elif r[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r)
 
         elif action.lower() == "remove":
             r = db.db_execute("UPDATE guilds SET `leave_message` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
             if r[0]:
                 return await ctx.send("You don't have a leave message anymore.")
             elif r[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r)
         
         else:
             return await ctx.send(f"Please provid a valid action :\n```{ctx.prefix}leave-message <action> (<message>)```")
@@ -200,9 +198,9 @@ class Admin(commands.Cog):
             r_channel = db.leave_channel(ctx.guild.id)
             r_message = db.leave_message(ctx.guild.id)
             if r_channel[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r_channel)
             if r_message[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r_channel)
             if r_channel[1][0] is None or r_message[1][0] is None:
                 return await ctx.send(f"Automatic leave message isn't set in this guild.\n Use `{ctx.prefix}help` to know how to set it.")
 
@@ -219,9 +217,9 @@ class Admin(commands.Cog):
             r_channel = db.leave_channel(ctx.guild.id)
             r_message = db.leave_message(ctx.guild.id)
             if r_channel[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r_channel)
             if r_message[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r_channel)
 
             if r_channel[1][0] is False or r_message[1][0] is False:
                 return await ctx.send("You don't have any automatic welcome message set.")
@@ -238,9 +236,9 @@ class Admin(commands.Cog):
         r_channel = db.leave_channel(member.guild.id)
         r_message = db.leave_message(member.guild.id)
         if r_channel[0] is False:
-            return
+            return await report_error_with_member(self.client, member, r_channel, "on_member_remove")
         if r_message[0] is False:
-            return
+            return report_error_with_member(self.client, member, r_message, "on_member_remove")
 
         if r_channel[1][0] is False or r_message[1][0] is False:
             return
@@ -259,9 +257,7 @@ class Admin(commands.Cog):
         if action is None:
             r_role_id = db.get_autorole(ctx.guild.id)
             if r_role_id[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
-            if r_role_id[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r_role_id)
 
             if r_role_id[1][0] is None:
                 return await ctx.send("You don't have any autorole set in this guild.")
@@ -287,14 +283,14 @@ class Admin(commands.Cog):
             if r[0]:
                 return await ctx.send(f"Autorole : \"{role.name}\" successfully set.")
             elif r[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r)
 
         elif action.lower() == "remove":
             r = db.db_execute("UPDATE guilds SET `autorole_ids` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
             if r[0]:
                 return await ctx.send("You don't have an autorole anymore.")
             elif r[0] is False:
-                return await ctx.send("An error was occured, a report has been sent.")
+                return await report_error(self.client, ctx, r)
         
         else:
             return await ctx.send(f"Please provid a valid action :\n```{ctx.prefix}autorole (<action>) (<message>)```")
@@ -324,8 +320,9 @@ class Admin(commands.Cog):
         guild_id = ctx.guild.id
         r_moderator_roles = db.get_moderator_roles(guild_id)
         if r_moderator_roles[0] is False:
-            return await ctx.send("An error was occured, a report has been sent.")
-        moderator_roles = r_moderator_roles[1][0]
+            return await report_error(self.client, ctx, r_moderator_roles)
+            
+        moderator_roles = r_moderator_roles[1]
         await ctx.guild.fetch_roles()
         string = ""
         for role in moderator_roles:
@@ -347,7 +344,7 @@ class Admin(commands.Cog):
                 for role in ctx.message.role_mentions:
                     r = db.manage_moderator_roles(guild_id, action, role.id)
                     if r[0] is False:
-                        return await ctx.send("An error was occured, a report has been sent.")
+                        return await report_error(self.client, ctx, r)
 
                     if r[1][0] == 0 and r[1][1] == 0:
                         resume+=f"{role.mention} wasn't a moderator role\n"

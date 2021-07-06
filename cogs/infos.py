@@ -6,6 +6,7 @@ from discord.ext import commands
 from main import MAINCOLOR
 from core.others import is_blacklisted_cogs, is_it_owner
 from core.db import db
+from core.nebula_logging import report_error
 
 class Infos(commands.Cog):
 
@@ -69,7 +70,10 @@ class Infos(commands.Cog):
             return await ctx.send("The new prefix may not be longer than 2 characters!")
 
         db.is_in_database_guild(ctx.guild.id)
-        db.db_execute("UPDATE guilds SET `prefix` = '%s' WHERE `guild_id` = %s", (prefix, ctx.guild.id))
+        r = db.db_execute("UPDATE guilds SET `prefix` = %s WHERE `guild_id` = %s", (prefix, ctx.guild.id))
+        if r[0] == False:
+            return await report_error(self.client, ctx, r)
+            
         await ctx.send(f"New prefix will now be `{prefix}`")
 
     # help command
@@ -80,9 +84,9 @@ class Infos(commands.Cog):
             description = f"""Use `{ctx.prefix}<command>` to run a command or `{ctx.prefix}help <command>` to have more details, or to see how to use a specific command.\n
             **Infos**\n`help`, `infos`, `prefix`, `support`, `website`, `documentation`\n
             **Utils**\n`emojiinfo`, `cloneemoji`, `profile`, `guild`, `emojis`, `membercount`, `quote`, `color`, `role`, `ping`, `announce`, `search`, `discrim`, `suggest`, `report`\n
-            **Fun**\n`meme`, `cat`, `dog`, `8ball`, `avatar`, `reverse`, `say`\n
-            **Mods only**\n`massrole`, `nick`, `ban`, `kick`, `purge`\n
-            **Admin only**\n`mod-logs`, `blacklist`, `welcome`, `welcome-channel`, `welcome-message`, `leave`, `leave-channel`, `leave-message`, `autorole`\n
+            **Fun**\n`giveaway`, `meme`, `cat`, `dog`, `8ball`, `avatar`, `reverse`, `say`\n
+            **Mods only**\n`massrole`, `nick`, `ban`, `kick`, `warn`, `purge`, `punishments`, `delete-punishments`\n
+            **Admin only**\n`mod-logs`, `blacklist`, `welcome`, `welcome-channel`, `welcome-message`, `leave`, `leave-channel`, `leave-message`, `autorole`, `moderators`, `set-moderators`\n
             **Logs** (These aren't commands)\n`on message delete`, `on message edit`, `on channel create/remove`"""
 
             help_e = discord.Embed(
@@ -161,13 +165,13 @@ class Infos(commands.Cog):
 
         blacklisted = " ".join(blacklisted)
         r = db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
-        if r[0]:
-            channels = ""
-            for channel in ctx.message.channel_mentions:
-                channels += f"{channel.mention} "
-            await ctx.send(f"{channels} added to the channels blacklist!")
-        elif r[0] is False:
-            return await ctx.send("An error was occured, a report has been sent.")
+        if r[0] == False:
+            return await report_error(self.client, ctx, r)
+        
+        channels = ""
+        for channel in ctx.message.channel_mentions:
+            channels += f"{channel.mention} "
+        await ctx.send(f"{channels} added to the channels blacklist!")
 
     # remove a channel from the blacklist
     @blacklist.command(aliases=["rm"])
@@ -184,13 +188,12 @@ class Infos(commands.Cog):
 
         blacklisted = " ".join(blacklisted)
         r = db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
-        if r[0]:
-            channels = ""
-            for channel in ctx.message.channel_mentions:
-                channels += f"{channel.mention} "
-            await ctx.send(f"{channels} removed from the channels blacklist!")
-        elif r[0] is False:
-            return await ctx.send("An error was occured, a report has been sent.")
+        if r[0] == False:
+            return await report_error(self.client, ctx, r)
+        channels = ""
+        for channel in ctx.message.channel_mentions:
+            channels += f"{channel.mention} "
+        await ctx.send(f"{channels} removed from the channels blacklist!")
 
     # view which channels are blacklisted
     @blacklist.command()
