@@ -1,3 +1,4 @@
+from core.nebula_logging import report_error, report_error_no_ctx
 import discord
 import re
 import os
@@ -13,9 +14,10 @@ class Tickettool(commands.Cog):
         self.client = client
 
     async def gen_html_close(self, channel, closer):
-        logs_channel_id = db.get_tickettool_logs(channel.guild.id)
-        if logs_channel_id is False:
-            return
+        r_logs_channel_id = db.get_tickettool_logs(channel.guild.id)
+        if r_logs_channel_id[0] is False: return await report_error_no_ctx(self.client, r_logs_channel_id)
+        if r_logs_channel_id[1][0] is None: return
+        logs_channel_id = r_logs_channel_id[1][0]
 
         member_name = channel.name.replace("-", "#")
 
@@ -78,10 +80,10 @@ class Tickettool(commands.Cog):
     @commands.group(invoke_without_command=True, aliases=["ticket_tool", "ticket-tool"])
     @commands.has_permissions(administrator=True)
     async def tickettool(self, ctx):
-        tickettool_id = db.get_tickettool(ctx.guild.id)
-
-        if tickettool_id is False:
-            return await ctx.send(f"You don't have any ticket tool set in this server...\nUse `{ctx.prefix}tickettool setup` to interactively set a ticket tool message!")
+        r_tickettool_id = db.get_tickettool(ctx.guild.id)
+        if r_tickettool_id[0] is False: return await report_error(self.client, ctx, r_tickettool_id)
+        if r_tickettool_id[1][0] is None: return await ctx.send(f"You don't have any ticket tool set in this server...\nUse `{ctx.prefix}tickettool setup` to interactively set a ticket tool message!")
+        tickettool_id = r_tickettool_id[1][0].split(" ")
 
         try:
             channel = ctx.guild.get_channel(int(tickettool_id[1]))
@@ -262,15 +264,17 @@ class Tickettool(commands.Cog):
         else:
             return await ctx.send("Cancelled!")
 
-        db.db_execute("UPDATE guilds SET `tickettool_id` = %s WHERE `guild_id` = %s", (f"{message.id} {message.channel.id}", ctx.guild.id))
-        db.db_execute("UPDATE guilds SET `tickettool_logs` = %s WHERE `guild_id` = %s", (logs_channel.id, ctx.guild.id))
+        r = db.db_execute("UPDATE guilds SET `tickettool_id` = %s WHERE `guild_id` = %s", (f"{message.id} {message.channel.id}", ctx.guild.id))
+        if r[0] is False: return await report_error(self.client, ctx, r)
+        r = db.db_execute("UPDATE guilds SET `tickettool_logs` = %s WHERE `guild_id` = %s", (logs_channel.id, ctx.guild.id))
+        if r[0] is False: return await report_error(self.client, ctx, r)
 
     
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        tickettool_id = db.get_tickettool(payload.guild_id)
-        if tickettool_id is False:
-            return
+        r_tickettool_id = db.get_tickettool(payload.guild_id)
+        if r_tickettool_id[0] is False: return await report_error_no_ctx(self.client, r_tickettool_id)
+        tickettool_id = r_tickettool_id[1]
             
         channel = await self.client.fetch_channel(payload.channel_id)
         if payload.message_id == int(tickettool_id[0]) and str(payload.emoji) == "📩" and payload.member != self.client.user:

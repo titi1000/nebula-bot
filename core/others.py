@@ -118,7 +118,7 @@ def is_it_moderator_member(member):
     member_roles_id = []
     for role in member.roles:
         member_roles_id.append(role.id)
-    commons = list(set(moderator_roles).intersection(member_roles_id))
+    commons = list(set(moderator_roles[1]).intersection(member_roles_id))
     if len(commons) > 0:
         return True
     return member.guild_permissions.administrator

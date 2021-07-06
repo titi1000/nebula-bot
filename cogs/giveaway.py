@@ -1,11 +1,11 @@
 import discord
 import datetime
-import asyncio
 import random
 from main import MAINCOLOR
 from discord.ext import tasks, commands
 from core.others import is_blacklisted_cogs
 from core.db import db
+from core.nebula_logging import nebula_logging, report_error
 
 class Giveaway(commands.Cog):
 
@@ -18,12 +18,12 @@ class Giveaway(commands.Cog):
     async def check_giveaway_end(self):
         try:
             result = db.get_giveaways_finished()
-            if result is False:
-                return
+            if result[0] is False: return nebula_logging.logger_mysql.error("An error has occured when a get_giveaway_finished()")
 
-            for giveaway in result:
+            for giveaway in result[1]:
                 await self.end_giveaway(giveaway[0], giveaway[1], giveaway[2], giveaway[3])
-                db.db_execute("DELETE FROM giveaways WHERE `channel_id` = %s AND message_id = %s", (giveaway[0], giveaway[1]))
+                r = db.db_execute("DELETE FROM giveaways WHERE `channel_id` = %s AND message_id = %s", (giveaway[0], giveaway[1]))
+                if r[0] is False: return nebula_logging.logger_mysql.error("Ah error has occured during a end_giveaway")
         except:
             pass
 
@@ -113,7 +113,8 @@ class Giveaway(commands.Cog):
         message = await channel.send(embed=giveaway_e)
         await message.add_reaction("🎉")
 
-        db.insert_giveaway(channel.id, message.id, prize, winners, datetime.datetime.utcnow() + datetime.timedelta(0, duration))
+        r = db.insert_giveaway(channel.id, message.id, prize, winners, datetime.datetime.utcnow() + datetime.timedelta(0, duration))
+        if r[0] is False: return await report_error(self.client, ctx, r)
 
 
 def setup(client):

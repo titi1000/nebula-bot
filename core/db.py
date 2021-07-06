@@ -111,19 +111,14 @@ class DB(Database):
     def get_tickettool(self, guild_id):
         self.is_in_database_guild(guild_id)
         result = self.db_fetchone("SELECT `tickettool_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
-            return False
-        else:
-            return result[1][0].split(" ")
+        if result[1][0] is not None: return (result[0], result[1][0].split(" "), result[2])
+        return result
 
     # get ticket tool logs channel
     def get_tickettool_logs(self, guild_id):
         self.is_in_database_guild(guild_id)
         result = self.db_fetchone("SELECT `tickettool_logs` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
-            return False
-        else:
-            return result[1][0]
+        return result
             
 
     # add/remove moderator role
@@ -182,14 +177,13 @@ class DB(Database):
 
     # insert a new giveaway
     def insert_giveaway(self, channel_id, message_id, prize, winners, timestamp):
-        self.db_execute("INSERT INTO giveaways(`channel_id`, `message_id`, `prize`, `winners_number`, `giveaway_end`) VALUES (%s, %s, %s, %s, %s)", (channel_id, message_id, prize, winners, timestamp))
-        
+        r = self.db_execute("INSERT INTO giveaways(`channel_id`, `message_id`, `prize`, `winners_number`, `giveaway_end`) VALUES (%s, %s, %s, %s, %s)", (channel_id, message_id, prize, winners, timestamp))
+        return r
+
     # get all giveaways finished
     def get_giveaways_finished(self):
         result = db.db_fetchall("SELECT `channel_id`, `message_id`, `prize`, `winners_number` FROM giveaways WHERE `giveaway_end` <= %s", (datetime.datetime.now(),))
-        if result[0] is False:
-            return False
-        return result[1]
+        return result
 
 
 data = toml.load("config.toml")

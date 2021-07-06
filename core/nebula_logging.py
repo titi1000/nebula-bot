@@ -35,6 +35,14 @@ async def report_error(client, ctx, r):
     ))
     await ctx.send("An error was occured, a report has been sent.")
 
+async def report_error_no_ctx(client, r):
+    error_channel = await client.fetch_channel(error_channel_id)
+    await error_channel.send(embed=discord.Embed(
+        title="Error report",
+        description=f"**MySQL request:** ```{r[2]}```\n**Error:** ```{r[1]}```",
+        color = ERRORCOLOR
+    ))
+
 async def report_error_with_member(client, member, r, fonction):
     error_channel = await client.fetch_channel(error_channel_id)
     await error_channel.send(embed=discord.Embed(

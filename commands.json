@@ -45,6 +45,7 @@
     "leave-channel": "Add or remove a leave channel on your server (automatic leave messages will be sent in this channel). Usage:\n```{}leave-channel <action> (<channel>)```",
     "autorole": "Add/Remove or look at the autorole set on your server. Usage:\n```{}autorole (<action>) (<role>)```",
     "announce": "Create custom announce! Usage:\n```{}announce```",
+    "tickettool" : "Show/Create tickettool on the server. Usage:\n```{}tickettool (setup)```",
     "documentation": "Link to the online bot documentation. Usage:\n```{}documentation```",
     "website": "Link to the bot website. Usage:\n```{}website```",
     "support": "Link to the Support Server. Usage:\n```{}support```",

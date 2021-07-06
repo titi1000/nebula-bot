@@ -256,11 +256,9 @@ class Admin(commands.Cog):
     async def autorole(self, ctx, action=None):
         if action is None:
             r_role_id = db.get_autorole(ctx.guild.id)
-            if r_role_id[0] is False:
-                return await report_error(self.client, ctx, r_role_id)
-
-            if r_role_id[1][0] is None:
-                return await ctx.send("You don't have any autorole set in this guild.")
+            if r_role_id[0] is False: return await report_error(self.client, ctx, r_role_id)
+            if r_role_id[1][0] is None: return await ctx.send("You don't have any autorole set in this guild.")
+            roles_id = r_role_id[1][0]
 
             try:
                 await ctx.guild.fetch_roles()
@@ -328,7 +326,7 @@ class Admin(commands.Cog):
           
         elif action.lower() == "clear":
             r = db.db_execute("UPDATE guilds SET `autorole_ids` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
-            elif r[0] is False: return await report_error(self.client, ctx, r)
+            if r[0] is False: return await report_error(self.client, ctx, r)
             return await ctx.send("You don't have an autorole anymore.")
           
         else:
@@ -340,9 +338,10 @@ class Admin(commands.Cog):
         await self.member_joined_message(member) # to send a join message (if set)
         
         r_roles_id = db.get_autorole(member.guild.id)
-        if r_role_id[0] is False: return await report_error_with_member(self.client, member, r_roles_id, "on_member_joined")
-        if r_role_id[1][0] is None: return
+        if r_roles_id[0] is False: return await report_error_with_member(self.client, member, r_roles_id, "on_member_joined")
+        if r_roles_id[1][0] is None: return
         
+        roles_id = r_roles_id[1][0]
         await member.guild.fetch_roles()
         for role in roles_id.split(" "):
             if role == "": # inutile?
