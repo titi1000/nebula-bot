@@ -1,5 +1,4 @@
 import discord
-import datetime
 from discord.ext import commands
 from main import owner_id, MAINCOLOR, is_it_owner
 
@@ -12,7 +11,7 @@ class OwnerMessage(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        owner = await self.client.fetch_user(owner_id)
+        owner = await self.client.fetch_user(owner_id[0])
 
         created = guild.created_at.strftime("%d %b %Y")
 

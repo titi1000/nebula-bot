@@ -9,6 +9,7 @@ from core.db_user import db_users
 from core.db_punishments import db_punishments
 from core.myjson import lang_json
 from core.others import is_it_owner, write_plugins_json
+from core.nebula_logging import nebula_logging
 
 ### Init
 
@@ -20,6 +21,10 @@ MAINCOLOR = int(data["main_color"], 0)
 ERRORCOLOR = int(data["error_color"], 0)
 owner_id = data["owner_id"]
 
+# import error channel id
+with open("plugins/plugins.json") as data:
+    error_channel_id = json.load(data)["customerrors"]["channel_id"]
+
 # the bot itself
 class Bot(commands.Bot):
 
@@ -27,7 +32,7 @@ class Bot(commands.Bot):
         intents = discord.Intents.default()
         intents.members = True
         super().__init__(command_prefix=db.get_prefix, help_command=None, case_insensitive=True, intents=intents, owner_id=owner_id)
-        #self.ipc = ipc.Server(self, secret_key=TOKEN)
+        self.ipc = ipc.Server(self, secret_key=TOKEN)
         self.launch_time = datetime.datetime.utcnow()
         self.language = "en"
 
@@ -37,6 +42,8 @@ class Bot(commands.Bot):
         self.load_cogs()
         self.load_plugins()
         self.add_commands()
+
+        #self.ipc.start() -> we'll start it when the webserver will be up !
 
 
     # cogs loader
@@ -63,6 +70,7 @@ class Bot(commands.Bot):
         print(self.user.id)
         print("--------- poweron ---------")
         await self.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="?help to see all my commands"))
+        nebula_logging.logger_bot.info(f"Bot logged as {self.user} | {self.user.id}")
     
     # bot get pinged
     async def on_message(self, message):
@@ -219,27 +227,13 @@ class Bot(commands.Bot):
             db.cursor.execute("DELETE FROM guilds WHERE guild_id = ?", (guild.id,))
             db.commit()
 
+
 # main function
 def main():
-
     client = Bot()
     client.run(TOKEN)
 
-
-### WEB SERVER
-"""
-@client.event
-async def on_ipc_error(endpoint, error):
-        print(endpoint, "raised", error)
-
-
-@client.ipc.route()
-async def get_member_count(data):
-    guild = await client.fetch_guild(data.guild_id)
-
-    return len(await guild.fetch_members(limit=1000).flatten()), guild.name"""
         
 # run the bot
 if __name__ == "__main__":
-    #client.ipc.start()
     main()
