@@ -205,10 +205,10 @@ class Bot(commands.Bot):
 
     async def on_guild_join(self, guild):
         db_punishments.add_guild(guild.id)
-        db.cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id,))
+        db.cursor.execute("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild.id,))
         result = db.cursor.fetchone()
         if result is None:
-            db.cursor.execute("INSERT INTO guilds(guild_id) VALUES (?)", (guild.id,))
+            db.cursor.execute("INSERT INTO guilds(`guild_id`) VALUES (%s)", (guild.id,))
             db.commit()
 
         join_e = discord.Embed(
@@ -221,10 +221,10 @@ class Bot(commands.Bot):
 
     async def on_guild_remove(self, guild):
         db_punishments.remove_guild(guild.id)
-        db.cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id,))
+        db.cursor.execute("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild.id,))
         result = db.cursor.fetchone()
         if result is not None:
-            db.cursor.execute("DELETE FROM guilds WHERE guild_id = ?", (guild.id,))
+            db.cursor.execute("DELETE FROM guilds WHERE `guild_id` = %s", (guild.id,))
             db.commit()
 
 
