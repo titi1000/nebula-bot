@@ -97,11 +97,14 @@ class Infos(commands.Cog):
         
         else:
             try:
-                command_description = self.commands_infos[command]
+                command_infos = self.commands_infos[command]
+                description = f"{command_infos['description']}\n{command_infos['usage']}".format(ctx.prefix)
+                for arg, desc in command_infos["args"].items(): description+=f"{arg} : {desc}"
+
                 help_e = discord.Embed(
                 title=f"{command}'s usage",
                 color=MAINCOLOR,
-                description=command_description.format(ctx.prefix)
+                description=description
                 )
 
                 await ctx.send(embed=help_e)
