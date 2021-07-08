@@ -1,3 +1,4 @@
+from core.nebula_logging import report_error, report_error_no_ctx
 import discord
 import re
 import os
@@ -13,9 +14,10 @@ class Tickettool(commands.Cog):
         self.client = client
 
     async def gen_html_close(self, channel, closer):
-        logs_channel_id = db.get_tickettool_logs(channel.guild.id)
-        if logs_channel_id is False:
-            return
+        r_logs_channel_id = db.get_tickettool_logs(channel.guild.id)
+        if r_logs_channel_id[0] is False: return await report_error_no_ctx(self.client, r_logs_channel_id)
+        if r_logs_channel_id[1][0] is None: return
+        logs_channel_id = r_logs_channel_id[1][0]
 
         member_name = channel.name.replace("-", "#")
 
@@ -64,7 +66,7 @@ class Tickettool(commands.Cog):
             timestamp=datetime.datetime.now()
         )
         closed_e.add_field(name="Member", value=member_name, inline=False)
-        closed_e.add_field(name="Messages (max 1000)", value=messages, inline=False)
+        closed_e.add_field(name="Messages", value=messages, inline=False)
         closed_e.add_field(name="Closed by", value=f"{closer.name}#{closer.discriminator}", inline=False)
 
         try:
@@ -78,10 +80,10 @@ class Tickettool(commands.Cog):
     @commands.group(invoke_without_command=True, aliases=["ticket_tool", "ticket-tool"])
     @commands.has_permissions(administrator=True)
     async def tickettool(self, ctx):
-        tickettool_id = db.get_tickettool(ctx.guild.id)
-
-        if tickettool_id is False:
-            return await ctx.send(f"You don't have any ticket tool set in this server...\nUse `{ctx.prefix}tickettool setup` to interactively set a ticket tool message!")
+        r_tickettool_id = db.get_tickettool(ctx.guild.id)
+        if r_tickettool_id[0] is False: return await report_error(self.client, ctx, r_tickettool_id)
+        if r_tickettool_id[1][0] is None: return await ctx.send(f"You don't have any ticket tool set in this server...\nUse `{ctx.prefix}tickettool setup` to interactively set a ticket tool message!")
+        tickettool_id = r_tickettool_id[1][0].split(" ")
 
         try:
             channel = ctx.guild.get_channel(int(tickettool_id[1]))
@@ -113,75 +115,133 @@ class Tickettool(commands.Cog):
                 return True
             return False
 
-        await ctx.send("Interactive ticket tool setup started! You can cancel it at any time by typing \"cancel\".\nWhere should the ticket-tool message go?\nPlease provid a valid channel")
+        start_e = discord.Embed(
+            title="Interactive ticket tool setup started!",
+            description=":warning: Please make sure I have permission to manage the channels on this server, it won't work if I don't have it. :warning:\n\nYou can cancel it at any time by typing 'cancel'.\n\nWhere should the ticket-tool message go?\n**Please provid a valid channel**",
+            color=MAINCOLOR
+        )
+
+        setup_message = await ctx.send(embed=start_e)
 
         setup_e = discord.Embed()
 
         channel = await self.client.wait_for("message", check=check)
-        if cancel_check(channel) is True:
+        await channel.delete()
+        if cancel_check(channel):
+            await setup_message.delete()
             return await ctx.send("Cancelled!")
         if len(channel.channel_mentions) == 0:
             return await ctx.send("Cancelled as no valid channel was provided")
         channel = channel.channel_mentions[0]
 
-        await ctx.send("Do you want a copy of the tickets to be sent in a log channel? [y/n]")
+        e = discord.Embed(title="Do you want a copy of the tickets to be sent in a log channel? [y/n]", description="*Please answer with 'y' (for yes) or 'n' (for no) when asked!*")
+        await setup_message.edit(embed=e)
         response = await self.client.wait_for("message", check=check)
-        if cancel_check(response) is True:
+        await response.delete()
+        if cancel_check(response):
+            await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
-            await ctx.send("What should be the log channel? Please provid a valid channel")
+            e = discord.Embed(title="What should be the log channel?", description="*Please provid a valid channel*")
+            await setup_message.edit(embed=e)
             logs_channel = await self.client.wait_for("message", check=check)
+            await logs_channel.delete()
             if len(logs_channel.channel_mentions) == 0:
                 return await ctx.send("Cancelled as no valid channel was provided")
             logs_channel = logs_channel.channel_mentions[0]
 
-        await ctx.send("Should the embed have a title? [y/n]")
+        embed = discord.Embed(
+            title="Should the embed have a title? [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860865452158091264/embed_title.png")
+        await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
-        if cancel_check(response) is True:
+        await response.delete()
+        if cancel_check(response):
+            await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
-            await ctx.send("What should be the title?")
+            e = discord.Embed(title="What should be the title?", description="*Please provid a valid string*")
+            await setup_message.edit(embed=e)
             title = await self.client.wait_for("message", check=check_title)
+            await title.delete()
             setup_e.title = title.content
 
-        await ctx.send("Should the embed have a footer? [y/n]")
+        embed = discord.Embed(
+            title="Should the embed have a description? [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866775821713448/embed_description.png")
+        await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
-        if cancel_check(response) is True:
+        await response.delete()
+        if cancel_check(response):
+            await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
-            await ctx.send("What should be the footer?")
-            footer = await self.client.wait_for("message", check=check_footer)
-            setup_e.set_footer(text=footer.content)
-
-        await ctx.send("Should the embed have a description? [y/n]")
-        response = await self.client.wait_for("message", check=check)
-        if cancel_check(response) is True:
-            return await ctx.send("Cancelled!")
-        if response.content.lower() == "y":
-            await ctx.send("What should be the description?")
+            e = discord.Embed(title="What should be the description?", description="*Please provid a valid string*")
+            await setup_message.edit(embed=e)
             description = await self.client.wait_for("message", check=check_description)
+            await description.delete()
             setup_e.description = description.content
 
-        await ctx.send("Should the embed have a thumbnail? [y/n]")
+        embed = discord.Embed(
+            title="Should the embed have a footer? [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866713457000458/embed_footer.png")
+        await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
-        if cancel_check(response) is True:
+        await response.delete()
+        if cancel_check(response):
+            await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
-            await ctx.send("What should be the thumbnail?\nPlease enter a valid url")
+            e = discord.Embed(title="What should be the footer?", description="*Please provid a valid string*")
+            await setup_message.edit(embed=e)
+            footer = await self.client.wait_for("message", check=check_footer)
+            await footer.delete()
+            setup_e.set_footer(text=footer.content)
+
+        embed = discord.Embed(
+            title="Should the embed have a thumbnail? [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866753139441674/embed_thumbnail.png")
+        await setup_message.edit(embed=embed)
+        response = await self.client.wait_for("message", check=check)
+        await response.delete()
+        if cancel_check(response):
+            await setup_message.delete()
+            return await ctx.send("Cancelled!")
+        if response.content.lower() == "y":
+            e = discord.Embed(title="What should be the thumbnail?", description="*Please enter a valid url*")
+            await setup_message.edit(embed=e)
             thumbnail = await self.client.wait_for("message", check=check)
+            await thumbnail.delete()
             if len(thumbnail.attachments) >= 1:
                 url = thumbnail.attachments[0].url
             else:
                 url = thumbnail.content
             setup_e.set_thumbnail(url=url)
 
-        await ctx.send("Should the embed have a custom color? [y/n]")
+        embed = discord.Embed(
+            title="Should the embed have a custom color? (If no, the color will be the default) [y/n]",
+            description="*see the embed image for an example*"
+        )
+        embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866691894738945/embed_color.png")
+        await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
-        if cancel_check(response) is True:
+        await response.delete()
+        if cancel_check(response):
+            await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
-            await ctx.send("What should be the color?\nPlease enter a valid hex color (with `#` before)")
+            e = discord.Embed(title="What should be the color?", description="*Please enter a valid hex color (with `#` before)*")
+            await setup_message.edit(embed=e)
             color = await self.client.wait_for("message", check=check)
+            await color.delete()
             match = re.search(r"^#(?:[0-9a-fA-F]{3}){1,2}$", color.content) # thx github for the 3 next lines lol 
             if match:
                 setup_e.colour = int(color.content.replace("#", "0x"), 0)
@@ -189,12 +249,13 @@ class Tickettool(commands.Cog):
                 await ctx.send("Not a valid hex color. Embed will have the default color. Restart if you want a custom color!")
 
         try:
-            await ctx.send("Do you want to send the following ticket tool message in {}? [y/n]".format(channel.mention), embed=setup_e)
+            await setup_message.delete()
+            await ctx.send("Do you want to send the following ticket tool message in {}? (The reaction will be add automatically) [y/n]".format(channel.mention), embed=setup_e)
         except discord.errors.HTTPException:
             return await ctx.send("Embed cannot be empty... Please retry")
 
         response = await self.client.wait_for("message", check=check)
-        if cancel_check(response) is True:
+        if cancel_check(response):
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
             message = await channel.send(embed=setup_e)
@@ -203,16 +264,17 @@ class Tickettool(commands.Cog):
         else:
             return await ctx.send("Cancelled!")
 
-        db.cursor.execute("UPDATE guilds SET tickettool_id = ? WHERE guild_id = ?", (f"{message.id} {message.channel.id}", ctx.guild.id))
-        db.cursor.execute("UPDATE guilds SET tickettool_logs = ? WHERE guild_id = ?", (logs_channel.id, ctx.guild.id))
-        db.commit()
+        r = db.db_execute("UPDATE guilds SET `tickettool_id` = %s WHERE `guild_id` = %s", (f"{message.id} {message.channel.id}", ctx.guild.id))
+        if r[0] is False: return await report_error(self.client, ctx, r)
+        r = db.db_execute("UPDATE guilds SET `tickettool_logs` = %s WHERE `guild_id` = %s", (logs_channel.id, ctx.guild.id))
+        if r[0] is False: return await report_error(self.client, ctx, r)
 
     
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        tickettool_id = db.get_tickettool(payload.guild_id)
-        if tickettool_id is False:
-            return
+        r_tickettool_id = db.get_tickettool(payload.guild_id)
+        if r_tickettool_id[0] is False: return await report_error_no_ctx(self.client, r_tickettool_id)
+        tickettool_id = r_tickettool_id[1]
             
         channel = await self.client.fetch_channel(payload.channel_id)
         if payload.message_id == int(tickettool_id[0]) and str(payload.emoji) == "📩" and payload.member != self.client.user:
@@ -228,7 +290,14 @@ class Tickettool(commands.Cog):
                 guild.default_role: discord.PermissionOverwrite(read_messages=False),
                 payload.member: discord.PermissionOverwrite(read_messages=True)
             }
-            channel = await channel.category.create_text_channel(f"{payload.member.name}-{payload.member.discriminator}", overwrites=overwrites, topic=payload.member.id)
+
+            if channel.category is None: # in case ticket tool channel has no category
+                location = guild
+            else:
+                location = channel.category 
+
+            channel = await location.create_text_channel(f"{payload.member.name}-{payload.member.discriminator}", overwrites=overwrites, topic=payload.member.id)
+            
             await channel.send(payload.member.mention)
             tickettool_e = discord.Embed(
                 title="New ticket created!",
@@ -241,7 +310,7 @@ class Tickettool(commands.Cog):
         message = await channel.fetch_message(payload.message_id)
         if str(payload.emoji) == "🔒" and payload.member != self.client.user and len(message.embeds) > 0:
             if message.embeds[0].title == "New ticket created!" and message.embeds[0].description == "Moderators can close the ticket by adding the :lock: reaction to this message.\nPlease don't change the name of the channel and his topic :warning:" and message.embeds[0].colour == discord.Color(MAINCOLOR):
-                if is_it_moderator_member(payload.member) is True:
+                if is_it_moderator_member(payload.member):
                     await self.gen_html_close(channel, payload.member)
                     await channel.delete()
 

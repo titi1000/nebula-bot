@@ -6,6 +6,7 @@ from discord.ext import commands
 from main import MAINCOLOR
 from core.others import is_blacklisted_cogs, is_it_owner
 from core.db import db
+from core.nebula_logging import report_error
 
 class Infos(commands.Cog):
 
@@ -65,11 +66,12 @@ class Infos(commands.Cog):
             
             return await ctx.send(embed=prefix_e)
         
-        if len(prefix) > 2:
-            return await ctx.send("The new prefix may not be longer than 2 characters!")
+        if len(prefix) > 2: return await ctx.send("The new prefix may not be longer than 2 characters!")
 
         db.is_in_database_guild(ctx.guild.id)
-        db.db_execute("UPDATE guilds SET `prefix` = '%s' WHERE `guild_id` = %s", (prefix, ctx.guild.id))
+        r = db.db_execute("UPDATE guilds SET `prefix` = %s WHERE `guild_id` = %s", (prefix, ctx.guild.id))
+        if r[0] is False: return await report_error(self.client, ctx, r)
+            
         await ctx.send(f"New prefix will now be `{prefix}`")
 
     # help command
@@ -80,9 +82,9 @@ class Infos(commands.Cog):
             description = f"""Use `{ctx.prefix}<command>` to run a command or `{ctx.prefix}help <command>` to have more details, or to see how to use a specific command.\n
             **Infos**\n`help`, `infos`, `prefix`, `support`, `website`, `documentation`\n
             **Utils**\n`emojiinfo`, `cloneemoji`, `profile`, `guild`, `emojis`, `membercount`, `quote`, `color`, `role`, `ping`, `announce`, `search`, `discrim`, `suggest`, `report`\n
-            **Fun**\n`meme`, `cat`, `dog`, `8ball`, `avatar`, `reverse`, `say`\n
-            **Mods only**\n`massrole`, `nick`, `ban`, `kick`, `purge`\n
-            **Admin only**\n`mod-logs`, `blacklist`, `welcome`, `welcome-channel`, `welcome-message`, `leave`, `leave-channel`, `leave-message`, `autorole`\n
+            **Fun**\n`giveaway`, `meme`, `cat`, `dog`, `8ball`, `avatar`, `reverse`, `say`\n
+            **Mods only**\n`massrole`, `nick`, `ban`, `kick`, `warn`, `purge`, `punishments`, `delete-punishments`\n
+            **Admin only**\n`tickettool`, `mod-logs`, `blacklist`, `welcome`, `welcome-channel`, `welcome-message`, `leave`, `leave-channel`, `leave-message`, `autorole`, `moderators`, `set-moderators`\n
             **Logs** (These aren't commands)\n`on message delete`, `on message edit`, `on channel create/remove`"""
 
             help_e = discord.Embed(
@@ -93,7 +95,7 @@ class Infos(commands.Cog):
             help_e.set_thumbnail(url=self.client.user.avatar_url)
             help_e.set_footer(text=f"{self.client.user.name}'s help command")
 
-            await ctx.send(embed=help_e)
+            return await ctx.send(embed=help_e)
         
         else:
             try:
@@ -107,10 +109,10 @@ class Infos(commands.Cog):
                 description=description
                 )
 
-                await ctx.send(embed=help_e)
 
-            except:
-                return await ctx.send(f"No command named `{command}`. Please retry!")
+            return await ctx.send(embed=help_e)
+
+        except: return await ctx.send(f"No command named `{command}`. Please retry!")
 
     # show bot guilds (need to be owner of the bot to run the command)
     @commands.group(invoke_without_command=True)
@@ -133,8 +135,8 @@ class Infos(commands.Cog):
         if guild:
             await guild.leave()
             return await ctx.send(f"Guild \"{name}\" left!")
-        else:
-            return await ctx.send(f"Guild \"{name}\" not found... Please retry")
+        
+        return await ctx.send(f"Guild \"{name}\" not found... Please retry")
 
     # error if not owner of the bot
     @guilds.error
@@ -152,43 +154,38 @@ class Infos(commands.Cog):
     @blacklist.command()
     @commands.has_permissions(administrator=True)
     async def add(self, ctx):
-        if len(ctx.message.channel_mentions) == 0:
-            return await ctx.send(f"Please provid all channels you want to blacklist. Usage :\n```{ctx.prefix}blacklist add #channel-1 #channel-2 #channel...```(You can provid how many channels you want)\n\nUse `{ctx.prefix}blacklist view` to see what are the blacklisted channels in the server.")
+        if len(ctx.message.channel_mentions) == 0: return await ctx.send(f"Please provid all channels you want to blacklist. Usage :\n```{ctx.prefix}blacklist add #channel-1 #channel-2 #channel...```(You can provid how many channels you want)\n\nUse `{ctx.prefix}blacklist view` to see what are the blacklisted channels in the server.")
         
         blacklisted = db.get_blacklisted(ctx.guild.id)
         blacklisted = blacklisted.split(" ")
         for channel in ctx.message.channel_mentions:
-            if str(channel.id) in blacklisted:
-                continue
+            if str(channel.id) in blacklisted: continue
             blacklisted.append(str(channel.id))
 
         blacklisted = " ".join(blacklisted)
-        db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
-
+        r = db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
+        if r[0] is False: return await report_error(self.client, ctx, r)
+        
         channels = ""
-        for channel in ctx.message.channel_mentions:
-            channels += f"{channel.mention} "
+        for channel in ctx.message.channel_mentions: channels += f"{channel.mention} "
         await ctx.send(f"{channels} added to the channels blacklist!")
 
     # remove a channel from the blacklist
     @blacklist.command(aliases=["rm"])
     @commands.has_permissions(administrator=True)
     async def remove(self, ctx):
-        if len(ctx.message.channel_mentions) == 0:
-            return await ctx.send(f"Please provid all channels you want to remove from the blacklist. Usage :\n```{ctx.prefix}blacklist remove #channel-1 #channel-2 #channel...```(You can provid how many channels you want)\n\nUse `{ctx.prefix}blacklist view` to see what are the blacklisted channels in the server.")
+        if len(ctx.message.channel_mentions) == 0: return await ctx.send(f"Please provid all channels you want to remove from the blacklist. Usage :\n```{ctx.prefix}blacklist remove #channel-1 #channel-2 #channel...```(You can provid how many channels you want)\n\nUse `{ctx.prefix}blacklist view` to see what are the blacklisted channels in the server.")
         
         blacklisted = db.get_blacklisted(ctx.guild.id)
         blacklisted = blacklisted.split(" ")
         for channel in ctx.message.channel_mentions:
-            if str(channel.id) in blacklisted:
-                blacklisted.remove(str(channel.id))
+            if str(channel.id) in blacklisted: blacklisted.remove(str(channel.id))
 
         blacklisted = " ".join(blacklisted)
-        db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
-
+        r = db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
+        if r[0] is False: return await report_error(self.client, ctx, r)
         channels = ""
-        for channel in ctx.message.channel_mentions:
-            channels += f"{channel.mention} "
+        for channel in ctx.message.channel_mentions: channels += f"{channel.mention} "
         await ctx.send(f"{channels} removed from the channels blacklist!")
 
     # view which channels are blacklisted
@@ -199,11 +196,9 @@ class Infos(commands.Cog):
         blacklisted = blacklisted.split(" ")
         description = ""
         for channel in blacklisted:
-            if channel == "":
-                continue
+            if channel == "": continue
             description += f"<#{channel}> "
-        if description == "":
-            description = "No channel blacklisted..."
+        if description == "": description = "No channel blacklisted..."
 
         blacklist_e = discord.Embed(
             title=f"{ctx.guild.name} blacklisted channels",

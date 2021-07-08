@@ -3,6 +3,7 @@ from discord.ext import commands
 import datetime
 from core.db import db
 from core.others import get_channel_by_id
+from core.nebula_logging import report_error, report_error_with_message, report_error_with_channel
 
 class Logs(commands.Cog):
 
@@ -15,35 +16,37 @@ class Logs(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def mod_logs(self, ctx, channel:discord.TextChannel=None):
         if channel is None:
-            channel_id = db.logs_channel(ctx.guild.id)
-            if channel_id is False:
-                return await ctx.send(f"No logs channel set in this guild. Use `{ctx.prefix}mod-logs <#channel>` to set one.")
+            r_channel_id = db.logs_channel(ctx.guild.id)
+            if r_channel_id[0] is False: return await report_error(self.client, ctx, r_channel_id)
+
+            channel_id = r_channel_id[1][0]
+            if channel_id is None: return await ctx.send(f"No logs channel set in this guild. Use `{ctx.prefix}mod-logs <#channel>` to set one.")
             return await ctx.send(f"Current logs channel on this guild : <#{channel_id}>\nUse `{ctx.prefix}mod-logs remove` to remove the actual  one")
 
         db.is_in_database_guild(ctx.guild.id)
-        db.db_execute("UPDATE guilds SET `logs_id` = %s WHERE `guild_id` = %s", (channel.id, ctx.guild.id))
-        await ctx.send(f"New mod channel will be {channel.mention}")
+        r = db.db_execute("UPDATE guilds SET `logs_id` = %s WHERE `guild_id` = %s", (channel.id, ctx.guild.id))
+        if r[0]: return await ctx.send(f"New mod channel will be {channel.mention}")
+        return await report_error(self.client, ctx, r)
 
     @mod_logs.command(aliases=["rm"])
     @commands.has_permissions(administrator=True)
     async def remove(self, ctx):
         db.is_in_database_guild(ctx.guild.id)
-        db.db_execute("UPDATE guilds SET `logs_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
-        await ctx.send(f"No more logs channel set on this guild.")
+        r = db.db_execute("UPDATE guilds SET `logs_id` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
+        if r[0]: return await ctx.send(f"No more logs channel set on this guild.")
+        return await report_error(self.client, ctx, r)
 
     ## Logs
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if message.guild is None or message.author == self.client.user:
-            return
-        channel_id = db.logs_channel(message.guild.id)
+        if message.guild is None or message.author == self.client.user: return
+        r_channel_id = db.logs_channel(message.guild.id)
+        if r_channel_id[0] is False: return await report_error_with_message(self.client, message, r_channel_id, "on_message_delete")
 
-        if channel_id == False:
-            return
-
-        if message.content == "":
-            return
+        channel_id = r_channel_id[1][0]
+        if channel_id is None: return
+        if message.content == "": return
 
         try:
             channel = await get_channel_by_id(message.guild, int(channel_id))
@@ -57,23 +60,20 @@ class Logs(commands.Cog):
             deleted_e.set_footer(text=f"ID : {message.id}")
 
             await channel.send(embed=deleted_e)
-        except:
-            return
+        except: return
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
-        if before.guild is None or before.author == self.client.user:
-            return
-        channel_id = db.logs_channel(before.guild.id)
+        if before.guild is None or before.author == self.client.user: return
+        r_channel_id = db.logs_channel(before.guild.id)
+        if r_channel_id[0] is False: return await report_error_with_message(self.client, before, r_channel_id, "on_message_edit")
 
-        if channel_id == False:
-            return
+        channel_id = r_channel_id[1][0]
+        if channel_id is None: return
 
         try:
-            if before.content == "" or after.content == "":
-                return
-            if before.content == after.content:
-                return
+            if before.content == "" or after.content == "": return
+            if before.content == after.content: return
             channel = await get_channel_by_id(before.guild, int(channel_id))
             edited_e = discord.Embed(
                 title=f"Message edited in #{before.channel.name}",
@@ -85,15 +85,15 @@ class Logs(commands.Cog):
             edited_e.set_footer(text=f"ID : {before.id}")
 
             await channel.send(embed=edited_e)
-        except:
-            return
+        except: return
 
     @commands.Cog.listener()
     async def on_guild_channel_create(self, channel):
-        channel_id = db.logs_channel(channel.guild.id)
+        r_channel_id = db.logs_channel(channel.guild.id)
+        if r_channel_id[0] is False: return await report_error_with_channel(self.client, channel, r_channel_id, "on_guild_channel_create")
 
-        if channel_id == False:
-            return
+        channel_id = r_channel_id[1][0]
+        if channel_id is None: return
 
         try:
             logs_channel = await get_channel_by_id(channel.guild, int(channel_id))
@@ -109,15 +109,15 @@ class Logs(commands.Cog):
             
             await logs_channel.send(embed=channel_created_e)
 
-        except:
-            return
+        except: return
 
     @commands.Cog.listener()
     async def on_guild_channel_delete(self, channel):
-        channel_id = db.logs_channel(channel.guild.id)
+        r_channel_id = db.logs_channel(channel.guild.id)
+        if r_channel_id[0] is False: return await report_error_with_channel(self.client, channel, r_channel_id, "on_guild_channel_delete")
 
-        if channel_id == False:
-            return
+        channel_id = r_channel_id[1][0]
+        if channel_id is None: return
 
         try:
             logs_channel = await get_channel_by_id(channel.guild, int(channel_id))
@@ -132,8 +132,7 @@ class Logs(commands.Cog):
 
             await logs_channel.send(embed=channel_created_e)
 
-        except:
-            return
+        except: return
 
 
 

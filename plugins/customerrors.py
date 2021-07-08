@@ -3,7 +3,6 @@ import json
 import traceback
 import datetime
 from discord.ext import commands
-from main import owner_id
 
 with open("plugins/plugins.json") as data:
     data = json.load(data)

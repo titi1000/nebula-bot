@@ -18,8 +18,7 @@ async def get_channel_by_id(guild, id):
         await guild.fetch_channels()
         channel = discord.utils.get(guild.channels, id=id)
         return channel
-    except:
-        return None
+    except: return None
 
 # write the plugins json
 def write_plugins_json(action, plugin):
@@ -32,10 +31,9 @@ def write_plugins_json(action, plugin):
 
             with open("plugins/plugins.json", "w") as plugins_json:
                 json.dump(data_plugins, plugins_json, indent=4)
-
             return True
-        except:
-            return False
+
+        except: return False
 
     elif action == "disable":
         try:
@@ -46,10 +44,9 @@ def write_plugins_json(action, plugin):
 
             with open("plugins/plugins.json", "w") as plugins_json:
                 json.dump(data_plugins, plugins_json, indent=4)
-
             return True
-        except:
-            return False
+
+        except: return False
 
 # request to an an api
 async def apirequest(link:str):
@@ -57,8 +54,7 @@ async def apirequest(link:str):
         async with aiohttp.ClientSession() as session:
             async with session.get(link) as response:
                 return await response.json()
-    except:
-        return None
+    except: return None
 
 # verify if command user is bot owner
 def is_it_owner(ctx):
@@ -69,14 +65,12 @@ def is_blacklisted(func):
 
     @functools.wraps(func)
     async def inner(ctx, *args, **kwargs):
-        if not ctx.guild:
-            return await func(ctx, *args, **kwargs)
+        if not ctx.guild: return await func(ctx, *args, **kwargs)
 
         blacklisted = db.get_blacklisted(ctx.guild.id)
         blacklisted = blacklisted.split(" ")
 
-        if str(ctx.channel.id) in blacklisted:
-            return
+        if str(ctx.channel.id) in blacklisted: return
 
         await func(ctx, *args, **kwargs)
 
@@ -87,14 +81,12 @@ def is_blacklisted_cogs(func):
 
     @functools.wraps(func)
     async def inner(self, ctx, *args, **kwargs):
-        if not ctx.guild:
-            return await func(self, ctx, *args, **kwargs)
+        if not ctx.guild: return await func(self, ctx, *args, **kwargs)
 
         blacklisted = db.get_blacklisted(ctx.guild.id)
         blacklisted = blacklisted.split(" ")
 
-        if str(ctx.channel.id) in blacklisted:
-            return
+        if str(ctx.channel.id) in blacklisted: return
 
         await func(self, ctx, *args, **kwargs)
 
@@ -105,22 +97,18 @@ def is_blacklisted_cogs(func):
 def is_it_moderator(ctx):
     moderator_roles = db.get_moderator_roles(ctx.guild.id)
     member_roles_id = []
-    for role in ctx.author.roles:
-        member_roles_id.append(role.id)
+    for role in ctx.author.roles: member_roles_id.append(role.id)
     commons = list(set(moderator_roles).intersection(member_roles_id))
-    if len(commons) > 0:
-        return True
+    if len(commons) > 0: return True
     return ctx.author.guild_permissions.administrator
 
 # verify if a member is guild moderator (or admin)
 def is_it_moderator_member(member):
     moderator_roles = db.get_moderator_roles(member.guild.id)
     member_roles_id = []
-    for role in member.roles:
-        member_roles_id.append(role.id)
-    commons = list(set(moderator_roles).intersection(member_roles_id))
-    if len(commons) > 0:
-        return True
+    for role in member.roles: member_roles_id.append(role.id)
+    commons = list(set(moderator_roles[1]).intersection(member_roles_id))
+    if len(commons) > 0: return True
     return member.guild_permissions.administrator
 
 # add 1 to user's command counter 

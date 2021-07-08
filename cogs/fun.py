@@ -1,8 +1,6 @@
 import discord
 from discord.ext import commands
-import datetime
 import random
-import asyncio
 from main import MAINCOLOR, ERRORCOLOR
 from core.others import apirequest, is_blacklisted_cogs
 
@@ -88,8 +86,7 @@ class Fun(commands.Cog):
     @commands.command(aliases=["8ball", "eightball"])
     @is_blacklisted_cogs
     async def eight_ball(self, ctx, *, question=None):
-        if question is None:
-            return await ctx.send("Please ask a question!")
+        if question is None: return await ctx.send("Please ask a question!")
         responses = ("It's possible", 
                     "Totally", 
                     "I think yes", 
@@ -107,101 +104,15 @@ class Fun(commands.Cog):
     @commands.command()
     @is_blacklisted_cogs
     async def reverse(self, ctx, *, text=None):
-        if text is None:
-            return await ctx.send("Please provid some text to reverse...")
+        if text is None: return await ctx.send("Please provid some text to reverse...")
         await ctx.send(text[::-1])
 
     # make the bot say something
     @commands.command()
     @is_blacklisted_cogs
     async def say(self, ctx, *, text=None):
-        if text is None:
-            return await ctx.send("Please provid some text to say...")
+        if text is None: return await ctx.send("Please provid some text to say...")
         await ctx.send(text)
-
-    # create a giveaway
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    @is_blacklisted_cogs
-    async def giveaway(self, ctx, channel:discord.TextChannel=None, duration=None, winners=None, *, prize=None):
-        if channel is None or duration is None or winners is None or prize is None:
-            return await ctx.send(f"Command usage :\n```{ctx.prefix}giveaway <#channel> <10M or 2H or 1D> <number of winners> <prize>```\nM for minutes / H for hours / D for days")
-
-        try:
-            winners = abs(int(winners))
-        except:
-            await ctx.send("Winners must be a number.")
-            return
-
-        if duration[-1] in ["M", "m"]:
-            text_duration = "minutes"
-        elif duration[-1] in ["H", "h"]:
-            text_duration = "hours"
-        elif duration[-1] in ["D", "d"]:
-            text_duration = "days"
-        else:
-            await ctx.send("Duration must be like that :\n```2D (2 days) or 1M (1 minute) or 12H (12 hours)```")
-            return
-        
-        duration = duration[:-1]
-        try:
-            duration = int(duration)
-        except:
-            await ctx.send("Duration must be like that :\n```2D (2 days) or 1M (1 minute) or 12H (12 hours)```")
-            return
-
-        embed_duration = f"{duration} {text_duration}"
-
-        if text_duration == "minutes":
-            duration *= 60
-        if text_duration == "hours":
-            duration *= 3600
-        if text_duration == "days":
-            duration *= 86400
-
-        giveaway_e = discord.Embed(
-            title=":tada: GIVEAWAY :tada:",
-            description=f"{prize}\n**Winners** : {winners}\n**Duration** : {embed_duration}\n**Hosted by** : {ctx.author.mention}",
-            color=MAINCOLOR, 
-            timestamp=datetime.datetime.utcnow() + datetime.timedelta(0, duration)
-        )
-        giveaway_e.set_footer(text="Ends at :")
-
-        message = await channel.send(embed=giveaway_e)
-        await message.add_reaction("🎉")
-
-        await asyncio.sleep(duration)
-        # now we edit the message with the winner
-
-        message = await channel.fetch_message(message.id)
-        for reaction in message.reactions:
-            if reaction.emoji == "🎉":
-                users = await reaction.users().flatten()
-
-        winners_list = ""
-        if len(users) <= 1:
-            winners_list = "No winner :("
-        else:
-            users.remove(self.client.user)
-            while winners != 0 and len(users) != 0:
-                winner = random.choice(users)
-                winners_list += f"{winner.mention} "
-                winners -= 1
-                users.remove(winner)
-            winners_list += f"\n**You won** : {prize}"
-
-        winner_e = discord.Embed(
-            title=":tada: GIVEAWAY ENDED :tada:",
-            description=f"**Winners** : {winners_list}",
-            color=MAINCOLOR,
-            timestamp=datetime.datetime.utcnow()
-        )
-        winner_e.set_footer(text="Giveaway ended")
-
-        await channel.send(f":tada: Congratulations {winners_list} !! :tada:\nhttps://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id}")
-        await message.edit(embed=winner_e)
-
-
 
 def setup(client):
     client.add_cog(Fun(client))
