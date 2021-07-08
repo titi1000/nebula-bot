@@ -44,8 +44,7 @@ class DB(Database):
     
     # get the prefix
     def get_prefix(self, client, message):
-        if not message.guild:
-            return "?"
+        if not message.guild: return "?"
         self.is_in_database_guild(message.guild.id)
         result = self.db_fetchone("SELECT `prefix` FROM guilds WHERE `guild_id` = %s", (message.guild.id,))
         return result[1][0]
@@ -53,14 +52,12 @@ class DB(Database):
     # check if guild is in data base
     def is_in_database_guild(self, guild_id):
         result = self.db_fetchone("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1] is None:
-            self.db_execute("INSERT INTO guilds(`guild_id`) VALUES (%s)", (guild_id,))
+        if result[1] is None: self.db_execute("INSERT INTO guilds(`guild_id`) VALUES (%s)", (guild_id,))
 
     # check if user is in data base
     def is_in_database_user(self, user_id):
         result = self.db_fetchone("SELECT `user_id` FROM users WHERE `user_id` = %s", (user_id,))
-        if result[1] is None:
-            self.db_execute("INSERT INTO users(`user_id`) VALUES (%s)", (user_id,))
+        if result[1] is None: self.db_execute("INSERT INTO users(`user_id`) VALUES (%s)", (user_id,))
 
     # find the logs channel
     def logs_channel(self, guild_id):
@@ -102,10 +99,8 @@ class DB(Database):
     def get_blacklisted(self, guild_id):
         self.is_in_database_guild(guild_id)
         result = self.db_fetchone("SELECT `blacklisted` FROM guilds WHERE `guild_id` = %s", (guild_id,))
-        if result[1][0] is None:
-            return ""
-        else:
-            return result[1][0]
+        if result[1][0] is None: return ""
+        return result[1][0]
 
     # get ticket tool message and channel id
     def get_tickettool(self, guild_id):
@@ -125,43 +120,37 @@ class DB(Database):
     def manage_moderator_roles(self, guild_id, action:str, role_id:int):
         self.is_in_database_guild(guild_id)
         r_moderator_roles = self.get_moderator_roles(guild_id)
-        if r_moderator_roles[0] is False:
-            return r_moderator_roles
+        if r_moderator_roles[0] is False: return r_moderator_roles
         moderator_roles = r_moderator_roles[1]
         moderator_roles_str = map(str, moderator_roles)
         if action == "add":
-            if role_id in moderator_roles:
-                return (True, (1, 1))
-            else:
-                moderator_roles = moderator_roles.append(role_id)
-                roles_str = " ".join(moderator_roles_str)
-                self.db_execute("UPDATE guilds SET `moderator_roles` = %s WHERE `guild_id` = %s", (roles_str, guild_id))
-                return (True, (0, 1))
+            if role_id in moderator_roles: return (True, (1, 1))
+            
+            moderator_roles = moderator_roles.append(role_id)
+            roles_str = " ".join(moderator_roles_str)
+            self.db_execute("UPDATE guilds SET `moderator_roles` = %s WHERE `guild_id` = %s", (roles_str, guild_id))
+            return (True, (0, 1))
 
         elif action == "rm" or action == "rem" or action == "remove":
             if role_id in moderator_roles:
                 moderator_roles = moderator_roles.remove(role_id)
                 roles_str = " ".join(moderator_roles_str)
-                if roles_str == "":
-                    roles_str=None
+                if roles_str == "": roles_str=None
                 self.db_execute("UPDATE guilds SET `moderator_roles` = %s WHERE `guild_id` = %s", (roles_str, guild_id))
                 return (True, (1, 0))
-            else:
-                return (True, (0, 0))
+            return (True, (0, 0))
 
     # get moderator roles list
     def get_moderator_roles(self, guild_id):
         self.is_in_database_guild(guild_id)
         r_result_str = self.db_fetchone("SELECT `moderator_roles` FROM guilds WHERE `guild_id`=%s", (guild_id,))
-        if r_result_str[0] is False:
-            return r_result_str
+        if r_result_str[0] is False: return r_result_str
 
         role_list = []
         if r_result_str[1][0] is not None:
             list = r_result_str[1][0].split(" ")
             for role in list:
-                if role != "":
-                    role_list.append(int(role))
+                if role != "": role_list.append(int(role))
         return (r_result_str[0], role_list, r_result_str[2])
 
     # set the muted role

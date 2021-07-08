@@ -66,13 +66,11 @@ class Infos(commands.Cog):
             
             return await ctx.send(embed=prefix_e)
         
-        if len(prefix) > 2:
-            return await ctx.send("The new prefix may not be longer than 2 characters!")
+        if len(prefix) > 2: return await ctx.send("The new prefix may not be longer than 2 characters!")
 
         db.is_in_database_guild(ctx.guild.id)
         r = db.db_execute("UPDATE guilds SET `prefix` = %s WHERE `guild_id` = %s", (prefix, ctx.guild.id))
-        if r[0] == False:
-            return await report_error(self.client, ctx, r)
+        if r[0] is False: return await report_error(self.client, ctx, r)
             
         await ctx.send(f"New prefix will now be `{prefix}`")
 
@@ -97,21 +95,19 @@ class Infos(commands.Cog):
             help_e.set_thumbnail(url=self.client.user.avatar_url)
             help_e.set_footer(text=f"{self.client.user.name}'s help command")
 
-            await ctx.send(embed=help_e)
+            return await ctx.send(embed=help_e)
         
-        else:
-            try:
-                command_description = self.commands_infos[command]
-                help_e = discord.Embed(
-                title=f"{command}'s usage",
-                color=MAINCOLOR,
-                description=command_description.format(ctx.prefix)
-                )
+        try:
+            command_description = self.commands_infos[command]
+            help_e = discord.Embed(
+            title=f"{command}'s usage",
+            color=MAINCOLOR,
+            description=command_description.format(ctx.prefix)
+            )
 
-                await ctx.send(embed=help_e)
+            return await ctx.send(embed=help_e)
 
-            except:
-                return await ctx.send(f"No command named `{command}`. Please retry!")
+        except: return await ctx.send(f"No command named `{command}`. Please retry!")
 
     # show bot guilds (need to be owner of the bot to run the command)
     @commands.group(invoke_without_command=True)
@@ -134,8 +130,8 @@ class Infos(commands.Cog):
         if guild:
             await guild.leave()
             return await ctx.send(f"Guild \"{name}\" left!")
-        else:
-            return await ctx.send(f"Guild \"{name}\" not found... Please retry")
+        
+        return await ctx.send(f"Guild \"{name}\" not found... Please retry")
 
     # error if not owner of the bot
     @guilds.error
@@ -153,46 +149,38 @@ class Infos(commands.Cog):
     @blacklist.command()
     @commands.has_permissions(administrator=True)
     async def add(self, ctx):
-        if len(ctx.message.channel_mentions) == 0:
-            return await ctx.send(f"Please provid all channels you want to blacklist. Usage :\n```{ctx.prefix}blacklist add #channel-1 #channel-2 #channel...```(You can provid how many channels you want)\n\nUse `{ctx.prefix}blacklist view` to see what are the blacklisted channels in the server.")
+        if len(ctx.message.channel_mentions) == 0: return await ctx.send(f"Please provid all channels you want to blacklist. Usage :\n```{ctx.prefix}blacklist add #channel-1 #channel-2 #channel...```(You can provid how many channels you want)\n\nUse `{ctx.prefix}blacklist view` to see what are the blacklisted channels in the server.")
         
         blacklisted = db.get_blacklisted(ctx.guild.id)
         blacklisted = blacklisted.split(" ")
         for channel in ctx.message.channel_mentions:
-            if str(channel.id) in blacklisted:
-                continue
+            if str(channel.id) in blacklisted: continue
             blacklisted.append(str(channel.id))
 
         blacklisted = " ".join(blacklisted)
         r = db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
-        if r[0] == False:
-            return await report_error(self.client, ctx, r)
+        if r[0] is False: return await report_error(self.client, ctx, r)
         
         channels = ""
-        for channel in ctx.message.channel_mentions:
-            channels += f"{channel.mention} "
+        for channel in ctx.message.channel_mentions: channels += f"{channel.mention} "
         await ctx.send(f"{channels} added to the channels blacklist!")
 
     # remove a channel from the blacklist
     @blacklist.command(aliases=["rm"])
     @commands.has_permissions(administrator=True)
     async def remove(self, ctx):
-        if len(ctx.message.channel_mentions) == 0:
-            return await ctx.send(f"Please provid all channels you want to remove from the blacklist. Usage :\n```{ctx.prefix}blacklist remove #channel-1 #channel-2 #channel...```(You can provid how many channels you want)\n\nUse `{ctx.prefix}blacklist view` to see what are the blacklisted channels in the server.")
+        if len(ctx.message.channel_mentions) == 0: return await ctx.send(f"Please provid all channels you want to remove from the blacklist. Usage :\n```{ctx.prefix}blacklist remove #channel-1 #channel-2 #channel...```(You can provid how many channels you want)\n\nUse `{ctx.prefix}blacklist view` to see what are the blacklisted channels in the server.")
         
         blacklisted = db.get_blacklisted(ctx.guild.id)
         blacklisted = blacklisted.split(" ")
         for channel in ctx.message.channel_mentions:
-            if str(channel.id) in blacklisted:
-                blacklisted.remove(str(channel.id))
+            if str(channel.id) in blacklisted: blacklisted.remove(str(channel.id))
 
         blacklisted = " ".join(blacklisted)
         r = db.db_execute("UPDATE guilds SET `blacklisted` = %s WHERE `guild_id` = %s", (blacklisted,ctx.guild.id))
-        if r[0] == False:
-            return await report_error(self.client, ctx, r)
+        if r[0] is False: return await report_error(self.client, ctx, r)
         channels = ""
-        for channel in ctx.message.channel_mentions:
-            channels += f"{channel.mention} "
+        for channel in ctx.message.channel_mentions: channels += f"{channel.mention} "
         await ctx.send(f"{channels} removed from the channels blacklist!")
 
     # view which channels are blacklisted
@@ -203,11 +191,9 @@ class Infos(commands.Cog):
         blacklisted = blacklisted.split(" ")
         description = ""
         for channel in blacklisted:
-            if channel == "":
-                continue
+            if channel == "": continue
             description += f"<#{channel}> "
-        if description == "":
-            description = "No channel blacklisted..."
+        if description == "": description = "No channel blacklisted..."
 
         blacklist_e = discord.Embed(
             title=f"{ctx.guild.name} blacklisted channels",

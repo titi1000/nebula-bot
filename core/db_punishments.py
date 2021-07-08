@@ -42,8 +42,7 @@ class DBpunishments(Database):
     # add a punishment
     def add_punishment(self, guild_id:int, member_id:int, type:str, start_timestamp:int, moderator_id:int=None, reason:str=None, end_timestamp:int=None):
         if type in self.punishments_types:
-            if reason is None:
-                reason = ""
+            if reason is None: reason = ""
             sql = f"INSERT INTO `{guild_id}`(`member_id`, `moderator_id`, `type`, `reason`, `start_timestamp`, `end_timestamp`) VALUES(%s, %s, %s, %s, %s, %s)"
             vars = (member_id, moderator_id, type, reason, start_timestamp, end_timestamp)
             r = self.db_execute(sql, vars)
@@ -56,8 +55,7 @@ class DBpunishments(Database):
     # get a punishment
     def get_punishment(self, guild_id, punishment_id):
         r = self.db_fetchone(f"SELECT * FROM `{guild_id}` WHERE `punishments_id`=%s", (punishment_id,))
-        if r[0] and r[1] is not None:
-            return (r[0], Punishment(guild_id, r[1]), r[2])
+        if r[0] and r[1] is not None: return (r[0], Punishment(guild_id, r[1]), r[2])
         return r
 
 
@@ -66,8 +64,7 @@ class DBpunishments(Database):
         r = self.db_fetchall(f"SELECT * FROM `{guild_id}` WHERE `member_id`=%s", (member_id,))
         if r[0]:
             p_list = []
-            for punishment in r[1]:
-                p_list.append(Punishment(guild_id, punishment))
+            for punishment in r[1]: p_list.append(Punishment(guild_id, punishment))
             return (r[0], p_list, r[2])
         return r
 

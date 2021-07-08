@@ -43,7 +43,7 @@ class Announce(commands.Cog):
         announce_e = discord.Embed()
 
         channel = await self.client.wait_for("message", check=check_channel)
-        if cancel_check(channel) is True:
+        if cancel_check(channel):
             return await ctx.send("Cancelled!")
         if len(channel.channel_mentions) == 0:
             return await ctx.send("Cancelled as no valid channel was provided")
@@ -56,7 +56,7 @@ class Announce(commands.Cog):
         embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860865452158091264/embed_title.png")
         await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=yes_no_check)
-        if cancel_check(response) is True:
+        if cancel_check(response):
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
             await ctx.send("What should be the title?")
@@ -70,7 +70,7 @@ class Announce(commands.Cog):
         embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866775821713448/embed_description.png")
         await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=yes_no_check)
-        if cancel_check(response) is True:
+        if cancel_check(response):
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
             await ctx.send("What should be the description?")
@@ -84,7 +84,7 @@ class Announce(commands.Cog):
         embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866713457000458/embed_footer.png")
         await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=yes_no_check)
-        if cancel_check(response) is True:
+        if cancel_check(response):
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
             await ctx.send("What should be the footer?")
@@ -98,7 +98,7 @@ class Announce(commands.Cog):
         embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866753139441674/embed_thumbnail.png")
         await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=yes_no_check)
-        if cancel_check(response) is True:
+        if cancel_check(response):
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
             await ctx.send("What should be the thumbnail?\nPlease enter a valid url")
@@ -116,7 +116,7 @@ class Announce(commands.Cog):
         embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866732184698880/embed_image.png")
         await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=yes_no_check)
-        if cancel_check(response) is True:
+        if cancel_check(response):
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
             await ctx.send("What should be the image?\nPlease enter a valid url")
@@ -134,7 +134,7 @@ class Announce(commands.Cog):
         embed.set_image(url="https://cdn.discordapp.com/attachments/858466787762896926/860866691894738945/embed_color.png")
         await ctx.send(embed=embed)
         response = await self.client.wait_for("message", check=yes_no_check)
-        if cancel_check(response) is True:
+        if cancel_check(response):
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
             await ctx.send("What should be the color?\nPlease enter a valid hex color (with `#` before)")
@@ -147,7 +147,7 @@ class Announce(commands.Cog):
                 
         await ctx.send("Do you want to mention any role? [y/n]")
         response = await self.client.wait_for("message", check=yes_no_check)
-        if cancel_check(response) is True:
+        if cancel_check(response):
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
             await ctx.send("Which role do you want to mention?\nCan be everyone or here")
@@ -170,7 +170,7 @@ class Announce(commands.Cog):
             return await ctx.send("Embed cannot be empty... Please retry")
 
         response = await self.client.wait_for("message", check=yes_no_check)
-        if cancel_check(response) is True:
+        if cancel_check(response):
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
             if mention != "no":
