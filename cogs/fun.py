@@ -86,8 +86,7 @@ class Fun(commands.Cog):
     @commands.command(aliases=["8ball", "eightball"])
     @is_blacklisted_cogs
     async def eight_ball(self, ctx, *, question=None):
-        if question is None:
-            return await ctx.send("Please ask a question!")
+        if question is None: return await ctx.send("Please ask a question!")
         responses = ("It's possible", 
                     "Totally", 
                     "I think yes", 
@@ -105,19 +104,15 @@ class Fun(commands.Cog):
     @commands.command()
     @is_blacklisted_cogs
     async def reverse(self, ctx, *, text=None):
-        if text is None:
-            return await ctx.send("Please provid some text to reverse...")
+        if text is None: return await ctx.send("Please provid some text to reverse...")
         await ctx.send(text[::-1])
 
     # make the bot say something
     @commands.command()
     @is_blacklisted_cogs
     async def say(self, ctx, *, text=None):
-        if text is None:
-            return await ctx.send("Please provid some text to say...")
+        if text is None: return await ctx.send("Please provid some text to say...")
         await ctx.send(text)
-
-
 
 def setup(client):
     client.add_cog(Fun(client))
