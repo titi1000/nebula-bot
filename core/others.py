@@ -1,3 +1,4 @@
+from core.nebula_logging import nebula_logging
 import discord
 import toml
 import json
@@ -95,7 +96,10 @@ def is_blacklisted_cogs(func):
 
 # verify if command user is guild moderator (or admin)
 def is_it_moderator(ctx):
-    moderator_roles = db.get_moderator_roles(ctx.guild.id)
+    r_moderator_roles = db.get_moderator_roles(ctx.guild.id)
+    if r_moderator_roles[0] is False: return nebula_logging.logger_mysql.error(r_moderator_roles) # Report error in logs
+
+    moderator_roles = r_moderator_roles[1]
     member_roles_id = []
     for role in ctx.author.roles: member_roles_id.append(role.id)
     commons = list(set(moderator_roles).intersection(member_roles_id))
