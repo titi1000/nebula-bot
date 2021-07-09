@@ -98,21 +98,17 @@ class Infos(commands.Cog):
             return await ctx.send(embed=help_e)
         
         else:
-            try:
-                command_infos = self.commands_infos[command]
-                description = f"{command_infos['description']}\n{command_infos['usage']}".format(ctx.prefix)
-                for arg, desc in command_infos["args"].items(): description+=f"{arg} : {desc}"
+            if command not in self.commands_infos: return await ctx.send(f"No command named `{command}`. Please retry!")
+            command_infos = self.commands_infos[command]
+            description = f"{command_infos['description']}\n{command_infos['usage']}".format(ctx.prefix)
+            for arg, desc in command_infos["args"].items(): description+=f"{arg} : {desc}"
 
-                help_e = discord.Embed(
-                title=f"{command}'s usage",
-                color=MAINCOLOR,
-                description=description
-                )
-
-
+            help_e = discord.Embed(
+            title=f"{command}'s usage",
+            color=MAINCOLOR,
+            description=description
+            )
             return await ctx.send(embed=help_e)
-
-        except: return await ctx.send(f"No command named `{command}`. Please retry!")
 
     # show bot guilds (need to be owner of the bot to run the command)
     @commands.group(invoke_without_command=True)

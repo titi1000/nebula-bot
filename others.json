@@ -1,0 +1,19 @@
+{
+    "flags": {
+        "bug_hunter": "<:discord_bughunterlv1:859399453042278410>",
+        "bug_hunter_level2": "<:discord_bughunterlv2:859399378996559923>",
+        "early_supporter": "<:discord_earlysupporter:859399558513557524>",
+        "early_verified_bot_developper": "",
+        "hypesquad": "<:discord_hypesquad:859399510719594496>",
+        "hypesquad_balance": "<:discord_balance:859399612384804885>",
+        "hypesquad_bravery": "<:discord_bravery:859399663651651604>",
+        "hypesquad_brilliance": "<:discord_brillance:859399776621821963>",
+        "partner": "<:discord_partner:859399333761122305>",
+        "staff": "<:discord_employee:859399828286603286>",
+        "system": "<:system_badge:859399129032556564>",
+        "team_user": "",
+        "verified_bot": "<:BotTag:859399249850138684>",
+        "verified_bot_developper": "",
+        "bot": "<:BotTag:859399249850138684>"
+    }
+}

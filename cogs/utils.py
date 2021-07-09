@@ -4,12 +4,17 @@ import datetime
 from main import MAINCOLOR
 from core.others import is_blacklisted_cogs
 import disputils
+import json
 
 class Utils(commands.Cog):
 
     def __init__(self, client):
         self.client = client
         print("Utils cog well loaded.")
+
+        # import discord flags 
+        with open("others.json") as discord_flags:
+            self.discord_flags = json.load(discord_flags)["flags"]
 
     # bot's latency
     @commands.command()
@@ -48,28 +53,35 @@ class Utils(commands.Cog):
     @commands.command()
     @is_blacklisted_cogs
     async def profile(self, ctx, member:discord.Member=None):
-        if member is None: member = ctx.author
+        if member is None: member=ctx.author
         else: member = await ctx.guild.fetch_member(member.id)
-        profile_e = discord.Embed(
-            title=f"{member.name}#{member.discriminator} • {member.id}",
-            color=member.color
-        )
-        flags = ""
-        for flag in member.public_flags.all(): flags += flag.name
-        if flags == "": flags = "no flags"
+    
+        flags = []
+        for flag in member.public_flags.all(): flags.append(self.discord_flags[flag.name])
+        if flags != []: flags = " ".join(flags)
+        else: flags = "No flags"
 
-        roles = ""
+        roles = []
         for role in member.roles:
             if role.name == "@everyone": continue
-            roles += role.mention
-        if roles == []: roles = "No roles"
+            roles.append(role.mention)
+        if roles != []: roles = " ".join(roles)
+        else: roles = "No roles"
 
         created = member.created_at.strftime("%b %d %Y")
         joined = member.joined_at.strftime("%b %d %Y")
-
+        
+        account_type = "Human"
+        if member.bot: account_type = "Bot"
+            
+        profile_e = discord.Embed(
+            title=f"{member} • {member.id}",
+            description=flags,
+            color=member.color
+        )
+        
+        profile_e.add_field(name= "Account type", value=account_type, inline = False)
         profile_e.add_field(name="Roles", value=roles, inline=False)
-        profile_e.add_field(name="Flags", value=flags, inline=False)
-        profile_e.add_field(name="Bot", value=member.bot, inline=False)
         profile_e.add_field(name="Avatar URL", value=f"[link here]({member.avatar_url})", inline=False)
         profile_e.set_footer(text=f"Account created at {created} • Joined server at {joined}")
         profile_e.set_thumbnail(url=member.avatar_url)
