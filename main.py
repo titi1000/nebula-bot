@@ -183,17 +183,16 @@ class Bot(commands.Bot):
     ### Error
 
     async def on_command_error(self, ctx, error):
-        if isinstance(error, commands.CommandNotFound):
-            return
+        if isinstance(error, commands.CommandNotFound): return
         
-        if isinstance(error, commands.BadArgument):
+        elif isinstance(error, commands.BadArgument):
             badargument_e = discord.Embed(
                 description=f"{str(error)}\nPlease provid a valid argument.",
                 color=ERRORCOLOR
             )
             await ctx.send(embed=badargument_e)
 
-        if isinstance(error, commands.MissingPermissions):
+        elif isinstance(error, commands.MissingPermissions):
             noperm_e = discord.Embed(
                 description="You don't have the permissions to do this.",
                 color=ERRORCOLOR
