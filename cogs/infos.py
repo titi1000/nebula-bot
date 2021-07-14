@@ -17,6 +17,10 @@ class Infos(commands.Cog):
         with open("commands.json") as commands_json:
             self.commands_infos = json.load(commands_json)
 
+        # import emojis file
+        with open("others.json") as others_json:
+            self.emojis_dict = json.load(others_json)["emojis"]
+
     # uptime
     @commands.command(aliases=["up"])
     @is_blacklisted_cogs
@@ -80,12 +84,12 @@ class Infos(commands.Cog):
     async def help(self, ctx, command=None):
         if command is None:
             description = f"""Use `{ctx.prefix}<command>` to run a command or `{ctx.prefix}help <command>` to have more details, or to see how to use a specific command.\n
-            **Infos**\n`help`, `infos`, `prefix`, `support`, `website`, `documentation`\n
-            **Utils**\n`emojiinfo`, `cloneemoji`, `profile`, `guild`, `emojis`, `membercount`, `quote`, `color`, `role`, `ping`, `announce`, `search`, `discrim`, `suggest`, `report`\n
-            **Fun**\n`giveaway`, `meme`, `cat`, `dog`, `8ball`, `avatar`, `reverse`, `say`\n
-            **Mods only**\n`massrole`, `nick`, `ban`, `kick`, `warn`, `purge`, `punishments`, `delete-punishments`\n
-            **Admin only**\n`tickettool`, `mod-logs`, `blacklist`, `welcome`, `welcome-channel`, `welcome-message`, `leave`, `leave-channel`, `leave-message`, `autorole`, `moderators`, `set-moderators`\n
-            **Logs** (These aren't commands)\n`on message delete`, `on message edit`, `on channel create/remove`"""
+            **{self.emojis_dict['plurple_link']} Infos**\n`help`, `infos`, `prefix`, `support`, `website`, `documentation`\n
+            **{self.emojis_dict['blurple_employee']} Utils**\n`emojiinfo`, `cloneemoji`, `profile`, `guild`, `emojis`, `membercount`, `quote`, `color`, `role`, `ping`, `announce`, `search`, `discrim`, `suggest`, `report`\n
+            **{self.emojis_dict['blurple_star']} Fun**\n`giveaway`, `meme`, `cat`, `dog`, `8ball`, `avatar`, `reverse`, `say`\n
+            **{self.emojis_dict['blurple_certifiedmoderator']} Mods only**\n`massrole`, `nick`, `ban`, `kick`, `warn`, `purge`, `punishments`, `delete-punishments`\n
+            **{self.emojis_dict['blurple_settings']} Admin only**\n`tickettool`, `mod-logs`, `blacklist`, `welcome`, `welcome-channel`, `welcome-message`, `leave`, `leave-channel`, `leave-message`, `autorole`, `moderators`, `set-moderators`\n
+            **{self.emojis_dict['blurple_search']} Logs** (These aren't commands)\n`on message delete`, `on message edit`, `on channel create/remove`"""
 
             help_e = discord.Embed(
                 title=f"All {self.client.user.name}'s commands",
@@ -98,21 +102,17 @@ class Infos(commands.Cog):
             return await ctx.send(embed=help_e)
         
         else:
-            try:
-                command_infos = self.commands_infos["english"][command]
-                description = f"{command_infos['description']}\n{command_infos['usage']}".format(ctx.prefix)
-                for arg, desc in command_infos["args"].items(): description+=f"{arg} : {desc}"
+            if command not in self.commands_infos: return await ctx.send(f"No command named `{command}`. Please retry!")
+            command_infos = self.commands_infos["english"][command]
+            description = f"{command_infos['description']}\n{command_infos['usage']}".format(ctx.prefix)
+            for arg, desc in command_infos["args"].items(): description+=f"{arg} : {desc}"
 
-                help_e = discord.Embed(
-                title=f"{command}'s usage",
-                color=MAINCOLOR,
-                description=description
-                )
-
-
+            help_e = discord.Embed(
+            title=f"{command}'s usage",
+            color=MAINCOLOR,
+            description=description
+            )
             return await ctx.send(embed=help_e)
-
-        except: return await ctx.send(f"No command named `{command}`. Please retry!")
 
     # show bot guilds (need to be owner of the bot to run the command)
     @commands.group(invoke_without_command=True)
