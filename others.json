@@ -15,5 +15,13 @@
         "verified_bot": "<:BotTag:859399249850138684>",
         "verified_bot_developper": "",
         "bot": "<:BotTag:859399249850138684>"
+    },
+    "emojis": {
+        "blurple_link": "<:blurple_link:859400228909219840>",
+        "blurple_certifiedmoderator": "<:blurple_certifiedmoderator:859411794115821598>",
+        "blurple_employee": "<:blurple_employee:859411570857345044>",
+        "blurple_star": "<:blurple_star:859412174224883712>",
+        "blurple_settings": "<:blurple_settings:859412322044477470>",
+        "blurple_search": "<:blurple_search:859412501052391465>"
     }
 }
