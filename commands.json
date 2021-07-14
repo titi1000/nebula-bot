@@ -1,310 +1,622 @@
 {
-    "ping": {
-        "description": "Responds with bot latency.",
-        "usage": "Usage:```{}ping```",
-        "args": {}
-    },
-    "infos": {
-        "description": "Responds with bot infos.",
-        "usage": "Usage:```{}infos```",
-        "args": {}
-    },
-    "prefix": {
-        "description": "View the bot's prefix or change it.",
-        "usage": "Usage:```{}prefix (<new prefix>)```",
-        "args": {
-            "new prefix": "New prefix of the bot (max 2 characters)"
+    "english" : {
+        "ping": {
+            "description": "Responds with bot latency.",
+            "usage": "Usage:```{}ping```",
+            "args": {}
+        },
+        "infos": {
+            "description": "Responds with bot infos.",
+            "usage": "Usage:```{}infos```",
+            "args": {}
+        },
+        "prefix": {
+            "description": "View the bot's prefix or change it.",
+            "usage": "Usage:```{}prefix (<new prefix>)```",
+            "args": {
+                "new prefix": "New prefix of the bot (max 2 characters)"
+            }
+        },
+        "help": {
+            "description": "Look at all the commands or a specific command usage.",
+            "usage": "Usage:```{}help (<command name>)```",
+            "args": {
+                "command name": "Name of command (in help page)"
+            }
+        },
+        "guilds": {
+            "description": "Look at all the servers where the bot is or remove the bot from a server (command only for bot owner).",
+            "usage": "Usage:```{}guilds (leave) (<server name>)```",
+            "args": {
+                "leave": "If you want bot leaves a guild",
+                "server name": "Name of the guild"
+            }
+        },
+        "plugins": {
+            "description": "Shows a list of plugins (command only for bot owner).",
+            "usage": "Usage:```{}plugins```",
+            "args": {}
+        },
+        "blacklist": {
+            "description": "Manage blacklisted channels on the guild.",
+            "usage": "Usage:```{}blacklist <add | remove | view> (<channels mentions>)```",
+            "args": {
+                "add": "Blacklist channels",
+                "remove": "Remove channels from blacklisted channels",
+                "view": "View the blacklisted channels",
+                "channels mentions": "Mention the channels you want to manage"
+            }
+        },
+        "emojiinfo": {
+            "description": "Shows informations about a custom emoji.",
+            "usage": "Usage:```{}emojiinfo <emoji>```",
+            "args": {
+                "emoji": "Custom Emoji of which you want information about"
+            }
+        },
+        "cloneemoji": {
+            "description": "Clones a custom emoji on the guild (you need nitro to run the command).",
+            "usage": "Usage:```{}cloneemoji <emoji>```",
+            "args": {
+                "emoji": "Custom emoji you want to clone on your server"
+            }
+        },
+        "profile": {
+            "description": "Shows your or a member's information.",
+            "usage": "Usage:```{}profile (<member>)```",
+            "args": {
+                "member": "The member whose profile you want"
+            }
+        },
+        "guild": {
+            "description": "Shows information on the server.",
+            "usage": "Usage:```{}guild```",
+            "args": {}
+        },
+        "emojis": {
+            "description": "Shows all emojis on the server.",
+            "usage": "Usage:```{}emojis```",
+            "args": {}
+        },
+        "membercount": {
+            "description": "Returns the number of people on the server.",
+            "usage": "Usage:```{}membercount```",
+            "args": {}
+        },
+        "quote": {
+            "description": "Quote a message by sending the message link.",
+            "usage": "Usage:```{}quote <message link>```",
+            "args": {
+                "message ling": "Link of the message whose you want to quote"
+            }
+        },
+        "color": {
+            "descritpion": "Shows information on a color.",
+            "usage": "Usage:```{}color <color (hex)>```",
+            "args": {
+                "color": "Name of the color",
+                "hex": "Hexadecimal code of the color"
+            }
+        },
+        "role": {
+            "description": "Shows informations on a role.",
+            "usage": "Usage:```{}role <role>```",
+            "args": {
+                "role": "A role whose you want information about"
+            }
+        },
+        "search": {
+            "description": "Search for a member in the server, using his name or nick.",
+            "usage": "Usage:```{}search <member information>```",
+            "args": {
+                "member information": "The name, display name, mention or id of the member"
+            }
+        },
+        "discrim": {
+            "description": "Search for a member in the server, using his discriminator.",
+            "usage": "Usage:```{}search <discriminator>```",
+            "args": {
+                "discriminator": "Discriminator of member (= pseudo#**discriminator**)"
+            }
+        },
+        "meme": {
+            "description": "Sends a random meme.",
+            "usage": "Usage:```{}meme```",
+            "args": {}
+        },
+        "cat": {
+            "description": "Sends a random cat picture.",
+            "usage": "Usage:```{}cat```",
+            "args": {}
+        },
+        "dog": {
+            "description": "Sends a random dog picture.",
+            "usage": "Usage:```{}dog```",
+            "args": {}
+        },
+        "8ball": {
+            "description": "Sends random replies.",
+            "usage": "Usage:```{}8ball <question>```",
+            "args": {
+                "question": "Question whose you want the reply"
+            }
+        },
+        "avatar": {
+            "description": "Sends your or a member's avatar.",
+            "usage": "Usage:```{}avatar (<member>)```",
+            "args": {
+                "member": "The member whose you want his avatar"
+            }
+        },
+        "reverse": {
+            "description": "Reverses some text.",
+            "usage": "Usage:```{}reverse <text>```",
+            "args": {
+                "text": "Text to be reversed"
+            }
+        },
+        "say": {
+            "description": "Make the bot say something.",
+            "usage": "Usage:```{}say <text>```",
+            "args": {
+                "text": "Text that the robot will say"
+            }
+        },
+        "giveaway": {
+            "description": "Creates a giveaway in a channel.",
+            "usage": "Usage:```{}giveaway <#channel> <time> <number of winners> <prize>```",
+            "args": {
+                "channel": "Giveaway channel",
+                "time": "M for minutes / H for hours / D for days"
+            }
+        },
+        "nick": {
+            "description": "Changes someone's nick.",
+            "usage": "Usage:```{}nick <member> <new nick>```",
+            "args": {
+                "member": "Member whose you want change nick",
+                "new nick": "New member's nick"
+            }
+        },
+        "ban": {
+            "description": "Bans someone of the server.",
+            "usage": "Usage:```{}ban <member>```",
+            "args": {
+                "member": "The member whose you want to ban"
+            }
+        },
+        "kick": {
+            "description": "Kicks someone of the server.",
+            "usage": "Usage:```{}kick <member>```",
+            "args": {
+                "member": "The ember whose you want to kick"
+            }
+        },
+        "purge": {
+            "description": "Cleans an amount of message in the channel.",
+            "usage": "Usage:```{}purge <amount>```",
+            "args": {
+                "amount": "The amount of messages to delete"
+            }
+        },
+        "massrole": {
+            "description": "Gives or removes a role for everyone.",
+            "usage": "Usage:```{}massrole <action> <role>```",
+            "args": {
+                "action": "add | remmove",
+                "role": "The role you want add or removove for everyone"
+            }
+        },
+        "mod-logs": {
+            "description": "Add or remove a logs channel on your server.",
+            "usage": "Usage:```{}mod-logs (<action>) (<channel>)```",
+            "args": {
+                "action": "add | remove",
+                "channel": "Channel whose you want to manage"
+            }
+        },
+        "welcome": {
+            "description": "Shows information on automatic join message, you can also simulate a join.",
+            "usage": "Usage:```{}welcome (simulate)```",
+            "args": {
+                "simulate": "To send a welcome message in welcome channel for you"
+            }
+        },
+        "welcome-channel": {
+            "description": "Add or remove a welcome channel on your server (automatic welcome messages will be sent in this channel).",
+            "usage": "Usage:```{}welcome-channel <action> (<channel>)```",
+            "args": {
+                "action": "add | remove",
+                "channel": "If action is 'add', the channel you want to add"
+            }
+        },
+        "welcome-message": {
+            "description": "Add or remove a welcome message on your server.",
+            "usage": "Usage:```{}welcome-message <action> (<message>)```",
+            "args": {
+                "action": "add | remove",
+                "message": "If action is 'add', the message you want to add"
+            }
+        },
+        "leave": {
+            "description": "Shows information on automatic leave message. You can also simulate a leave.",
+            "usage": "Usage:```{}leave (simulate)```",
+            "args": {
+                "simulate": "To send a leave message in leave channel for you"
+            }
+        },
+        "leave-channel": {
+            "description": "Add or remove a leave channel on your server (automatic leave messages will be sent in this channel).",
+            "usage": "Usage:```{}leave-channel <action> (<channel>)```",
+            "args": {
+                "action": "add | remove",
+                "channel": "If action is 'add', the channel you want to add"
+            }
+        },
+        "leave-message": {
+            "description": "Add or remove a leave message on your server.",
+            "usage": "Usage:```{}leave-message <action> (<message>)```",
+            "args": {
+                "action": "add | remove",
+                "message": "If action is 'add', the message you want to add"
+            }
+        },
+        "autorole": {
+            "description": "Add/Remove or look at the autorole set on your server.",
+            "usage": "Usage:```{}autorole (<action>) (<role>)```",
+            "args": {
+                "action": "add | remove",
+                "role": "Role you want member have when they join"
+            }
+        },
+        "announce": {
+            "description": "Create custom embed!",
+            "usage": "Usage:```{}announce```",
+            "args": {}
+        },
+        "tickettool": {
+            "description": "Sent or setup the tickettool system.",
+            "usage": "Usage:```{}tickettool (setup)```",
+            "args": {}
+        },
+        "documentation": {
+            "description": "Link to the online bot documentation.",
+            "usage": "Usage:```{}documentation```",
+            "args": {}
+        },
+        "website": {
+            "description": "Link to the bot website.",
+            "usage": "Usage:```{}website```",
+            "args": {}
+        },
+        "support": {
+            "description": "Link to the Support Server.",
+            "usage": "Usage:```{}support```",
+            "args": {}
+        },
+        "suggest": {
+            "description": "Suggest something to the bot owners. Suggestions will arrive in our support server.",
+            "usage": "Usage:```{}suggest <suggestion>```",
+            "args": {
+                "suggestion": "Your suggestion"
+            }
+        },
+        "report": {
+            "description": "Report something to the bot owners. Reports will arrive in our support server.",
+            "usage": "Usage:```{}report <report>```",
+            "args": {
+                "report": "Your bug report"
+            }
         }
     },
-    "help": {
-        "description": "Look at all the commands or a specific command usage.",
-        "usage": "Usage:```{}help (<command name>)```",
-        "args": {
-            "command name": "Name of command (in help page)"
-        }
-    },
-    "guilds": {
-        "description": "Look at all the servers where the bot is or remove the bot from a server (command only for bot owner).",
-        "usage": "Usage:```{}guilds (leave) (<server name>)```",
-        "args": {
-            "leave": "If you want bot leaves a guild",
-            "server name": "Name of the guild"
-        }
-    },
-    "plugins": {
-        "description": "Shows a list of plugins (command only for bot owner).",
-        "usage": "Usage:```{}plugins```",
-        "args": {}
-    },
-    "blacklist": {
-        "description": "Manage blacklisted channels on the guild.",
-        "usage": "Usage:```{}blacklist <add | remove | view> (<channels mentions>)```",
-        "args": {
-            "add": "Blacklist channels",
-            "remove": "Remove channels from blacklisted channels",
-            "view": "View the blacklisted channels",
-            "channels mentions": "Mention the channels you want to manage"
-        }
-    },
-    "emojiinfo": {
-        "description": "Shows informations about a custom emoji.",
-        "usage": "Usage:```{}emojiinfo <emoji>```",
-        "args": {
-            "emoji": "Custom Emoji of which you want information about"
-        }
-    },
-    "cloneemoji": {
-        "description": "Clones a custom emoji on the guild (you need nitro to run the command).",
-        "usage": "Usage:```{}cloneemoji <emoji>```",
-        "args": {
-            "emoji": "Custom emoji you want to clone on your server"
-        }
-    },
-    "profile": {
-        "description": "Shows your or a member's information.",
-        "usage": "Usage:```{}profile (<member>)```",
-        "args": {
-            "member": "The member whose profile you want"
-        }
-    },
-    "guild": {
-        "description": "Shows information on the server.",
-        "usage": "Usage:```{}guild```",
-        "args": {}
-    },
-    "emojis": {
-        "description": "Shows all emojis on the server.",
-        "usage": "Usage:```{}emojis```",
-        "args": {}
-    },
-    "membercount": {
-        "description": "Returns the number of people on the server.",
-        "usage": "Usage:```{}membercount```",
-        "args": {}
-    },
-    "quote": {
-        "description": "Quote a message by sending the message link.",
-        "usage": "Usage:```{}quote <message link>```",
-        "args": {
-            "message ling": "Link of the message whose you want to quote"
-        }
-    },
-    "color": {
-        "descritpion": "Shows information on a color.",
-        "usage": "Usage:```{}color <color (hex)>```",
-        "args": {
-            "color": "Name of the color",
-            "hex": "Hexadecimal code of the color"
-        }
-    },
-    "role": {
-        "description": "Shows informations on a role.",
-        "usage": "Usage:```{}role <role>```",
-        "args": {
-            "role": "A role whose you want information about"
-        }
-    },
-    "search": {
-        "description": "Search for a member in the server, using his name or nick.",
-        "usage": "Usage:```{}search <member information>```",
-        "args": {
-            "member information": "The name, display name, mention or id of the member"
-        }
-    },
-    "discrim": {
-        "description": "Search for a member in the server, using his discriminator.",
-        "usage": "Usage:```{}search <discriminator>```",
-        "args": {
-            "discriminator": "Discriminator of member (= pseudo#**discriminator**)"
-        }
-    },
-    "meme": {
-        "description": "Sends a random meme.",
-        "usage": "Usage:```{}meme```",
-        "args": {}
-    },
-    "cat": {
-        "description": "Sends a random cat picture.",
-        "usage": "Usage:```{}cat```",
-        "args": {}
-    },
-    "dog": {
-        "description": "Sends a random dog picture.",
-        "usage": "Usage:```{}dog```",
-        "args": {}
-    },
-    "8ball": {
-        "description": "Sends random replies.",
-        "usage": "Usage:```{}8ball <question>```",
-        "args": {
-            "question": "Question whose you want the reply"
-        }
-    },
-    "avatar": {
-        "description": "Sends your or a member's avatar.",
-        "usage": "Usage:```{}avatar (<member>)```",
-        "args": {
-            "member": "The member whose you want his avatar"
-        }
-    },
-    "reverse": {
-        "description": "Reverses some text.",
-        "usage": "Usage:```{}reverse <text>```",
-        "args": {
-            "text": "Text to be reversed"
-        }
-    },
-    "say": {
-        "description": "Make the bot say something.",
-        "usage": "Usage:```{}say <text>```",
-        "args": {
-            "text": "Text that the robot will say"
-        }
-    },
-    "giveaway": {
-        "description": "Creates a giveaway in a channel.",
-        "usage": "Usage:```{}giveaway <#channel> <time> <number of winners> <prize>```",
-        "args": {
-            "channel": "Giveaway channel",
-            "time": "M for minutes / H for hours / D for days"
-        }
-    },
-    "nick": {
-        "description": "Changes someone's nick.",
-        "usage": "Usage:```{}nick <member> <new nick>```",
-        "args": {
-            "member": "Member whose you want change nick",
-            "new nick": "New member's nick"
-        }
-    },
-    "ban": {
-        "description": "Bans someone of the server.",
-        "usage": "Usage:```{}ban <member>```",
-        "args": {
-            "member": "The member whose you want to ban"
-        }
-    },
-    "kick": {
-        "description": "Kicks someone of the server.",
-        "usage": "Usage:```{}kick <member>```",
-        "args": {
-            "member": "The ember whose you want to kick"
-        }
-    },
-    "purge": {
-        "description": "Cleans an amount of message in the channel.",
-        "usage": "Usage:```{}purge <amount>```",
-        "args": {
-            "amount": "The amount of messages to delete"
-        }
-    },
-    "massrole": {
-        "description": "Gives or removes a role for everyone.",
-        "usage": "Usage:```{}massrole <action> <role>```",
-        "args": {
-            "action": "add | remmove",
-            "role": "The role you want add or removove for everyone"
-        }
-    },
-    "mod-logs": {
-        "description": "Add or remove a logs channel on your server.",
-        "usage": "Usage:```{}mod-logs (<action>) (<channel>)```",
-        "args": {
-            "action": "add | remove",
-            "channel": "Channel whose you want to manage"
-        }
-    },
-    "welcome": {
-        "description": "Shows information on automatic join message, you can also simulate a join.",
-        "usage": " Usage:```{}welcome (simulate)```",
-        "args": {
-            "simulate": "To send a welcome message in welcome channel for you"
-        }
-    },
-    "welcome-channel": {
-        "description": "Add or remove a welcome channel on your server (automatic welcome messages will be sent in this channel).",
-        "usage": "Usage:```{}welcome-channel <action> (<channel>)```",
-        "args": {
-            "action": "add | remove",
-            "channel": "If action is 'add', the channel you want to add"
-        }
-    },
-    "welcome-message": {
-        "description": "Add or remove a welcome message on your server.",
-        "usage": "Usage:```{}welcome-message <action> (<message>)```",
-        "args": {
-            "action": "add | remove",
-            "message": "If action is 'add', the message you want to add"
-        }
-    },
-    "leave": {
-        "description": "Shows information on automatic leave message. You can also simulate a leave.",
-        "usage": "Usage:```{}leave (simulate)```",
-        "args": {
-            "simulate": "To send a leave message in leave channel for you"
-        }
-    },
-    "leave-channel": {
-        "description": "Add or remove a leave channel on your server (automatic leave messages will be sent in this channel).",
-        "usage": "Usage:```{}leave-channel <action> (<channel>)```",
-        "args": {
-            "action": "add | remove",
-            "channel": "If action is 'add', the channel you want to add"
-        }
-    },
-    "leave-message": {
-        "description": "Add or remove a leave message on your server.",
-        "usage": "Usage:```{}leave-message <action> (<message>)```",
-        "args": {
-            "action": "add | remove",
-            "message": "If action is 'add', the message you want to add"
-        }
-    },
-    "autorole": {
-        "description": "Add/Remove or look at the autorole set on your server.",
-        "usage": "Usage:```{}autorole (<action>) (<role>)```",
-        "args": {
-            "action": "add | remove",
-            "role": "Role you want member have when they join"
-        }
-    },
-    "announce": {
-        "description": "Create custom embed!",
-        "usage": "Usage:```{}announce```",
-        "args": {}
-    },
-    "tickettool": {
-        "description": "Sent or setup the tickettool system.",
-        "usage": "Usage:```{}tickettool (setup)```",
-        "args": {}
-    },
-    "documentation": {
-        "description": "Link to the online bot documentation.",
-        "usage": "Usage:```{}documentation```",
-        "args": {}
-    },
-    "website": {
-        "description": "Link to the bot website.",
-        "usage": "Usage:```{}website```",
-        "args": {}
-    },
-    "support": {
-        "description": "Link to the Support Server.",
-        "usage": "Usage:```{}support```",
-        "args": {}
-    },
-    "suggest": {
-        "description": "Suggest something to the bot owners. Suggestions will arrive in our support server.",
-        "usage": "Usage:```{}suggest <suggestion>```",
-        "args": {
-            "suggestion": "Your suggestion"
-        }
-    },
-    "report": {
-        "description": "Report something to the bot owners. Reports will arrive in our support server.",
-        "usage": "Usage:```{}report <report>```",
-        "args": {
-            "report": "Your bug report"
+    "français": {
+        "ping": {
+            "description": "Envoie le temps de latence du bot.",
+            "usage": "Utilisation:```{}ping```",
+            "args": {}
+        },
+        "infos": {
+            "description": "Envoie des informations à propose du bot.",
+            "usage": "Utilisation:```{}infos```",
+            "args": {}
+        },
+        "prefix": {
+            "description": "Affiche le péfixe du bot ou le change.",
+            "usage": "Utilisation:```{}prefix (<new prefix>)```",
+            "args": {
+                "new prefix": "Nouveau préfixe du bot (2 charactères max)"
+            }
+        },
+        "help": {
+            "description": "Voir toutes les commandes ou une en particulier",
+            "usage": "Utilisation:```{}help (<command name>)```",
+            "args": {
+                "command name": "Nom de la commande (celui de la page d'aide)"
+            }
+        },
+        "guilds": {
+            "description": "Voir tous les serveurs où se trouve le bot ou le fait quitter l'un d'entre eux (commande réservée au owner du bot).",
+            "usage": "Utilisation:```{}guilds (leave) (<server name>)```",
+            "args": {
+                "leave": "Si vous souhaitez que le bot quitte un serveur",
+                "server name": "Nom du serveur"
+            }
+        },
+        "plugins": {
+            "description": "Voir la liste de tous les plugins (commande réservée au owner du bot).",
+            "usage": "Utilisation:```{}plugins```",
+            "args": {}
+        },
+        "blacklist": {
+            "description": "Gèrer les salons sur liste noire du serveur (pas de commande dans ces salons).",
+            "usage": "Utilisation:```{}blacklist <add | remove | view> (<channels mentions>)```",
+            "args": {
+                "add": "Pour mettre des salons sur liste noire",
+                "remove": "Enlever des salons de la liste noire",
+                "view": "Voir les salons sur liste noire",
+                "channels mentions": "Mentions des salons que vous souhaitez gérer"
+            }
+        },
+        "emojiinfo": {
+            "description": "Affiche les informations à propos d'un emoji personnalisé.",
+            "usage": "Utilisation:```{}emojiinfo <emoji>```",
+            "args": {
+                "emoji": "Emoji personnalisé dont vous souhaitez des informations"
+            }
+        },
+        "cloneemoji": {
+            "description": "Clone un emoji personnalisé présent sur un autre serveur (cette commande nécessite le nitro).",
+            "usage": "Utilisation:```{}cloneemoji <emoji>```",
+            "args": {
+                "emoji": "Emoji personnalisé que vous souhaitez cloner"
+            }
+        },
+        "profile": {
+            "description": "Affiche les informations sur un membre.",
+            "usage": "Utilisation:```{}profile (<member>)```",
+            "args": {
+                "member": "Membre dont vous souhaitez voir le profile"
+            }
+        },
+        "guild": {
+            "description": "Affiche les informations du serveur.",
+            "usage": "Utilisation:```{}guild```",
+            "args": {}
+        },
+        "emojis": {
+            "description": "Affiche tous les emojis du serveur.",
+            "usage": "Utilisation:```{}emojis```",
+            "args": {}
+        },
+        "membercount": {
+            "description": "Envoie le nombre de membres que le serveur possède.",
+            "usage": "Utilisation:```{}membercount```",
+            "args": {}
+        },
+        "quote": {
+            "description": "Cite un message depuis son lien",
+            "usage": "Utilisation:```{}quote <message link>```",
+            "args": {
+                "message ling": "Lien du message que vous souhaitez citer"
+            }
+        },
+        "color": {
+            "descritpion": "Envoie des informations à propos d'une couleur",
+            "usage": "Utilisation:```{}color <color (hex)>```",
+            "args": {
+                "color": "Nom de la couleur",
+                "hex": "Code hexadécimal de la couleur"
+            }
+        },
+        "role": {
+            "description": "Affiche les informations à propos d'un rôle",
+            "usage": "Utilisation:```{}role <role>```",
+            "args": {
+                "role": "Le rôle dont vous souhaitez des informations"
+            }
+        },
+        "search": {
+            "description": "Cherche un membre sur le serveur avec son nom, pseudo, mention ou id.",
+            "usage": "Utilisation:```{}search <member information>```",
+            "args": {
+                "member information": "Le nom, pseudo, mention ou id du membre que vous cherchez"
+            }
+        },
+        "discrim": {
+            "description": "Cherche un membre sur le serveur à l'aide de son discriminant",
+            "usage": "Utilisation:```{}search <discriminator>```",
+            "args": {
+                "discriminator": "Discriminant du membre (= pseudo#**discriminant**)"
+            }
+        },
+        "meme": {
+            "description": "Envoie un meme aléatoire.",
+            "usage": "Utilisation:```{}meme```",
+            "args": {}
+        },
+        "cat": {
+            "description": "Envoie une photo de chat aléatoire.",
+            "usage": "Utilisation:```{}cat```",
+            "args": {}
+        },
+        "dog": {
+            "description": "Envoie une photo de chien aléatoire.",
+            "usage": "Utilisation:```{}dog```",
+            "args": {}
+        },
+        "8ball": {
+            "description": "Envoie une réponse aléatoire à votre question.",
+            "usage": "Utilisation:```{}8ball <question>```",
+            "args": {
+                "question": "Question dont vous souhaitez la réponse"
+            }
+        },
+        "avatar": {
+            "description": "Envoie votre avatar ou bien celui d'un autre membre.",
+            "usage": "Utilisation:```{}avatar (<member>)```",
+            "args": {
+                "member": "Le membre dont vous souhaitez voir l'avatar"
+            }
+        },
+        "reverse": {
+            "description": "Inverse un texte",
+            "usage": "Utilisation:```{}reverse <text>```",
+            "args": {
+                "text": "Texte à inverser"
+            }
+        },
+        "say": {
+            "description": "Faire envoyer un message par le bot.",
+            "usage": "Utilisation:```{}say <text>```",
+            "args": {
+                "text": "Texte que le bot doit envoyer"
+            }
+        },
+        "giveaway": {
+            "description": "Créer un giveaway dans un salon.",
+            "usage": "Utilisation:```{}giveaway <#channel> <time> <number of winners> <prize>```",
+            "args": {
+                "channel": "Salon du giveaway",
+                "time": "M pour les minutes / H pour les heures / D pour les jours"
+            }
+        },
+        "nick": {
+            "description": "Change le pseudo d'un membre.",
+            "usage": "Utilisation:```{}nick <member> <new nick>```",
+            "args": {
+                "member": "Membre dont vous souhaitez changer le pseudo",
+                "new nick": "Nouveau pseudo de ce membre"
+            }
+        },
+        "ban": {
+            "description": "Ban quelqu'un du serveur.",
+            "usage": "Utilisation:```{}ban <member>```",
+            "args": {
+                "member": "Membre que vous souhaitez bannir"
+            }
+        },
+        "kick": {
+            "description": "Kick un membre du serveur.",
+            "usage": "Utilisation:```{}kick <member>```",
+            "args": {
+                "member": "Membre que vous souhaitez éjecter du serveur"
+            }
+        },
+        "purge": {
+            "description": "Supprime un certain nombre de message dans le salon.",
+            "usage": "Utilisation:```{}purge <amount>```",
+            "args": {
+                "amount": "Nombre de messages à supprimer"
+            }
+        },
+        "massrole": {
+            "description": "Donne ou retire un rôle à tout le monde.",
+            "usage": "Utilisation:```{}massrole <action> <role>```",
+            "args": {
+                "action": "add | remmove",
+                "role": "Role que vous souhaitez ajouter ou retirer"
+            }
+        },
+        "mod-logs": {
+            "description": "Ajoute ou enlève le salon de log.",
+            "usage": "Utilisation:```{}mod-logs (<action>) (<channel>)```",
+            "args": {
+                "action": "add | remove",
+                "channel": "Salon que vous souhaitez gérer"
+            }
+        },
+        "welcome": {
+            "description": "Affiche les informations à propos du message de bienvenue automatique ou envoie une simulation.",
+            "usage": "Utilisation:```{}welcome (simulate)```",
+            "args": {
+                "simulate": "Envoie le message de bienvenue comme si vous rejoigniez le serveur"
+            }
+        },
+        "welcome-channel": {
+            "description": "Ajoute ou enlève le salon de bienvenue (le message automatique sera envoyé dans ce salon).",
+            "usage": "Utilisation:```{}welcome-channel <action> (<channel>)```",
+            "args": {
+                "action": "add | remove",
+                "channel": "Si l'action est 'add' alors il s'agot du salon que vous souhaitez ajouter"
+            }
+        },
+        "welcome-message": {
+            "description": "Ajoute ou enlève le message de bienvenue automatique.",
+            "usage": "Utilisation:```{}welcome-message <action> (<message>)```",
+            "args": {
+                "action": "add | remove",
+                "message": "Si l'action est 'add', le message le message que vous souhaitez ajouter"
+            }
+        },
+        "leave": {
+            "description": "Affiche les informations à propos du message automatique d'au revoir. Vous pouvez également lancer une simulation.",
+            "usage": "Utilisation:```{}leave (simulate)```",
+            "args": {
+                "simulate": "Envoie un message d'au revoir comme si vous quitiez le serveur"
+            }
+        },
+        "leave-channel": {
+            "description": "Ajoute ou enlève le salon de message d'au revoir (le message automatique d'au revoir y sera envoyé).",
+            "usage": "Utilisation:```{}leave-channel <action> (<channel>)```",
+            "args": {
+                "action": "add | remove",
+                "channel": "Si l'action est 'add', le salon que vous souhaitez ajouter"
+            }
+        },
+        "leave-message": {
+            "description": "Ajoute ou enlève le message d'au revoir sur le serveur.",
+            "usage": "Utilisation:```{}leave-message <action> (<message>)```",
+            "args": {
+                "action": "add | remove",
+                "message": "Si l'action est 'add', le message que vous souhaitez ajouter"
+            }
+        },
+        "autorole": {
+            "description": "Ajoute/Retire ou regarde les rôles automatiques du serveur.",
+            "usage": "Utilisation:```{}autorole (<action>) (<role>)```",
+            "args": {
+                "action": "add | remove",
+                "role": "Role que vous souhaitez ajouter ou retirer"
+            }
+        },
+        "announce": {
+            "description": "Crée un embed personnalisé!",
+            "usage": "Utilisation:```{}announce```",
+            "args": {}
+        },
+        "tickettool": {
+            "description": "Affiche ou configure le système de tickets.",
+            "usage": "Utilisation:```{}tickettool (setup)```",
+            "args": {}
+        },
+        "documentation": {
+            "description": "Lien de la documentation en ligne du bot.",
+            "usage": "Utilisation:```{}documentation```",
+            "args": {}
+        },
+        "website": {
+            "description": "Lien du site web du bot.",
+            "usage": "Utilisation:```{}website```",
+            "args": {}
+        },
+        "support": {
+            "description": "Lien du serveur de support.",
+            "usage": "Utilisation:```{}support```",
+            "args": {}
+        },
+        "suggest": {
+            "description": "Envoie une suggestion aux développeurs. Elle sera reçu dans le serveur de support.",
+            "usage": "Utilisation:```{}suggest <suggestion>```",
+            "args": {
+                "suggestion": "Votre suggestion"
+            }
+        },
+        "report": {
+            "description": "Envoie un rapport de bug aux développeurs. Il sera reçu dans le serveur de support.",
+            "usage": "Utilisation:```{}report <report>```",
+            "args": {
+                "report": "Votre rapport"
+            }
         }
     }
 }

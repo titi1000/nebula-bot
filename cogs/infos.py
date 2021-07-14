@@ -99,7 +99,7 @@ class Infos(commands.Cog):
         
         else:
             try:
-                command_infos = self.commands_infos[command]
+                command_infos = self.commands_infos["english"][command]
                 description = f"{command_infos['description']}\n{command_infos['usage']}".format(ctx.prefix)
                 for arg, desc in command_infos["args"].items(): description+=f"{arg} : {desc}"
 
