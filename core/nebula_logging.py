@@ -72,12 +72,9 @@ class NebulaLogging:
 
     def __init__(self):
 
-        if not os.path.isdir(logspath):
-            os.mkdir(logspath)
-        if not os.path.isdir(paths["mysql"]):
-            os.mkdir(paths["mysql"])
-        if not os.path.isdir(paths["bot"]):
-            os.mkdir(paths["bot"])
+        if not os.path.isdir(logspath): os.mkdir(logspath)
+        if not os.path.isdir(paths["mysql"]): os.mkdir(paths["mysql"])
+        if not os.path.isdir(paths["bot"]): os.mkdir(paths["bot"])
     
         self.time_separator=time_separator
         self.name_separator=name_separator
@@ -114,12 +111,9 @@ class NebulaLogging:
             files = glob.glob(path_file)
             files.sort(key=os.path.getmtime)
 
-            if log_moment.lower() == "current":
-                logfile = files[-1]
-            elif log_moment.lower() == "latest":
-                logfile = files[-2]
-            else:
-                return
+            if log_moment.lower() == "current": logfile = files[-1]
+            elif log_moment.lower() == "latest": logfile = files[-2]
+            else: return
 
             with open(logfile, "r") as file:
                 file_content = file.read()
@@ -127,8 +121,7 @@ class NebulaLogging:
             logs_list = file_content.split(log_separator)
             del logs_list[-1]
             logs = []
-            for log in logs_list:
-                logs.append(Log(log))
+            for log in logs_list: logs.append(Log(log))
             file.close()
 
             return logs

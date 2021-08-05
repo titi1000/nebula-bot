@@ -127,7 +127,7 @@ class Tickettool(commands.Cog):
 
         channel = await self.client.wait_for("message", check=check)
         await channel.delete()
-        if cancel_check(channel) is True:
+        if cancel_check(channel):
             await setup_message.delete()
             return await ctx.send("Cancelled!")
         if len(channel.channel_mentions) == 0:
@@ -138,7 +138,7 @@ class Tickettool(commands.Cog):
         await setup_message.edit(embed=e)
         response = await self.client.wait_for("message", check=check)
         await response.delete()
-        if cancel_check(response) is True:
+        if cancel_check(response):
             await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
@@ -158,7 +158,7 @@ class Tickettool(commands.Cog):
         await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
         await response.delete()
-        if cancel_check(response) is True:
+        if cancel_check(response):
             await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
@@ -176,7 +176,7 @@ class Tickettool(commands.Cog):
         await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
         await response.delete()
-        if cancel_check(response) is True:
+        if cancel_check(response):
             await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
@@ -194,7 +194,7 @@ class Tickettool(commands.Cog):
         await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
         await response.delete()
-        if cancel_check(response) is True:
+        if cancel_check(response):
             await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
@@ -212,7 +212,7 @@ class Tickettool(commands.Cog):
         await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
         await response.delete()
-        if cancel_check(response) is True:
+        if cancel_check(response):
             await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
@@ -234,7 +234,7 @@ class Tickettool(commands.Cog):
         await setup_message.edit(embed=embed)
         response = await self.client.wait_for("message", check=check)
         await response.delete()
-        if cancel_check(response) is True:
+        if cancel_check(response):
             await setup_message.delete()
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
@@ -255,7 +255,7 @@ class Tickettool(commands.Cog):
             return await ctx.send("Embed cannot be empty... Please retry")
 
         response = await self.client.wait_for("message", check=check)
-        if cancel_check(response) is True:
+        if cancel_check(response):
             return await ctx.send("Cancelled!")
         if response.content.lower() == "y":
             message = await channel.send(embed=setup_e)
@@ -272,8 +272,10 @@ class Tickettool(commands.Cog):
     
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
+        if str(payload.empji) not in ["📩", "🔒"]: return # Non need request
         r_tickettool_id = db.get_tickettool(payload.guild_id)
-        if r_tickettool_id[0] is False: return await report_error_no_ctx(self.client, r_tickettool_id)
+        if r_tickettool_id[0] is False: return await report_error_no_ctx(self.client, r_tickettool_id) # Report error
+        if r_tickettool_id[1][0] is None: return # Not tickettool set 
         tickettool_id = r_tickettool_id[1]
             
         channel = await self.client.fetch_channel(payload.channel_id)
@@ -310,7 +312,7 @@ class Tickettool(commands.Cog):
         message = await channel.fetch_message(payload.message_id)
         if str(payload.emoji) == "🔒" and payload.member != self.client.user and len(message.embeds) > 0:
             if message.embeds[0].title == "New ticket created!" and message.embeds[0].description == "Moderators can close the ticket by adding the :lock: reaction to this message.\nPlease don't change the name of the channel and his topic :warning:" and message.embeds[0].colour == discord.Color(MAINCOLOR):
-                if is_it_moderator_member(payload.member) is True:
+                if is_it_moderator_member(payload.member):
                     await self.gen_html_close(channel, payload.member)
                     await channel.delete()
 
