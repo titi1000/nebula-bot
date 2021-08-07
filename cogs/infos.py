@@ -84,7 +84,7 @@ class Infos(commands.Cog):
     async def help(self, ctx, command=None):
         if command is None:
             description = f"""Use `{ctx.prefix}<command>` to run a command or `{ctx.prefix}help <command>` to have more details, or to see how to use a specific command.\n
-            **{self.emojis_dict['plurple_link']} Infos**\n`help`, `infos`, `prefix`, `support`, `website`, `documentation`\n
+            **{self.emojis_dict['blurple_link']} Infos**\n`help`, `infos`, `prefix`, `support`, `website`, `documentation`\n
             **{self.emojis_dict['blurple_employee']} Utils**\n`emojiinfo`, `cloneemoji`, `profile`, `guild`, `emojis`, `membercount`, `quote`, `color`, `role`, `ping`, `announce`, `search`, `discrim`, `suggest`, `report`\n
             **{self.emojis_dict['blurple_star']} Fun**\n`giveaway`, `meme`, `cat`, `dog`, `8ball`, `avatar`, `reverse`, `say`\n
             **{self.emojis_dict['blurple_certifiedmoderator']} Mods only**\n`massrole`, `nick`, `ban`, `kick`, `warn`, `purge`, `punishments`, `delete-punishments`\n
