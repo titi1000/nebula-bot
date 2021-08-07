@@ -269,7 +269,8 @@ class Utils(commands.Cog):
         if isinstance(message.channel, discord.DMChannel): return
         message_splited = message.content.split(" ")
         for word in message_splited:
-            if word.startswith(f"https://discord.com/channels/{message.guild.id}") or word.startwith(f"https://canary.discord.com/channels/{message.guild.id}"):
+            if word.startswith(f"https://discord.com/channels/{message.guild.id}") or word.startswith(f"https://canary.discord.com/channels/{message.guild.id}"):
+
                 try:
                     link = word.split("/")
 
