@@ -22,10 +22,8 @@ class Database:
             )
             cursor = connection.cursor()
 
-            if vars is not None:
-                cursor.execute(sql, vars)
-            else:
-                cursor.execute(sql)
+            if vars is not None: cursor.execute(sql, vars)
+            else: cursor.execute(sql)
             connection.commit()
             r = (True, None, None)
 
@@ -34,7 +32,6 @@ class Database:
             connection.rollback()
             r = (False, e, (sql, vars))
             nebula_logging.logger_mysql.error(f"An error was occured during this request : {self.__class__}.db_execute({sql}, {vars})")
-
 
         finally:
             connection.close()
@@ -52,10 +49,8 @@ class Database:
             )
             cursor = connection.cursor()
 
-            if vars is not None:
-                cursor.execute(sql, vars)
-            else:
-                cursor.execute(sql)
+            if vars is not None: cursor.execute(sql, vars)
+            else: cursor.execute(sql)
             result = cursor.fetchone()
             r = (True, result, None)
 
@@ -80,10 +75,8 @@ class Database:
             )
             cursor = connection.cursor()
 
-            if vars is not None:
-                cursor.execute(sql, vars)
-            else:
-                cursor.execute(sql)
+            if vars is not None: cursor.execute(sql, vars)
+            else: cursor.execute(sql)
             result = cursor.fetchall()
             r = (True, result, None)
 

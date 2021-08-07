@@ -57,7 +57,7 @@ class Bot(commands.Bot):
     # Plugin loader
     def load_plugins(self):
         for plugin in self.data_plugins:
-            if self.data_plugins[plugin]["activate"] is True:
+            if self.data_plugins[plugin]["activate"]:
                 self.load_extension(self.data_plugins[plugin]["path"])
 
     async def on_ready(self):
@@ -76,7 +76,7 @@ class Bot(commands.Bot):
     async def on_message(self, message):
         await self.process_commands(message)
         prefix = db.get_prefix(self, message)
-        if message.content == f"<@!{self.user.id}>":
+        if message.content == self.user.mention:
             pinged_e = discord.Embed(
                 description=lang_json.open_json()[self.language]["BOT_PINGED"].format(prefix, prefix),
                 color=MAINCOLOR
@@ -93,10 +93,10 @@ class Bot(commands.Bot):
             if extension is None:
                 cogs_str = "Here is the list of all cogs:\n"
                 for filename in os.listdir("./cogs"):
-                    if filename[:-3] == "__init__":
-                        continue
                     if filename.endswith(".py"):
                         cogs_str += f"- {filename[:-3].title()}\n"
+                    elif filename[:-3] == "__init__":
+                        continue
                 cogs_str += f"\nUse `{ctx.prefix}load <cogs name>` to load one."
                 return await ctx.send(cogs_str)
             
@@ -152,30 +152,26 @@ class Bot(commands.Bot):
         @plugins.command()
         @commands.check(is_it_owner)
         async def enable(ctx, *, plugin=None):
-            if plugin is None:
-                return await ctx.send(f"Please provid the plugin you want to enable. You can see a list of all plugins by using the command `{ctx.prefix}plugin <plugin-name>`!")
+            if plugin is None: return await ctx.send(f"Please provid the plugin you want to enable. You can see a list of all plugins by using the command `{ctx.prefix}plugin <plugin-name>`!")
 
-            if write_plugins_json("enable", plugin) is True:
+            if write_plugins_json("enable", plugin):
                 try:
                     self.load_extension(self.data_plugins[plugin]["path"])
                     return await ctx.send(f"{plugin.title()} plugin well loaded!")
-                except commands.ExtensionAlreadyLoaded:
-                    return await ctx.send(f"{plugin.title()} already loaded!")
+                except commands.ExtensionAlreadyLoaded: return await ctx.send(f"{plugin.title()} already loaded!")
             
             await ctx.send(f"Plugin \"{plugin}\" cannot be loaded... Maybe he doesn't exist.")
 
         @plugins.command()
         @commands.check(is_it_owner)
         async def disable(ctx, *, plugin=None):
-            if plugin is None:
-                return await ctx.send(f"Please provid the plugin you want to disable. You can see a list of all plugins by using the command `{ctx.prefix}plugin <plugin-name>`!")
+            if plugin is None: return await ctx.send(f"Please provid the plugin you want to disable. You can see a list of all plugins by using the command `{ctx.prefix}plugin <plugin-name>`!")
 
-            if write_plugins_json("disable", plugin) is True:
+            if write_plugins_json("disable", plugin):
                 try:
                     self.unload_extension(self.data_plugins[plugin]["path"])
                     return await ctx.send(f"{plugin.title()} plugin well unloaded!")
-                except commands.ExtensionNotLoaded:
-                    return await ctx.send(f"{plugin.title()} already unloaded!")
+                except commands.ExtensionNotLoaded: return await ctx.send(f"{plugin.title()} already unloaded!")
             
             await ctx.send(f"Plugin \"{plugin}\" cannot be unloaded... Maybe he doesn't exist.")
 
@@ -204,11 +200,9 @@ class Bot(commands.Bot):
 
     async def on_guild_join(self, guild):
         db_punishments.add_guild(guild.id)
-        db.cursor.execute("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild.id,))
-        result = db.cursor.fetchone()
-        if result is None:
-            db.cursor.execute("INSERT INTO guilds(`guild_id`) VALUES (%s)", (guild.id,))
-            db.commit()
+        result = db.db_fetchone("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild.id,)) 
+        if result[1] is None:
+            db.db_execute("INSERT INTO guilds(`guild_id`) VALUES (%s)", (guild.id,))
 
         join_e = discord.Embed(
             title=f"Thanks for adding {self.user.name}!",
@@ -220,11 +214,9 @@ class Bot(commands.Bot):
 
     async def on_guild_remove(self, guild):
         db_punishments.remove_guild(guild.id)
-        db.cursor.execute("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild.id,))
-        result = db.cursor.fetchone()
-        if result is not None:
-            db.cursor.execute("DELETE FROM guilds WHERE `guild_id` = %s", (guild.id,))
-            db.commit()
+        result = db.db_fetchone("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild.id,))
+        if result[1] is not None:
+            db.db_execute("DELETE FROM guilds WHERE `guild_id` = %s", (guild.id,))
 
 
 # main function
@@ -234,5 +226,5 @@ def main():
 
         
 # run the bot
-if __name__ == "__main__":
+if __name__ == "__main__": 
     main()
