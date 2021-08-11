@@ -272,7 +272,7 @@ class Tickettool(commands.Cog):
     
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        if str(payload.empji) not in ["📩", "🔒"]: return # Non need request
+        if str(payload.emoji) not in ["📩", "🔒"]: return # Non need request
         r_tickettool_id = db.get_tickettool(payload.guild_id)
         if r_tickettool_id[0] is False: return await report_error_no_ctx(self.client, r_tickettool_id) # Report error
         if r_tickettool_id[1][0] is None: return # Not tickettool set 
