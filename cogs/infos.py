@@ -104,7 +104,7 @@ class Infos(commands.Cog):
         else:
             if command not in self.commands_infos: return await ctx.send(f"No command named `{command}`. Please retry!")
             command_infos = self.commands_infos["english"][command]
-            description = f"{command_infos['description']}\n{command_infos['usage']}".format(ctx.prefix)
+            description = f"{command_infos['description']}\nUsage:{command_infos['usage']}".format(ctx.prefix)
             for arg, desc in command_infos["args"].items(): description+=f"{arg} : {desc}"
 
             help_e = discord.Embed(
