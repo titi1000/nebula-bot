@@ -83,7 +83,13 @@ class Infos(commands.Cog):
     @is_blacklisted_cogs
     async def help(self, ctx, command=None):
         if command is None:
-            description = f"""Use `{ctx.prefix}<command>` to run a command or `{ctx.prefix}help <command>` to have more details, or to see how to use a specific command.\n"""
+            description = f"""Use `{ctx.prefix}<command>` to run a command or `{ctx.prefix}help <command>` to have more details, or to see how to use a specific command.\n
+            **{self.emojis_dict['blurple_link']} Infos**\n`help`, `infos`, `prefix`, `support`, `website`, `documentation`\n
+            **{self.emojis_dict['blurple_employee']} Utils**\n`emojiinfo`, `cloneemoji`, `profile`, `guild`, `emojis`, `membercount`, `quote`, `color`, `role`, `ping`, `announce`, `search`, `discrim`, `suggest`, `report`\n
+            **{self.emojis_dict['blurple_star']} Fun**\n`giveaway`, `meme`, `cat`, `dog`, `8ball`, `avatar`, `reverse`, `say`\n
+            **{self.emojis_dict['blurple_certifiedmoderator']} Mods only**\n`massrole`, `nick`, `ban`, `kick`, `warn`, `purge`, `punishments`, `delete-punishments`\n
+            **{self.emojis_dict['blurple_settings']} Admin only**\n`tickettool`, `mod-logs`, `blacklist`, `welcome`, `welcome-channel`, `welcome-message`, `leave`, `leave-channel`, `leave-message`, `autorole`, `moderators`, `set-moderators`\n
+            **{self.emojis_dict['blurple_search']} Logs** (These aren't commands)\n`on message delete`, `on message edit`, `on channel create/remove`"""
 
             help_e = discord.Embed(
                 title=f"All {self.client.user.name}'s commands",
