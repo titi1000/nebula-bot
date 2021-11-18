@@ -40,7 +40,6 @@ class Infos(commands.Cog):
         infos_e = discord.Embed(
             title="Nebula Bot",
             description=db_lang.getText(lang=lang, key="INFOS".format(system_version=sys.version[:5], discord_version=discord.__version__, guilds_count=len(self.client.guilds))),
-            #Created by [titi#1000](https://github.com/titi1000) and [voxrey#1000](https://github.com/voXrey)\nUsing python version {system_version}\nUsing discord.py version {discord_version}\nCurrently in {guilds_count} guild(s)
             color=MAINCOLOR
         )
         infos_e.set_thumbnail(url=self.client.user.avatar_url)
