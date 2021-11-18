@@ -7,6 +7,7 @@ from main import MAINCOLOR
 from core.others import is_blacklisted_cogs, is_it_owner
 from core.db import db
 from core.nebula_logging import report_error
+from core.db_langs import db_lang
 
 class Infos(commands.Cog):
 
@@ -35,9 +36,11 @@ class Infos(commands.Cog):
     @commands.command(aliases=["info"])
     @is_blacklisted_cogs
     async def infos(self, ctx):
+        lang = db.get_lang(ctx.guild.id)
         infos_e = discord.Embed(
             title="Nebula Bot",
-            description=f"Created by [titi#1000](https://github.com/titi1000) and [voXrey#8866](https://github.com/voXrey)\nUsing python version {sys.version[:5]}\nUsing discord.py version {discord.__version__}\nCurrently in {len(self.client.guilds)} guild(s)\n",
+            description=db_lang.getText(lang=lang, key="INFOS".format(system_version=sys.version[:5], discord_version=discord.__version__, guilds_count=len(self.client.guilds))),
+            #Created by [titi#1000](https://github.com/titi1000) and [voxrey#1000](https://github.com/voXrey)\nUsing python version {system_version}\nUsing discord.py version {discord_version}\nCurrently in {guilds_count} guild(s)
             color=MAINCOLOR
         )
         infos_e.set_thumbnail(url=self.client.user.avatar_url)

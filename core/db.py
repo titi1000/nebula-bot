@@ -94,6 +94,12 @@ class DB(Database):
         self.is_in_database_guild(guild_id)
         result = self.db_fetchone("SELECT `autorole_ids` FROM guilds WHERE `guild_id` = %s", (guild_id,))
         return result
+    
+    # get lang
+    def get_lang(self, guild_id):
+        self.is_in_database_guild(guild_id)
+        result = self.db_fetchone("SELECT `lang` FROM guilds WHERE `guild_id` = %s", (guild_id,))
+        return result
 
     # get blacklisted channel
     def get_blacklisted(self, guild_id):
