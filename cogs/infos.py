@@ -50,10 +50,11 @@ class Infos(commands.Cog):
     @commands.command()
     @is_blacklisted_cogs
     async def invite(self, ctx):
+        lang = db.get_lang(ctx.guild.id)
         invite = discord.utils.oauth_url(self.client.user.id, permissions=discord.Permissions(4227853527))
         invite_e = discord.Embed(
             title=f"{self.client.user.name}'s invite",
-            description=f"[Click here]({invite}) to invite the bot!",
+            description=db_lang.getText(lang=lang, key="INVITE").format(invite=invite),
             color=MAINCOLOR
         )
         invite_e.set_thumbnail(url=self.client.user.avatar_url)
@@ -64,21 +65,22 @@ class Infos(commands.Cog):
     @commands.command()
     @is_blacklisted_cogs
     async def prefix(self, ctx, prefix=None):
+        lang = db.get_lang(ctx.guild.id)
         if prefix is None:
             prefix_e = discord.Embed(
-                    description=f"Hi, my prefix is `{ctx.prefix}`, but you can change it by using the `{ctx.prefix}prefix <new-prefix>` command.\nUse `{ctx.prefix}help` to see all my commands",
+                    description=db_lang.getText(lang=lang, key="PREFIX").format(prefix=prefix),
                     color=MAINCOLOR
                 )
             
             return await ctx.send(embed=prefix_e)
         
-        if len(prefix) > 2: return await ctx.send("The new prefix may not be longer than 2 characters!")
+        if len(prefix) > 2: return await ctx.send(description=db_lang.getText(lang=lang, key="PREFIX_TOO_LONGER"))
 
         db.is_in_database_guild(ctx.guild.id)
         r = db.db_execute("UPDATE guilds SET `prefix` = %s WHERE `guild_id` = %s", (prefix, ctx.guild.id))
         if r[0] is False: return await report_error(self.client, ctx, r)
             
-        await ctx.send(f"New prefix will now be `{prefix}`")
+        await ctx.send(description=db_lang.getText(lang=lang, key="PREFIX_UPDATED").format(prefix=prefix))
 
     # help command
     @commands.command()
