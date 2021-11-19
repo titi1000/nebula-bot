@@ -84,7 +84,7 @@ class Infos(commands.Cog):
     async def help(self, ctx, command=None):
         if command is None:
             description = f"""Use `{ctx.prefix}<command>` to run a command or `{ctx.prefix}help <command>` to have more details, or to see how to use a specific command.\n
-            **{self.emojis_dict['plurple_link']} Infos**\n`help`, `infos`, `prefix`, `support`, `website`, `documentation`\n
+            **{self.emojis_dict['blurple_link']} Infos**\n`help`, `infos`, `prefix`, `support`, `website`, `documentation`\n
             **{self.emojis_dict['blurple_employee']} Utils**\n`emojiinfo`, `cloneemoji`, `profile`, `guild`, `emojis`, `membercount`, `quote`, `color`, `role`, `ping`, `announce`, `search`, `discrim`, `suggest`, `report`\n
             **{self.emojis_dict['blurple_star']} Fun**\n`giveaway`, `meme`, `cat`, `dog`, `8ball`, `avatar`, `reverse`, `say`\n
             **{self.emojis_dict['blurple_certifiedmoderator']} Mods only**\n`massrole`, `nick`, `ban`, `kick`, `warn`, `purge`, `punishments`, `delete-punishments`\n
@@ -96,6 +96,13 @@ class Infos(commands.Cog):
                 color=MAINCOLOR,
                 description=description
             )
+            help_e.add_field(name=f"{self.emojis_dict['plurple_link']} **Infos**", value="`help`, `infos`, `prefix`, `support`, `website`, `documentation`", inline=False)
+            help_e.add_field(name=f"{self.emojis_dict['blurple_employee']} **Utils**", value="`emojiinfo`, `cloneemoji`, `profile`, `guild`, `emojis`, `membercount`, `quote`, `color`, `role`, `ping`, `announce`, `search`, `discrim`, `suggest`, `report`", inline=False)           
+            help_e.add_field(name=f"{self.emojis_dict['blurple_star']} **Fun**", value="`giveaway`, `meme`, `cat`, `dog`, `8ball`, `avatar`, `reverse`, `say`", inline=False)
+            help_e.add_field(name=f"{self.emojis_dict['blurple_certifiedmoderator']} **Mods only**", value="`massrole`, `nick`, `ban`, `kick`, `warn`, `purge`, `punishments`, `delete-punishments`", inline=False)
+            help_e.add_field(name=f"{self.emojis_dict['blurple_settings']} **Admin only**", value="`tickettool`, `mod-logs`, `blacklist`, `welcome`, `welcome-channel`, `welcome-message`, `leave`, `leave-channel`, `leave-message`, `autorole`, `moderators`, `set-moderators`", inline=False)
+            help_e.add_field(name=f"{self.emojis_dict['blurple_search']} **Logs** (These aren't commands)", value="`on message delete`, `on message edit`, `on channel create/remove`", inline=False)
+
             help_e.set_thumbnail(url=self.client.user.avatar_url)
             help_e.set_footer(text=f"{self.client.user.name}'s help command")
 

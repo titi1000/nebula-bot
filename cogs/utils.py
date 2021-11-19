@@ -269,15 +269,14 @@ class Utils(commands.Cog):
         if isinstance(message.channel, discord.DMChannel): return
         message_splited = message.content.split(" ")
         for word in message_splited:
-            if word.startswith(f"https://discord.com/channels/{message.guild.id}") or word.startwith(f"https://canary.discord.com/channels/{message.guild.id}"):
+            if word.startswith(f"https://discord.com/channels/{message.guild.id}") or word.startswith(f"https://canary.discord.com/channels/{message.guild.id}") or word.startswith(f"https://discordapp.com/channels/{message.guild.id}"):
+
                 try:
                     link = word.split("/")
 
-                    guild_id = int(link[4])
                     channel_id = int(link[5])
                     message_id = int(link[6])
 
-                    guild = await self.client.fetch_guild(guild_id)
                     channel = self.client.get_channel(channel_id)
                     quoted_message = await channel.fetch_message(message_id)
                     if quoted_message.content == "": return await message.channel.send("Cannot quote an empty message...")
@@ -300,7 +299,6 @@ class Utils(commands.Cog):
         try:
             link = link.split("/")
 
-            guild_id = int(link[4])
             channel_id = int(link[5])
             message_id = int(link[6])
 
