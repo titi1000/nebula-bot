@@ -76,7 +76,7 @@ class Bot(commands.Bot):
     async def on_message(self, message):
         await self.process_commands(message)
         prefix = db.get_prefix(self, message)
-        if message.content == self.user.mention:
+        if message.content in [f"<@{self.user.id}>", f"<@!{self.user.id}>"]:
             pinged_e = discord.Embed(
                 description=lang_json.open_json()[self.language]["BOT_PINGED"].format(prefix, prefix),
                 color=MAINCOLOR

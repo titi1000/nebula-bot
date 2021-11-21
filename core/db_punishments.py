@@ -37,7 +37,7 @@ class DBpunishments(Database):
 
     # remove the table db for guild's punishments
     def remove_guild(self, guild_id):
-        return self.db_execute(f"DROP TABLE `{guild_id}`")
+        return self.db_execute(f"DROP TABLE IF EXISTS `{guild_id}`")
 
     # add a punishment
     def add_punishment(self, guild_id:int, member_id:int, type:str, start_timestamp:int, moderator_id:int=None, reason:str=None, end_timestamp:int=None):

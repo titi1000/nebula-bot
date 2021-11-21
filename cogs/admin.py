@@ -67,7 +67,7 @@ class Admin(commands.Cog):
             if r_channel[0] is False: return await report_error(self.client, ctx, r_channel)
             if r_message[0] is False:  return await report_error(self.client, ctx, r_message)
             if r_channel[1][0] is None or r_message[1][0] is None: return await ctx.send(f"Automatic welcome message isn't set in this guild.\n Use `{ctx.prefix}help` to know how to set it.")
-
+            
             welcome_e = discord.Embed(
                 title=f"{ctx.guild.name}'s welcome message",
                 color=MAINCOLOR
@@ -260,7 +260,7 @@ class Admin(commands.Cog):
 
             r = db.db_execute("UPDATE guilds SET `autorole_ids` = %s WHERE `guild_id` = %s", (role.id, ctx.guild.id))
             if r[0] is False: return await report_error(self.client, ctx, r)
-            return await ctx.send(f"Autorole: '{res[:-2]}' successfully deleted.")
+            return await ctx.send(f"Autorole: '{res[:-2]}' successfully removed.")
           
         elif action.lower() == "clear":
             r = db.db_execute("UPDATE guilds SET `autorole_ids` = %s WHERE `guild_id` = %s", (None, ctx.guild.id))
