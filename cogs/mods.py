@@ -198,7 +198,7 @@ class Mods(commands.Cog):
         if member is None: return await ctx.send("Please provid a valid member")
         r_punishments = db_punishments.get_member_punishments(ctx.guild.id, member.id)
         if r_punishments[0] is False: return await report_error(self.client, ctx, r_punishments)
-            
+        
         punishments = r_punishments[1]
         embeds = []
         count=0
@@ -227,7 +227,7 @@ class Mods(commands.Cog):
             if page_count != 0: embed.set_footer(text=f"Page {page}/{page_count}")
             await ctx.send(embed = embed)
         else: await ctx.send("This page doesn't exist")
-    
+        
     # get punishment command
     @commands.command(aliases = ["infraction"])
     @commands.check(is_it_moderator)
@@ -238,54 +238,8 @@ class Mods(commands.Cog):
 
         punishment = r_punishment[1]
         if punishment is None: return await ctx.send("This punishment id doesn't exist")
-        member_id = punishment.member_id
-        member = ctx.guild.get_member(member_id)
-        if member is None: member = await self.client.fetch_user(member_id)
 
-        moderator_id = punishment.moderator_id
-        moderator = ctx.guild.get_member(moderator_id)
-        if moderator is None: moderator = await self.client.fetch_user(moderator_id)
-        moderator_avatar_url = moderator.avatar_url
-
-        p_description = ""
-        p_description+=f"**Member:** {member} \| {member.id}\n"
-        p_description+=f"**Action:** {punishment.type}\n"
-        if punishment.end_timestamp is not None:
-            duration_timestamp = punishment.end_timestamp - punishment.start_timestamp
-            duration = { "years" : 0, "months" : 0, "weeks" : 0, "days" : 0, "hours" : 0, "minutes" : 0, "seconds" : 0}
-            while duration_timestamp >= 31536000:
-                duration["years"] +=1
-                duration_timestamp-=31536000
-            while duration_timestamp >= 2592000:
-                duration["months"]+=1
-                duration_timestamp-=2592000
-            while duration_timestamp >= 604800:
-                duration["weeks"]+=1
-                duration_timestamp-=604800
-            while duration_timestamp >= 86400:
-                duration["days"]+=1
-                duration_timestamp-=86400
-            while duration_timestamp >= 3600:
-                duration["hours"]+=1
-                duration_timestamp-=3600
-            while duration_timestamp >= 60:
-                duration["minutes"]+=1
-                duration_timestamp-=60
-            duration["seconds"]=duration_timestamp
-                
-            p_description+=f"**Duration:** "
-            for k,v in duration.items():
-                if v > 0: p_description+=f"{v}{k} "
-            p_description+="\n"
-                
-        if punishment.reason == "": punishment.reason = "No reason was given"
-        p_description+=f"**Reason:** {punishment.reason}"
-
-        p_e = discord.Embed(description = p_description, color = MAINCOLOR, timestamp = datetime.datetime.fromtimestamp(float(punishment.start_timestamp)))
-        p_e.set_author(name = moderator, icon_url=moderator_avatar_url)
-        p_e.set_footer(text=f"Infraction #{punishment.id}")
-
-        await ctx.send(embed = p_e)
+        await ctx.send(embed = punishment.get_embed(ctx=ctx))
             
     @commands.command(aliases = ["delete-infraction", "del-infraction", "del-i", "delete_infraction", "del_infraction", "del_i", "delete-punishment", "del-punishment", "del-p", "del_punishment", "del_p"])
     async def delete_punishment(self, ctx, punishment_id:int=None):
@@ -297,56 +251,10 @@ class Mods(commands.Cog):
             
         punishment = r[1]
         if punishment is None: return await ctx.send("This punishment is doesn't exist")
-        member_id = punishment.member_id
-        member = ctx.guild.get_member(member_id)
-        if member is None: member = await self.client.fetch_user(member_id)
-
-        moderator_id = punishment.moderator_id
-        moderator = ctx.guild.get_member(moderator_id)
-        if moderator is None:
-            moderator = await self.client.fetch_user(moderator_id)
-        moderator_avatar_url = moderator.avatar_url
-
-        p_description = ""
-        p_description+=f"**Member:** {member} \| {member.id}\n"
-        p_description+=f"**Action:** {punishment.type}\n"
-        if punishment.end_timestamp is None: return await ctx.send("This punishment has not been deleted")
-        duration_timestamp = punishment.end_timestamp - punishment.start_timestamp
-        duration = { "years" : 0, "months" : 0, "weeks" : 0, "days" : 0, "hours" : 0, "minutes" : 0, "seconds" : 0}
-        while duration_timestamp >= 31536000:
-            duration["years"] +=1
-            duration_timestamp-=31536000
-        while duration_timestamp >= 2592000:
-            duration["months"]+=1
-            duration_timestamp-=2592000
-        while duration_timestamp >= 604800:
-            duration["weeks"]+=1
-            duration_timestamp-=604800
-        while duration_timestamp >= 86400:
-            duration["days"]+=1
-            duration_timestamp-=86400
-        while duration_timestamp >= 3600:
-            duration["hours"]+=1
-            duration_timestamp-=3600
-        while duration_timestamp >= 60:
-            duration["minutes"]+=1
-            duration_timestamp-=60
-        duration["seconds"]=duration_timestamp
-
-        p_description+=f"**Duration:** "
-        for k,v in duration.items():
-            if v > 0: p_description+=f"{v}{k} "
-        p_description+="\n"
-
-        if punishment.reason == "": punishment.reason = "No reason was given"
-        p_description+=f"**Reason:** {punishment.reason}"
-
-        p_e = discord.Embed(description = p_description, color = MAINCOLOR, timestamp = datetime.datetime.fromtimestamp(float(punishment.start_timestamp)))
-        p_e.set_author(name = moderator, icon_url=moderator_avatar_url)
-        p_e.set_footer(text=f"Infraction #{punishment.id}")
+        
         question = f"Do you want to delete the infraction #{punishment.id} ? [y/n]"
-        await ctx.send(content=question, embed = p_e)
-                
+        await ctx.send(content=question, embed=punishment.get_embed(ctx=ctx))
+        
         message = await self.client.wait_for('message', check=check, timeout=60)
         if message.content.lower() in ["y", "yes"]:
             r = db_punishments.remove_punishment(ctx.guild.id, punishment_id)

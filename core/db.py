@@ -49,15 +49,26 @@ class DB(Database):
         result = self.db_fetchone("SELECT `prefix` FROM guilds WHERE `guild_id` = %s", (message.guild.id,))
         return result[1][0]
 
-    # check if guild is in data base
+    # check if guild is in data base and add if not
     def is_in_database_guild(self, guild_id):
         result = self.db_fetchone("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
         if result[1] is None: self.db_execute("INSERT INTO guilds(`guild_id`) VALUES (%s)", (guild_id,))
+    
+    # remove guild from database
+    def remove_guild(self, guild_id):
+        result = self.db_fetchone("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild_id,))
+        if result[1] is not None: self.db_execute("DELETE FROM guilds WHERE `guild_id` = %s", (guild_id,))
+    
+    # add guilds which are not in db and remove guilds too much
+    def update(self, guilds):
+        guild_ids = [guild.id for guild in guilds]
+        for guild_id in guild_ids:
+            self.is_in_database_guild(guild_id=guild_id)
 
-    # check if user is in data base
-    def is_in_database_user(self, user_id):
-        result = self.db_fetchone("SELECT `user_id` FROM users WHERE `user_id` = %s", (user_id,))
-        if result[1] is None: self.db_execute("INSERT INTO users(`user_id`) VALUES (%s)", (user_id,))
+        guilds_result = self.db_fetchall("SELECT `guild_id` FROM guilds")
+        if guilds_result[0] is True:
+            for guild_id in guilds_result[1]:
+                if int(guild_id[0]) not in guild_ids: self.remove_guild(guild_id[0])
 
     # find the logs channel
     def logs_channel(self, guild_id):

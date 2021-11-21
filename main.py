@@ -61,8 +61,11 @@ class Bot(commands.Bot):
                 self.load_extension(self.data_plugins[plugin]["path"])
 
     async def on_ready(self):
+        # init databases and update them
         db.init()
+        db.update(self.guilds)
         db_users.init()
+        db_punishments.update(self.guilds)
 
         print("Bot is ready.")
         print("Logged in as :")
@@ -195,14 +198,19 @@ class Bot(commands.Bot):
             )
             await ctx.send(embed=noperm_e)
         
+        elif isinstance(error, commands.BotMissingPermissions):
+            noperm_e = discord.Embed(
+                description="I don't have the permissions to do this.",
+                color=ERRORCOLOR
+            )
+            await ctx.send(embed=noperm_e)
+        
 
     ### client join or leave a guild
 
     async def on_guild_join(self, guild):
         db_punishments.add_guild(guild.id)
-        result = db.db_fetchone("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild.id,)) 
-        if result[1] is None:
-            db.db_execute("INSERT INTO guilds(`guild_id`) VALUES (%s)", (guild.id,))
+        db.is_in_database_guild(guild_id=guild.id)
 
         join_e = discord.Embed(
             title=f"Thanks for adding {self.user.name}!",
@@ -214,9 +222,7 @@ class Bot(commands.Bot):
 
     async def on_guild_remove(self, guild):
         db_punishments.remove_guild(guild.id)
-        result = db.db_fetchone("SELECT `guild_id` FROM guilds WHERE `guild_id` = %s", (guild.id,))
-        if result[1] is not None:
-            db.db_execute("DELETE FROM guilds WHERE `guild_id` = %s", (guild.id,))
+        db.remove_guild(guild_id=guild.id)
 
 
 # main function
