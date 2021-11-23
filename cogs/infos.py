@@ -155,7 +155,7 @@ class Infos(commands.Cog):
 
     # error if not owner of the bot
     @guilds.error
-    @leave.error
+    @leave_guild.error
     async def guilds_error(self, ctx, error):
         return
 
