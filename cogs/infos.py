@@ -144,7 +144,7 @@ class Infos(commands.Cog):
     # leave a guild (need to be owner of the bot to run the command)
     @guilds.command()
     @commands.check(is_it_owner)
-    async def leave_guild(self, ctx, *, name):
+    async def leave(self, ctx, *, name):
         lang = db.get_lang(ctx.guild.id)
         guild = discord.utils.get(self.client.guilds, name=name)
         if guild:
@@ -155,7 +155,7 @@ class Infos(commands.Cog):
 
     # error if not owner of the bot
     @guilds.error
-    @leave_guild.error
+    @leave.error
     async def guilds_error(self, ctx, error):
         return
 
