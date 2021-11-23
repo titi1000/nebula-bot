@@ -86,21 +86,21 @@ class Mods(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def purge(self, ctx, amount:int=None):
         if amount is None: return await ctx.send("Please provid an amount of messages to delete.")
-        messages_deleted_amount = amount
+        amount += 1
+ 
+        messages_deleted = await ctx.channel.purge(limit=amount, before=ctx.message)
 
         message = await ctx.send("Please wait I'm deleting messages...")
-        first_message = True
-
+		
         try: await ctx.message.delete()
         except: pass
-
-        async for message_to_purge in ctx.channel.history(limit=amount+1):
-            if first_message is False:
-                try: await message_to_purge.delete()
-                except: messages_deleted_amount -= 1
-            else: first_message = False
+        
+        to_delete_amount = amount-len(messages_deleted)
+        async for message_to_purge in ctx.channel.history(limit=to_delete_amount, before=ctx.message):
+            try: await message_to_purge.delete()
+            except: pass
             
-        await message.edit(content=f"Successfully deleted {messages_deleted_amount} message(s)!")
+        await message.edit(content=f"Successfully deleted {amount-1} message(s)!")
 
         await asyncio.sleep(5)
         try:
