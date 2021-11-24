@@ -111,18 +111,18 @@ class Infos(commands.Cog):
             help_e.add_field(name=f"{self.emojis_dict['blurple_search']} **Logs** (These aren't commands)", value="`on message delete`, `on message edit`, `on channel create/remove`", inline=False)
 
             help_e.set_thumbnail(url=self.client.user.avatar_url)
-            help_e.set_footer(text=getText(lang=lang, key='HELP_FOOTER').format(bot_name=self.client.user.name))
+            help_e.set_footer(text=db_lang.getText(lang=lang, key='HELP_FOOTER').format(bot_name=self.client.user.name))
 
             return await ctx.send(embed=help_e)
         
         else:
-            if command not in self.commands_infos: return await ctx.send(getText(lang=lang, key='HELP_NO_COMMAND_NAMED').format(command=command))
+            if command not in self.commands_infos: return await ctx.send(db_lang.getText(lang=lang, key='HELP_NO_COMMAND_NAMED').format(command=command))
             command_infos = self.commands_infos["english"][command]
             description = f"{command_infos['description']}\nUsage:{command_infos['usage']}".format(ctx.prefix)
             for arg, desc in command_infos["args"].items(): description+=f"{arg} : {desc}"
 
             help_e = discord.Embed(
-            title=getText(lang=lang, key='HELP_COMMAND_TITLE'),
+            title=db_lang.getText(lang=lang, key='HELP_COMMAND_TITLE'),
             color=MAINCOLOR,
             description=description
             )
@@ -149,9 +149,9 @@ class Infos(commands.Cog):
         guild = discord.utils.get(self.client.guilds, name=name)
         if guild:
             await guild.leave()
-            return await ctx.send(getText(lang=lang, key='GUILD_LEFT').format(guild_name=name))
+            return await ctx.send(db_lang.getText(lang=lang, key='GUILD_LEFT').format(guild_name=name))
         
-        return await ctx.send(getText(lang=lang, key='GUILD_NOT_FOUND').format(guild_name=name))
+        return await ctx.send(db_lang.getText(lang=lang, key='GUILD_NOT_FOUND').format(guild_name=name))
 
     # error if not owner of the bot
     @guilds.error
@@ -164,14 +164,14 @@ class Infos(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def blacklist(self, ctx):
         lang = db.get_lang(ctx.guild.id)
-        await ctx.send(getText(lang=lang, key='BLACKLIST').format(prefix=ctx.prefix))
+        await ctx.send(db_lang.getText(lang=lang, key='BLACKLIST').format(prefix=ctx.prefix))
 
     # add a channel to the blacklist
     @blacklist.command()
     @commands.has_permissions(administrator=True)
     async def add(self, ctx):
         lang = db.get_lang(ctx.guild.id)
-        if len(ctx.message.channel_mentions) == 0: return await ctx.send(getText(lang=lang, key='BLACKLIST_ADD_PROVID_CHANNELS').format(prefix=ctx.prefix))
+        if len(ctx.message.channel_mentions) == 0: return await ctx.send(db_lang.getText(lang=lang, key='BLACKLIST_ADD_PROVID_CHANNELS').format(prefix=ctx.prefix))
         
         blacklisted = db.get_blacklisted(ctx.guild.id)
         blacklisted = blacklisted.split(" ")
@@ -185,14 +185,14 @@ class Infos(commands.Cog):
         
         channels = ""
         for channel in ctx.message.channel_mentions: channels += f"{channel.mention} "
-        await ctx.send(getText(lang=lang, key='BLACKLIST_ADD_PROVID_CHANNELS').format(channels=channels))
+        await ctx.send(db_lang.getText(lang=lang, key='BLACKLIST_ADD_PROVID_CHANNELS').format(channels=channels))
 
     # remove a channel from the blacklist
     @blacklist.command(aliases=["rm"])
     @commands.has_permissions(administrator=True)
     async def remove(self, ctx):
         lang = db.get_lang(ctx.guild.id)
-        if len(ctx.message.channel_mentions) == 0: return await ctx.send(getText(lang=lang, key='BLACKLIST_REMOVE_PROVID_CHANNELS'))
+        if len(ctx.message.channel_mentions) == 0: return await ctx.send(db_lang.getText(lang=lang, key='BLACKLIST_REMOVE_PROVID_CHANNELS'))
         
         blacklisted = db.get_blacklisted(ctx.guild.id)
         blacklisted = blacklisted.split(" ")
@@ -204,7 +204,7 @@ class Infos(commands.Cog):
         if r[0] is False: return await report_error(self.client, ctx, r)
         channels = ""
         for channel in ctx.message.channel_mentions: channels += f"{channel.mention} "
-        await ctx.send(getText(lang=lang, key='BLACKLIST_CHANNELS_REMOVED'))
+        await ctx.send(db_lang.getText(lang=lang, key='BLACKLIST_CHANNELS_REMOVED'))
 
     # view which channels are blacklisted
     @blacklist.command()
@@ -217,10 +217,10 @@ class Infos(commands.Cog):
         for channel in blacklisted:
             if channel == "": continue
             description += f"<#{channel}> "
-        if description == "": description = getText(lang=lang, key='NO_CHANNEL_BLACKLISTED')
+        if description == "": description = db_lang.getText(lang=lang, key='NO_CHANNEL_BLACKLISTED')
 
         blacklist_e = discord.Embed(
-            title=getText(lang=lang, key='BLACKLISTED_CHANNELS'),
+            title=db_lang.getText(lang=lang, key='BLACKLISTED_CHANNELS'),
             description=description
         )
         await ctx.send(embed=blacklist_e)
