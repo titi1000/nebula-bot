@@ -1,13 +1,15 @@
-import discord
 import datetime
-import sys
 import json
+import sys
+
+import discord
+from core.db import db
+from core.db_langs import db_lang
+from core.nebula_logging import report_error
+from core.others import is_blacklisted_cogs, is_it_owner
 from discord.ext import commands
 from main import MAINCOLOR
-from core.others import is_blacklisted_cogs, is_it_owner
-from core.db import db
-from core.nebula_logging import report_error
-from core.db_langs import db_lang
+
 
 class Infos(commands.Cog):
 
@@ -127,37 +129,6 @@ class Infos(commands.Cog):
             description=description
             )
             return await ctx.send(embed=help_e)
-
-    # show bot guilds (need to be owner of the bot to run the command)
-    @commands.group(invoke_without_command=True)
-    @commands.check(is_it_owner)
-    async def guilds(self, ctx):
-        guilds_list = ""
-        self.client.fetch_guilds(limit=100)
-        n = 1
-        for guild in self.client.guilds:
-            guilds_list += f"{n}. {guild.name}\n"
-            n += 1
-
-        await ctx.send(guilds_list)
-
-    # leave a guild (need to be owner of the bot to run the command)
-    @guilds.command()
-    @commands.check(is_it_owner)
-    async def leave(self, ctx, *, name):
-        lang = db.get_lang(ctx.guild.id)
-        guild = discord.utils.get(self.client.guilds, name=name)
-        if guild:
-            await guild.leave()
-            return await ctx.send(db_lang.getText(lang=lang, key='GUILD_LEFT').format(guild_name=name))
-        
-        return await ctx.send(db_lang.getText(lang=lang, key='GUILD_NOT_FOUND').format(guild_name=name))
-
-    # error if not owner of the bot
-    @guilds.error
-    @leave.error
-    async def guilds_error(self, ctx, error):
-        return
 
     # restrict the bot usage
     @commands.group(aliases=["bl", "black-list"], invoke_without_command=True)

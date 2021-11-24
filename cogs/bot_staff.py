@@ -1,12 +1,10 @@
-from discord import embeds, message
-from core.others import is_it_owner
 import discord
-from discord.ext import commands
-import sqlite3
-import datetime
 from core.db_user import db_users
-from main import MAINCOLOR
 from core.nebula_logging import nebula_logging
+from core.others import is_it_owner
+from discord.ext import commands
+from main import MAINCOLOR
+
 
 class Staff(commands.Cog):
 
