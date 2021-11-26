@@ -126,7 +126,17 @@ class Bot(commands.Bot):
                 await ctx.send(f"Cog \"{cog_name.title()}\" already unloaded.")
             except commands.ExtensionNotFound:
                 await ctx.send(f"Cog \"{cog_name.title()}\" not found.")
-
+        
+        @cog.command(name="reload")
+        async def cog_reload(self, ctx, cog_name:str):
+            cog_name = cog_name.lower()
+            try:
+                self.reload_extension(f"cogs.{cog_name}")
+                await ctx.send(f"{cog_name.title()} cog well reloaded!")
+            except commands.ExtensionNotLoaded:
+                await ctx.send(f"Cog \"{cog_name.title()}\" is not loaded.")
+            except commands.ExtensionNotFound:
+                await ctx.send(f"Cog \"{cog_name.title()}\" not found.")
 
         ### Plugins
             
