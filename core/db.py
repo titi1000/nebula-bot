@@ -132,43 +132,39 @@ class DB(Database):
         result = self.db_fetchone("SELECT `tickettool_logs` FROM guilds WHERE `guild_id` = %s", (guild_id,))
         return result
             
-
-    # add/remove moderator role
-    def manage_moderator_roles(self, guild_id, action:str, role_id:int):
-        self.is_in_database_guild(guild_id)
-        r_moderator_roles = self.get_moderator_roles(guild_id)
-        if r_moderator_roles[0] is False: return r_moderator_roles
-        moderator_roles = r_moderator_roles[1]
-        moderator_roles_str = map(str, moderator_roles)
-        if action == "add":
-            if role_id in moderator_roles: return (True, (1, 1))
-            
-            moderator_roles = moderator_roles.append(role_id)
-            roles_str = " ".join(moderator_roles_str)
-            self.db_execute("UPDATE guilds SET `moderator_roles` = %s WHERE `guild_id` = %s", (roles_str, guild_id))
-            return (True, (0, 1))
-
-        elif action == "rm" or action == "rem" or action == "remove":
-            if role_id in moderator_roles:
-                moderator_roles = moderator_roles.remove(role_id)
-                roles_str = " ".join(moderator_roles_str)
-                if roles_str == "": roles_str=None
-                self.db_execute("UPDATE guilds SET `moderator_roles` = %s WHERE `guild_id` = %s", (roles_str, guild_id))
-                return (True, (1, 0))
-            return (True, (0, 0))
-
     # get moderator roles list
     def get_moderator_roles(self, guild_id):
         self.is_in_database_guild(guild_id)
-        r_result_str = self.db_fetchone("SELECT `moderator_roles` FROM guilds WHERE `guild_id`=%s", (guild_id,))
-        if r_result_str[0] is False: return r_result_str
+        result = self.db_fetchone("SELECT `moderator_roles` FROM guilds WHERE `guild_id`=%s", (guild_id,))
+        return result
 
-        role_list = []
-        if r_result_str[1][0] is not None:
-            list = r_result_str[1][0].split(" ")
-            for role in list:
-                if role != "": role_list.append(int(role))
-        return (r_result_str[0], role_list, r_result_str[2])
+    # add moderator role
+    def add_moderator_role(self, guild_id:int, role_id:str):
+        r_moderator_roles = self.get_moderator_roles(guild_id)
+        if r_moderator_roles[0] is False: return r_moderator_roles
+        moderator_roles = r_moderator_roles[1]
+        if moderator_roles is None: moderator_roles = role_id
+        else: moderator_roles += role_id
+        return self.db_execute("UPDATE guilds SET `moderator_roles` = %s WHERE `guild_id` = %s", (moderator_roles, guild_id))
+
+    # remove moderator role
+    def remove_moderator_role(self, guild_id:int, role_id:str):
+        r_moderator_roles = self.get_moderator_roles(guild_id)
+        if r_moderator_roles[0] is False: return r_moderator_roles
+        moderator_roles = r_moderator_roles[1]
+        if moderator_roles is None: return (True,)
+
+        moderator_roles = moderator_roles.split(" ")
+        if role_id not in moderator_roles: return (True,)
+
+        moderator_roles = moderator_roles.remove(role_id)
+        roles_str = " ".join(moderator_roles_str)
+        if roles_str == "": roles_str=None
+        return self.db_execute("UPDATE guilds SET `moderator_roles` = %s WHERE `guild_id` = %s", (roles_str, guild_id))
+
+    # clear all of moderators's roles 
+    def clear_moderator_role(self, guild_id:int):
+        return self.db_execute("UPDATE guilds SET `moderator_roles` = %s WHERE `guild_id` = %s", (None, guild_id))
 
     # set the muted role
     def set_muted_role(self, guild_id, muted_role_id):

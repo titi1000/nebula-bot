@@ -53,7 +53,7 @@ class Bot(commands.Bot):
         for filename in os.listdir("./cogs"):
             if filename[:-3] == "__init__":
                 continue
-            if filename.endswith(".py"):
+            elif filename.endswith(".py"):
                 self.load_extension(f"cogs.{filename[:-3]}")
 
     # Plugin loader
@@ -90,86 +90,81 @@ class Bot(commands.Bot):
             await message.channel.send(embed=pinged_e)
 
     def add_commands(self):
+
         ### Cogs
 
-        @self.command()
+        @self.group(invoke_without_command=True, aliases=["cog", "cogs"])
         @commands.check(is_it_owner)
-        async def load(ctx, extension=None):
-            if extension is None:
-                cogs_str = "Here is the list of all cogs:\n"
-                for filename in os.listdir("./cogs"):
-                    if filename.endswith(".py"):
-                        cogs_str += f"- {filename[:-3].title()}\n"
-                    elif filename[:-3] == "__init__":
-                        continue
-                cogs_str += f"\nUse `{ctx.prefix}load <cogs name>` to load one."
-                return await ctx.send(cogs_str)
-            
+        async def cog(self, ctx):
+            cogs_str = "Here is the list of all cogs:\n"
+            for filename in os.listdir("./cogs"):
+                if filename[:-3] == "__init__":
+                    continue
+                elif filename.endswith(".py"):
+                    cogs_str += f"- {filename[:-3].title()}\n"
+            cogs_str += f"\nUse `{ctx.prefix}load <cogs name>` to load one."
+            return await ctx.send(cogs_str)
+
+        @cog.command(name="load")
+        async def cog_load(self, ctx, cog_name:str):
+            cog_name = cog_name.lower()
             try:
-                self.load_extension(f"cogs.{extension.lower()}")
-                await ctx.send(f"{extension.title()} cog well loaded!")
+                self.load_extension(f"cogs.{cog_name}")
+                await ctx.send(f"{cog_name.title()} cog well loaded!")
             except commands.ExtensionAlreadyLoaded:
-                await ctx.send(f"Cog \"{extension}\" already loaded.")
+                await ctx.send(f"Cog \"{cog_name.title()}\" already loaded.")
             except commands.ExtensionNotFound:
-                await ctx.send(f"Cog \"{extension}\" not found.")
+                await ctx.send(f"Cog \"{cog_name.title()}\" not found.")
 
-        @self.command()
-        @commands.check(is_it_owner)
-        async def unload(ctx, extension=None):
-            if extension is None:
-                cogs_str = "Here is the list of all cogs:\n"
-                for filename in os.listdir("./cogs"):
-                    if filename.endswith(".py"):
-                        cogs_str += f"- {filename[:-3].title()}\n"
-                cogs_str += f"\nUse `{ctx.prefix}unload <cogs name>` to unload one."
-                return await ctx.send(cogs_str)
-
+        @cog.command(name="unload")
+        async def unload(self, ctx, cog_name:str):
+            cog_name = cog_name.lower()
             try:
-                self.unload_extension(f"cogs.{extension.lower()}")
-                await ctx.send(f"{extension.title()} cog well unloaded!")
+                self.unload_extension(f"cogs.{cog_name}")
+                await ctx.send(f"{cog_name.title()} cog well unloaded!")
             except commands.ExtensionNotLoaded:
-                await ctx.send(f"Cog \"{extension}\" already unloaded.")
+                await ctx.send(f"Cog \"{cog_name.title()}\" already unloaded.")
             except commands.ExtensionNotFound:
-                await ctx.send(f"Cog \"{extension}\" not found.")
-
+                await ctx.send(f"Cog \"{cog_name.title()}\" not found.")
+        
+        @cog.command(name="reload")
+        async def cog_reload(self, ctx, cog_name:str):
+            cog_name = cog_name.lower()
+            try:
+                self.reload_extension(f"cogs.{cog_name}")
+                await ctx.send(f"{cog_name.title()} cog well reloaded!")
+            except commands.ExtensionNotLoaded:
+                await ctx.send(f"Cog \"{cog_name.title()}\" is not loaded.")
+            except commands.ExtensionNotFound:
+                await ctx.send(f"Cog \"{cog_name.title()}\" not found.")
 
         ### Plugins
             
         @self.group(invoke_without_command=True, aliases=["plugin"])
         @commands.check(is_it_owner)
-        async def plugins(ctx, *, plugin=None):
-            if plugin is None:
-                plugins_list = "Here is the list of all plugins:\n"
-                for plugin in self.data_plugins:
-                    plugins_list += f"- {plugin.title()}\n"
-                plugins_list += f"Use `{ctx.prefix}plugin <plugin-name>` to see a plugin description!"
-                return await ctx.send(plugins_list)
-
-            try:
-                plugin_e = discord.Embed(
-                    title=f"{plugin.title()} plugin description",
-                    description=self.data_plugins[plugin.lower()]["description"]
-                )
-                await ctx.send(embed=plugin_e)
-            except:
-                await ctx.send(f"Plugin \"{plugin}\" not found...")
+        async def plugins(ctx):
+            plugins_list = "Here is the list of all plugins:\n"
+            for plugin in self.data_plugins:
+                plugins_list += f"- {plugin.title()}\n"
+            plugins_list += f"Use `{ctx.prefix}plugin <plugin-name>` to see a plugin description!"
+            return await ctx.send(plugins_list)
 
         @plugins.command()
         @commands.check(is_it_owner)
-        async def enable(ctx, *, plugin=None):
-            if plugin is None: return await ctx.send(f"Please provid the plugin you want to enable. You can see a list of all plugins by using the command `{ctx.prefix}plugin <plugin-name>`!")
-
+        async def enable(ctx, plugin:str):
+            plugin = plugin.lower()
             if write_plugins_json("enable", plugin):
                 try:
                     self.load_extension(self.data_plugins[plugin]["path"])
                     return await ctx.send(f"{plugin.title()} plugin well loaded!")
                 except commands.ExtensionAlreadyLoaded: return await ctx.send(f"{plugin.title()} already loaded!")
             
-            await ctx.send(f"Plugin \"{plugin}\" cannot be loaded... Maybe he doesn't exist.")
+            await ctx.send(f"Plugin \"{plugin}\" cannot be loaded... Maybe he doesn't exist.\nYou can see a list of all plugins by using the command `{ctx.prefix}plugin <plugin-name>`!")
 
         @plugins.command()
         @commands.check(is_it_owner)
-        async def disable(ctx, *, plugin=None):
+        async def disable(ctx, plugin:str):
+            plugin = plugin.lower()
             if plugin is None: return await ctx.send(f"Please provid the plugin you want to disable. You can see a list of all plugins by using the command `{ctx.prefix}plugin <plugin-name>`!")
 
             if write_plugins_json("disable", plugin):
@@ -178,7 +173,7 @@ class Bot(commands.Bot):
                     return await ctx.send(f"{plugin.title()} plugin well unloaded!")
                 except commands.ExtensionNotLoaded: return await ctx.send(f"{plugin.title()} already unloaded!")
             
-            await ctx.send(f"Plugin \"{plugin}\" cannot be unloaded... Maybe he doesn't exist.")
+            await ctx.send(f"Plugin \"{plugin}\" cannot be unloaded... Maybe he doesn't exist.\nYou can see a list of all plugins by using the command `{ctx.prefix}plugin <plugin-name>`!")
 
 
     ### Error
