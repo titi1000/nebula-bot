@@ -20,7 +20,7 @@ class CustomErrors(commands.Cog):
         if isinstance(error, commands.CommandNotFound):
             return
  
-        if isinstance(error, (commands.errors.UserInputError, commands.errors.CheckFailure, commands.errors.ConversionError)):
+        if isinstance(error, (commands.errors.ConversionError, commands.error.ExtensionError)):
             trace = error.__traceback__
             final = traceback.format_exception(error, error.__cause__, trace)
         else:
