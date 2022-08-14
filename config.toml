@@ -1,34 +1,34 @@
 # bot's config
 
-token = "NjYxMTcxMzYyODU2OTYwMDEx.Xgnh0A.Qqn1o2aUQDfNRVDC39FIE3_vum4" # "ODM1NDYxODc0MTY1NjEyNTY0.YIPygA.p9Qs0LTDHWBBDtTd76ArdAOcLWY" # get yours here -> https://discord.com/developers/applications/
+token = "your token here" #  get yours here -> https://discord.com/developers/applications/
 main_color = "0xaefe19" # the main color for all embeds
 error_color = "0xfe2419" # the error color of your bot
-owner_id = [583663379030212609, 476818400010829836] # the id of the bot owner
-database = "main.sqlite3" # the name of your database (must be a sqlite database)
+owner_id = [owner_id_1, owner_id_2", ...] # the id of the bot owners (can be 1 or more)
+database = "name_of_sqlite_db.sqlite3" # the name of your database (must be a sqlite database)
 database_users = "db_users.sqlite3" # the name of the users database
 database_punishments = "db_punishments.sqlite3" # the name of the punishments database
-suggest_channel = 840710676082720819 # channel where suggestions are send
-report_channel = 853012999764705350 # channel where reports are send
+suggest_channel = channel_id # channel where suggestions are send
+report_channel = channel_id # channel where reports are send
 
 [databases]
 
     [databases.guilds]
-    name = "s5_nebula_guilds"
-    host = "172.18.0.1"
-    port = 3306
-    user = "u5_t8dRJiQJdt"
-    password = "+6mgpn!5Tl@PySwvv9MP2h^I"
+    name = "db_name"
+    host = "host"
+    port = port
+    user = "username"
+    password = "password"
 
     [databases.users]
-    name = "s5_nebula_users"
-    host = "172.18.0.1"
-    port = 3306
-    user = "u5_naU3N0vQ8o"
-    password = "VCqxoE+SM.ptcclOT46k!NhU"
+    name = "db_name"
+    host = "host"
+    port = port
+    user = "username"
+    password = "password"
 
     [databases.punishments]
-    name = "s5_nebula_punishments"
-    host = "172.18.0.1"
-    port = 3306
-    user = "u5_BTONF2QSKi"
-    password = "m9Re0f.QIWbbYg@Oe8c1S8WF"
+    name = "db_name"
+    host = "host"
+    port = port
+    user = "username"
+    password = "password"
