@@ -14,5 +14,5 @@ class MyJson:
     def dump(self, json_dict:dict):
         json.dump(json_dict, open(self.json_path,'w', encoding='utf-8'), indent=4)
         
-lang_path = "lang.json"
+lang_path = "datas/lang.json"
 lang_json = MyJson(lang_path)
