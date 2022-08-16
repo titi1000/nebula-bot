@@ -14,11 +14,11 @@ class Infos(commands.Cog):
         self.client = client
 
         # import commands file
-        with open("commands.json") as commands_json:
+        with open("datas/commands.json") as commands_json:
             self.commands_infos = json.load(commands_json)
 
         # import emojis file
-        with open("others.json") as others_json:
+        with open("datas/others.json") as others_json:
             self.emojis_dict = json.load(others_json)["emojis"]
 
     # uptime

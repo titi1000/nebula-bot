@@ -13,7 +13,7 @@ class Utils(commands.Cog):
         print("Utils cog well loaded.")
 
         # import discord flags 
-        with open("others.json") as discord_flags:
+        with open("datas/others.json") as discord_flags:
             self.discord_flags = json.load(discord_flags)["flags"]
 
     # bot's latency
