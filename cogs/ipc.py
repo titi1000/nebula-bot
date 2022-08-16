@@ -1,5 +1,6 @@
 from discord.ext import commands, ipc
 
+# IPC not up for now
 class IpcRoutes(commands.Cog):
 
     def __init__(self, client):
