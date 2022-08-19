@@ -3,7 +3,7 @@
 token = "your token here" #  get yours here -> https://discord.com/developers/applications/
 main_color = "0xaefe19" # the main color for all embeds
 error_color = "0xfe2419" # the error color of your bot
-owner_id = [owner_id_1, owner_id_2", ...] # the id of the bot owners (can be 1 or more)
+owner_id = [owner_id_1, owner_id_2, ...] # the id of the bot owners (can be 1 or more)
 database = "name_of_sqlite_db.sqlite3" # the name of your database (must be a sqlite database)
 database_users = "db_users.sqlite3" # the name of the users database
 database_punishments = "db_punishments.sqlite3" # the name of the punishments database
